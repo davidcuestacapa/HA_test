@@ -1,0 +1,746 @@
+- id: '1759083838992'
+  name: 'Modo tarde Salón '
+  entities:
+    cover.persiana_salon_del_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón del. dcha.
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_del_izda_cover_0:
+      current_position: 45
+      device_class: shutter
+      friendly_name: Persiana Salón del. izda.
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_dcha_cover_0:
+      current_position: 45
+      device_class: shutter
+      friendly_name: Persiana Salón lat. dcha.
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_izda_cover_0:
+      current_position: 45
+      device_class: shutter
+      friendly_name: Persiana Salón lat. izda.
+      supported_features: 15
+      state: open
+    light.hue_tento_color_panel_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      - underwater
+      - cosmos
+      - sunbeam
+      - enchant
+      - sunrise
+      - sunset
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      mode: normal
+      dynamics: none
+      friendly_name: Luz salón
+      supported_features: 44
+      state: 'off'
+    light.hue_tento_color_panel_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      - underwater
+      - cosmos
+      - sunbeam
+      - enchant
+      - sunrise
+      - sunset
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      mode: normal
+      dynamics: none
+      friendly_name: Luz cocina
+      supported_features: 44
+      state: 'off'
+  icon: mdi:weather-sunset-down
+  metadata: {}
+- id: '1759123848029'
+  name: Modo mañana Salón
+  entities:
+    cover.persiana_salon_del_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón del. dcha.
+      supported_features: 15
+      state: open
+    cover.persiana_salon_del_izda_cover_0:
+      current_position: 60
+      device_class: shutter
+      friendly_name: Persiana Salón del. izda.
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_dcha_cover_0:
+      current_position: 60
+      device_class: shutter
+      friendly_name: Persiana Salón lat. dcha.
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_izda_cover_0:
+      current_position: 69
+      device_class: shutter
+      friendly_name: Persiana Salón lat. izda.
+      supported_features: 15
+      state: open
+    cover.persiana_cocina_cover_0:
+      current_position: 100
+      device_class: blind
+      friendly_name: Persiana Cocina
+      supported_features: 15
+      state: open
+    light.hue_tento_color_panel_1:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      - underwater
+      - cosmos
+      - sunbeam
+      - enchant
+      - sunrise
+      - sunset
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      mode: normal
+      dynamics: none
+      friendly_name: Luz salón
+      supported_features: 44
+      state: 'off'
+    light.hue_tento_color_panel_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      - underwater
+      - cosmos
+      - sunbeam
+      - enchant
+      - sunrise
+      - sunset
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      mode: normal
+      dynamics: none
+      friendly_name: Luz cocina
+      supported_features: 44
+      state: 'off'
+  icon: mdi:weather-sunset-down
+  metadata: {}
+- id: '1759337432548'
+  name: 'Luz relax en dormitorio Dani '
+  entities:
+    light.luz_dani:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6500
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: color_temp
+      brightness: 28
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 137
+      - 14
+      xy_color:
+      - 0.598
+      - 0.383
+      friendly_name: Luz Dani
+      supported_features: 0
+      state: 'on'
+  icon: mdi:lightbulb-night
+  metadata:
+    light.luz_dani:
+      entity_only: true
+- id: '1759350202768'
+  name: Dani noche Dani
+  entities:
+    cover.persiana_dani_cover_0:
+      current_position: 28
+      device_class: shutter
+      friendly_name: Persiana Dani Cover 0
+      supported_features: 15
+      state: open
+    light.luz_dani:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6500
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: color_temp
+      brightness: 26
+      color_temp_kelvin: 2000
+      color_temp: 500
+      hs_color:
+      - 30.601
+      - 94.547
+      rgb_color:
+      - 255
+      - 137
+      - 14
+      xy_color:
+      - 0.598
+      - 0.383
+      friendly_name: Luz Dani
+      supported_features: 0
+      state: 'on'
+  icon: mdi:chat-sleep
+  metadata: {}
+- id: '1759357439980'
+  name: Nueva escena
+  entities:
+    scene.salon_atenuado:
+      group_name: Salón
+      group_type: room
+      name: Atenuado
+      speed: 0.603
+      brightness: 76
+      is_dynamic: false
+      friendly_name: Salón Atenuado
+      state: unknown
+    scene.salon_concentracion:
+      group_name: Salón
+      group_type: room
+      name: Concentración
+      speed: 0.603
+      brightness: 255
+      is_dynamic: false
+      friendly_name: Salón Concentración
+      state: unknown
+    scene.salon_energia:
+      group_name: Salón
+      group_type: room
+      name: Energía
+      speed: 0.603
+      brightness: 255
+      is_dynamic: false
+      friendly_name: Salón Energía
+      state: unknown
+    scene.salon_florecimiento:
+      group_name: Salón
+      group_type: room
+      name: Florecimiento
+      speed: 0.626984126984127
+      brightness: 204
+      is_dynamic: true
+      friendly_name: Salón Florecimiento
+      state: unknown
+    scene.salon_lectura:
+      group_name: Salón
+      group_type: room
+      name: Lectura
+      speed: 0.603
+      brightness: 255
+      is_dynamic: false
+      friendly_name: Salón Lectura
+      state: unknown
+    scene.salon_luz_nocturna:
+      group_name: Salón
+      group_type: room
+      name: Luz nocturna
+      speed: 0.603
+      brightness: 26
+      is_dynamic: false
+      friendly_name: Salón Luz nocturna
+      state: unknown
+    scene.salon_relax:
+      group_name: Salón
+      group_type: room
+      name: Relax
+      speed: 0.603
+      brightness: 143
+      is_dynamic: false
+      friendly_name: Salón Relax
+      state: '2025-10-01T22:22:58.180012+00:00'
+    light.salon:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      is_hue_group: true
+      hue_scenes:
+      - Atenuado
+      - Energía
+      - Florecimiento
+      - Lectura
+      - Concentración
+      - Relax
+      - Luz nocturna
+      hue_type: room
+      lights:
+      - Luz salón
+      - Hue Play 1
+      - Hue Play 2
+      entity_id:
+      - light.hue_play_1
+      - light.hue_play_2
+      - light.hue_tento_color_panel_1
+      dynamics: false
+      icon: mdi:lightbulb-group
+      friendly_name: Salón
+      supported_features: 40
+      state: 'off'
+  metadata: {}
+- id: '1759515803286'
+  name: Según Sol Persianas laterales - Abrir todas
+  entities:
+    cover.persiana_dani_cover_0:
+      current_position: 100
+      device_class: shutter
+      friendly_name: Persiana Dani Cover 0
+      supported_features: 15
+      state: open
+    cover.persiana_despacho_dcha_cover_0:
+      current_position: 100
+      device_class: shutter
+      friendly_name: Persiana Despacho dcha Cover 0
+      supported_features: 15
+      state: opening
+    cover.persiana_salon_lat_dcha_cover_0:
+      current_position: 100
+      device_class: shutter
+      friendly_name: Persiana Salón lat. dcha. Cover 0
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_izda_cover_0:
+      current_position: 100
+      device_class: shutter
+      friendly_name: Persiana Salón lat. izda. Cover 0
+      supported_features: 15
+      state: open
+  icon: mdi:blinds-open
+  metadata: {}
+- id: '1759526692878'
+  name: 'Modo noche invierno - Cerrar persianas todas '
+  entities:
+    cover.persiana_cocina_cover_0:
+      current_position: 0
+      device_class: blind
+      friendly_name: Persiana Cocina
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_del_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón del. dcha.
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_del_izda_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón del. izda.
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_lat_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón lat. dcha.
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_lat_izda_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón lat. izda.
+      supported_features: 15
+      state: closed
+    cover.persiana_dani_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Dani
+      supported_features: 15
+      state: closed
+    cover.persiana_despacho_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho dcha
+      supported_features: 15
+      state: closed
+    cover.persiana_despacho_izda_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho izda
+      supported_features: 15
+      state: closed
+    cover.persiana_despacho_centro:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho centro
+      supported_features: 15
+      state: closed
+    cover.persiana_dormitorio_ppal:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana dormitorio ppal
+      supported_features: 15
+      state: closed
+  metadata: {}
+  icon: mdi:roller-shade-closed
+- id: '1760123394371'
+  name: Modo noche Habitaciones - Cierre total persianas
+  entities:
+    cover.persiana_dani_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Dani
+      supported_features: 15
+      state: closed
+    cover.persiana_despacho_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho dcha
+      supported_features: 15
+      state: closed
+    cover.persiana_despacho_centro:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho centro
+      supported_features: 15
+      state: closed
+    cover.persiana_despacho_izda_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho izda
+      supported_features: 15
+      state: closed
+    cover.persiana_dormitorio_ppal_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Dormitorio ppal
+      supported_features: 15
+      state: closed
+  metadata: {}
+- id: '1760697236561'
+  name: 'Según Sol Persianas laterales - Cerrar parcial todas '
+  entities:
+    cover.persiana_dani_cover_0:
+      current_position: 40
+      device_class: shutter
+      friendly_name: Persiana Dani
+      supported_features: 15
+      state: open
+    cover.persiana_despacho_dcha_cover_0:
+      current_position: 40
+      device_class: shutter
+      friendly_name: Persiana Despacho dcha
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_dcha_cover_0:
+      current_position: 40
+      device_class: shutter
+      friendly_name: Persiana Salón lat. dcha.
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_izda_cover_0:
+      current_position: 40
+      device_class: shutter
+      friendly_name: Persiana Salón lat. izda.
+      supported_features: 15
+      state: open
+  icon: mdi:blinds-open
+  metadata: {}
+- id: '1760789724479'
+  name: Según Sol Persianas laterales - Cerrar todas
+  entities:
+    cover.persiana_dani_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Dani
+      supported_features: 15
+      state: closing
+    cover.persiana_despacho_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho dcha
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_lat_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón lat. dcha.
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_lat_izda_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón lat. izda.
+      supported_features: 15
+      state: closed
+  icon: mdi:blinds-open
+  metadata: {}
+- id: '1761163343844'
+  name: Modo dia Dani
+  entities:
+    cover.persiana_dani_cover_0:
+      current_position: 50
+      device_class: shutter
+      friendly_name: Persiana Dani
+      supported_features: 15
+      state: open
+    light.luz_dani:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6500
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: color_temp
+      brightness: 102
+      color_temp_kelvin: 6211
+      hs_color:
+      - 33.877
+      - 4.876
+      rgb_color:
+      - 255
+      - 250
+      - 243
+      xy_color:
+      - 0.333
+      - 0.336
+      friendly_name: Lamparita Dani
+      supported_features: 0
+      state: 'on'
+  icon: mdi:chat-sleep
+  metadata: {}
+- id: '1763313121886'
+  name: Modo ocaso Salón
+  entities:
+    cover.persiana_salon_del_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón del. dcha.
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_del_izda_cover_0:
+      current_position: 15
+      device_class: shutter
+      friendly_name: Persiana Salón del. izda.
+      supported_features: 15
+      state: open
+    cover.persiana_salon_lat_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón lat. dcha.
+      supported_features: 15
+      state: closed
+    cover.persiana_salon_lat_izda_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Salón lat. izda.
+      supported_features: 15
+      state: closed
+    light.lampara_salon:
+      min_color_temp_kelvin: 15
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 66666
+      supported_color_modes:
+      - color_temp
+      - hs
+      - xy
+      color_mode: color_temp
+      brightness: 128
+      color_temp_kelvin: 1488
+      color_temp: 672
+      hs_color:
+      - 25.283
+      - 100
+      rgb_color:
+      - 255
+      - 107
+      - 0
+      xy_color:
+      - 0.636
+      - 0.354
+      friendly_name: Lampara salón
+      supported_features: 32
+      state: 'on'
+    light.hue_tento_color_panel_2:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'off'
+      - candle
+      - fire
+      - prism
+      - sparkle
+      - opal
+      - glisten
+      - underwater
+      - cosmos
+      - sunbeam
+      - enchant
+      - sunrise
+      - sunset
+      supported_color_modes:
+      - color_temp
+      - xy
+      effect:
+      color_mode:
+      brightness:
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      rgb_color:
+      xy_color:
+      mode: normal
+      dynamics: none
+      friendly_name: Luz cocina
+      supported_features: 44
+      state: 'off'
+  icon: mdi:weather-sunset-down
+  metadata: {}
+- id: '1772903781302'
+  name: Modo dia despacho
+  entities:
+    cover.persiana_despacho_izda_cover_0:
+      current_position: 100
+      device_class: shutter
+      friendly_name: Persiana Despacho izda
+      supported_features: 15
+      state: open
+    cover.persiana_despacho_centro:
+      current_position: 50
+      device_class: shutter
+      friendly_name: Persiana Despacho centro
+      supported_features: 15
+      state: open
+    input_boolean.despacho_dormir:
+      editable: true
+      icon: mdi:floor-lamp
+      friendly_name: Despacho dormir
+      state: 'off'
+    cover.persiana_despacho_dcha_cover_0:
+      current_position: 18
+      device_class: shutter
+      friendly_name: Persiana Despacho dcha
+      supported_features: 15
+      state: open
+  metadata:
+    input_boolean.despacho_dormir:
+      entity_only: true
+  icon: mdi:sun-clock
+- id: '1772907071772'
+  name: Modo noche despacho
+  entities:
+    cover.persiana_despacho_izda_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho izda
+      supported_features: 15
+      state: open
+    cover.persiana_despacho_centro:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho centro
+      supported_features: 15
+      state: open
+    input_boolean.despacho_dormir:
+      editable: true
+      icon: mdi:floor-lamp
+      friendly_name: Despacho dormir
+      state: 'on'
+    cover.persiana_despacho_dcha_cover_0:
+      current_position: 0
+      device_class: shutter
+      friendly_name: Persiana Despacho dcha
+      supported_features: 15
+      state: open
+  metadata:
+    input_boolean.despacho_dormir:
+      entity_only: true
+  icon: mdi:sun-clock

@@ -1,0 +1,381 @@
+notificar_a_familia:
+  alias: Notificar a familia
+  fields:
+    title:
+      description: Título de la notificación
+      example: "\U0001F514 Alerta"
+    message:
+      description: Mensaje de la notificación
+      example: Temperatura normal
+  sequence:
+  - data:
+      title: '{{ title }}'
+      message: '{{ message }}'
+    action: notify.mobile_app_cph2343
+  - data:
+      title: '{{ title }}'
+      message: '{{ message }}'
+    action: notify.mobile_app_cph2483
+  - data:
+      title: '{{ title }}'
+      message: '{{ message }}'
+    action: notify.mobile_app_edison_3_3g
+  - data:
+      title: '{{ title }}'
+      message: '{{ message }}'
+    action: notify.mobile_app_oppo_dashboard
+  - data:
+      title: '{{ title }}'
+      message: '{{ message }}'
+    action: notify.mobile_app_sm_x826b
+  mode: parallel
+  description: ''
+encender_luces_casa_parpadeantes_alertas:
+  alias: Alerta - Encender luz casa parpadeante
+  description: ''
+  mode: restart
+  fields:
+    color_name:
+      selector:
+        select:
+          options:
+          - GREEN
+          - YELLOW
+          - BLUE
+          - RED
+      default: WHITE
+      name: Colorines
+  sequence:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.hue_tento_color_panel_1
+      - light.hue_tento_color_panel_2
+      - light.luz_dani
+      - light.lamparita_entrada
+      - light.lampara_salon
+    data:
+      brightness: 255
+      color_name: '{{ color_name }}'
+  - action: script.camra_tapo_activar_sirena
+    data: {}
+  - repeat:
+      count: 20
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id:
+          - light.hue_tento_color_panel_1
+          - light.hue_tento_color_panel_2
+          - light.luz_dani
+          - light.lamparita_entrada
+          - light.lampara_salon
+        data:
+          brightness: 255
+          color_name: '{{ color_name }}'
+      - delay:
+          seconds: 1
+      - action: light.turn_off
+        target:
+          entity_id:
+          - light.hue_tento_color_panel_1
+          - light.hue_tento_color_panel_2
+          - light.luz_dani
+          - light.lamparita_entrada
+          - light.lampara_salon
+      - delay:
+          seconds: 1
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.lamparita_entrada
+      - light.lampara_salon
+    data:
+      brightness: 255
+      color_name: '{{ color_name }}'
+notificar_a_administradores:
+  sequence:
+  - data:
+      title: '{{ title }}'
+      message: "{{ message }} \U0001F50BBateria {{ states('sensor.inversor_battery')
+        }}% ⚡Consumo {{   states('sensor.inversor_power') }}W ⚡Produciendo {{ states('sensor.inversor_pv_power')
+        }}W. Estim.  {{\n  states('sensor.power_production_now') }}W. \n  \U0001F4C8Est.
+        hora {{ states('sensor.energy_current_hour') }}Kwh. Prox. hora {{\n  states('sensor.energy_next_hour')
+        }}Kwh  \n  \U0001F4C5Producido real {{  states('sensor.inversor_today_production')
+        }}Kwh + Resto estimado hoy {{  states('sensor.energy_production_today_remaining')
+        }}Kwh =?\n  Est. hoy {{  states('sensor.energy_production_today') }}Kwh\n
+        \ \U0001F4C5Estimado mañana {{  states('sensor.energy_production_tomorrow')
+        }}Kwh\n  \U0001F321️Temp. casa {{  state_attr('climate.zona1','current_temperature')
+        }}°C  (Ext.  {{  states('sensor.cerce_outdoor_temperature') }}°C) ☁️Nubes
+        {{  state_attr('weather.forecast_casa','cloud_coverage') }}%  \n  \U0001F321️Termostato
+        a {{ state_attr('climate.zona1','temperature') }}°C. (Modo {{\n  states('binary_sensor.zona1_status')
+        }}, Zona1:{{  states('climate.zona1') }},\n  Preset_mode:{{ state_attr('climate.zona1','preset_mode')
+        }}, Hvac_action:{{\n  state_attr('climate.zona1','hvac_action') }})"
+    action: notify.mobile_app_david_x
+  alias: Notificar a administradores
+  fields:
+    title:
+      description: Título de la notificación
+      example: "\U0001F514 Alerta"
+    message:
+      description: Mensaje de la notificación
+      example: Temperatura normal
+    data:
+      selector:
+        text:
+      description: imagen
+  mode: parallel
+  description: ''
+test_prueba_lamparita:
+  sequence:
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.lamparita_entrada
+    data:
+      brightness: 255
+      color_name: '{{ color_name }}'
+  alias: Test Prueba lamparita
+  description: ''
+  fields:
+    color_name:
+      selector:
+        select:
+          options:
+          - GREEN
+          - YELLOW
+          - BLUE
+          - RED
+      default: WHITE
+check_cameras_ready_tapo:
+  alias: Check Cameras Ready (Tapo)
+  mode: single
+  fields:
+    wait_time:
+      description: Tiempo de espera tras encender cámaras
+      default: 5
+  sequence:
+  - choose:
+    - conditions:
+      - condition: device
+        type: is_on
+        device_id: f77c25f378f1cf5f0c783ec39eb16e1b
+        entity_id: 184da4ff5d2aa3df02be0f5e982cba2e
+        domain: switch
+      sequence:
+      - variables:
+          resultado:
+            status: camera_ready
+      - stop: Cámara ya encendida
+        response_variable: resultado
+  - type: turn_on
+    device_id: f77c25f378f1cf5f0c783ec39eb16e1b
+    entity_id: 184da4ff5d2aa3df02be0f5e982cba2e
+    domain: switch
+  - delay:
+      seconds: '{{ wait_time | int }}'
+  - choose:
+    - conditions:
+      - condition: device
+        type: is_on
+        device_id: f77c25f378f1cf5f0c783ec39eb16e1b
+        entity_id: 184da4ff5d2aa3df02be0f5e982cba2e
+        domain: switch
+      sequence:
+      - variables:
+          resultado:
+            status: camera_ready
+      - stop: Cámara encendida tras espera
+        response_variable: resultado
+  - variables:
+      resultado:
+        status: camera_not_ready
+  - stop: Cámara fallida
+    response_variable: resultado
+camra_tapo_activar_sirena:
+  alias: Alerta - Activar Sirena Camera Tapo
+  mode: single
+  fields: {}
+  sequence:
+  - if:
+    - condition: or
+      conditions:
+      - condition: device
+        type: is_off
+        device_id: f77c25f378f1cf5f0c783ec39eb16e1b
+        entity_id: 184da4ff5d2aa3df02be0f5e982cba2e
+        domain: switch
+      - condition: state
+        entity_id: input_boolean.privacidad_camaras
+        state:
+        - 'on'
+    then:
+    - action: input_boolean.turn_off
+      metadata: {}
+      target:
+        entity_id: input_boolean.privacidad_camaras
+      data: {}
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 15
+        milliseconds: 0
+    - if:
+      - condition: or
+        conditions:
+        - condition: device
+          type: is_on
+          device_id: f77c25f378f1cf5f0c783ec39eb16e1b
+          entity_id: 184da4ff5d2aa3df02be0f5e982cba2e
+          domain: switch
+        - condition: state
+          entity_id: input_boolean.privacidad_camaras
+          state:
+          - 'off'
+      then:
+      - action: button.press
+        target:
+          entity_id:
+          - button.tapo_c125_259c_manual_alarm_start
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 20
+          milliseconds: 0
+      - action: input_boolean.turn_on
+        metadata: {}
+        target:
+          entity_id: input_boolean.privacidad_camaras
+        data: {}
+      else:
+      - data:
+          title: ⚠️ No pudo sonar alarma. Camarás Tapo no activas
+          message: Las cámaras Tapo no están listas. No se activo sirena.
+        action: persistent_notification.create
+    else:
+    - action: button.press
+      target:
+        entity_id:
+        - button.tapo_c125_259c_manual_alarm_start
+      data: {}
+  description: ''
+check_cameras_ready_ej_scrip_lanzador_con_parametros_bidireccionales:
+  sequence:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.hue_tento_color_panel_1
+      - light.hue_tento_color_panel_2
+      - light.luz_dani
+      - light.lamparita_entrada
+      - light.lampara_salon
+    data:
+      brightness: 255
+      color_name: '{{ color_name }}'
+  - action: script.check_cameras_ready_tapo
+    data:
+      wait_time: 30
+    response_variable: cam_status
+  - if:
+    - condition: template
+      value_template: '{{ cam_status.status == ''camera_ready'' }}'
+    then:
+    - action: button.press
+      target:
+        entity_id:
+        - button.tapo_c125_259c_manual_alarm_start
+      data: {}
+    else:
+    - data:
+        title: ⚠️ No pudo sonar alarma. Camarás Tapo no activas
+        message: Las cámaras Tapo no están listas. No se activo sirena.
+      action: persistent_notification.create
+  - repeat:
+      count: 20
+      sequence:
+      - action: light.turn_on
+        target:
+          entity_id:
+          - light.hue_tento_color_panel_1
+          - light.hue_tento_color_panel_2
+          - light.luz_dani
+          - light.lamparita_entrada
+          - light.lampara_salon
+        data:
+          brightness: 255
+          color_name: '{{ color_name }}'
+      - delay:
+          seconds: 1
+      - action: light.turn_off
+        target:
+          entity_id:
+          - light.hue_tento_color_panel_1
+          - light.hue_tento_color_panel_2
+          - light.luz_dani
+          - light.lamparita_entrada
+          - light.lampara_salon
+      - delay:
+          seconds: 1
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.lamparita_entrada
+      - light.lampara_salon
+    data:
+      brightness: 255
+      color_name: '{{ color_name }}'
+  alias: Check Cameras Ready Ej Scrip lanzador con parametros bidireccionales
+  description: ''
+  mode: restart
+  fields:
+    color_name:
+      selector:
+        select:
+          options:
+          - GREEN
+          - YELLOW
+          - BLUE
+          - RED
+      default: WHITE
+      name: Colorines
+notificar_con_mensaje_de_voz:
+  alias: Notificar con Mensaje de voz
+  mode: parallel
+  fields:
+    title:
+      description: Título de la notificación
+      example: "\U0001F514 Alerta"
+    zona:
+      description: Zona de la notificación
+      example: cocina
+  sequence:
+  - variables:
+      mapa_zonas:
+        surface: media_player.surface
+        pasillo: media_player.tablet_sansung
+        cocina: media_player.motog_cocina
+        despacho: media_player.motog_despacho
+        david: media_player.poco_dc_local
+        motog3_old: media_player.motog3_old
+      z: '{{ zona | lower if zona is defined and zona is not none else '''' }}'
+      destinos: "{% if z in mapa_zonas %}\n  {{ [mapa_zonas[z]] }}\n{% else %}\n  {{
+        mapa_zonas.values() | list }}\n{% endif %}\n"
+  - repeat:
+      for_each: '{{ destinos }}'
+      sequence:
+      - action: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          message: '{{ title }}'
+          media_player_entity_id: '{{ repeat.item }}'
+prueba_de_notificacion_con_confirmacion_denegacion:
+  alias: Prueba de notificación con confirmación/denegación
+  use_blueprint:
+    path: homeassistant/confirmable_notification.yaml
+    input:
+      notify_device: 609b265bb757951f33e233cd1d0c49b4
+      title: notificacion de prueba
+      message: aaaaaaaaaaaaaaaa
+  description: ''

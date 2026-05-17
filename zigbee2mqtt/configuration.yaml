@@ -1,0 +1,102 @@
+version: 5
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://core-mosquitto:1883
+  user: addons
+  password: wee7uth0uXaidoo9quaif8eiL3IeGhua4math7xi5Gaon7aexooCh7shioch0ahr
+serial:
+  adapter: ember
+  baudrate: 115200
+  rtscts: false
+  port: >-
+    /dev/serial/by-id/usb-Nabu_Casa_Home_Assistant_Connect_ZBT-1_8e9e7ab13511f01192cc63ed763d9da9-if00-port0
+advanced:
+  log_level: warning
+  channel: 11
+  network_key:
+    - 83
+    - 82
+    - 12
+    - 53
+    - 16
+    - 44
+    - 154
+    - 163
+    - 224
+    - 107
+    - 118
+    - 208
+    - 189
+    - 117
+    - 120
+    - 217
+  pan_id: 8035
+  ext_pan_id:
+    - 158
+    - 44
+    - 33
+    - 168
+    - 130
+    - 167
+    - 114
+    - 133
+frontend:
+  enabled: true
+  port: 8099
+homeassistant:
+  enabled: true
+blocklist: []
+passlist: []
+devices:
+  '0xa4c13871c11f5c53':
+    friendly_name: Presencia Dani
+    icon: device_icons/05043f6672d9790f83e216061a1aa826.png
+  '0xa4c138d19903b85c':
+    friendly_name: Presencia despacho
+    icon: device_icons/05043f6672d9790f83e216061a1aa826.png
+  '0xa4c138e7284ced54':
+    friendly_name: Presencia dormitorio
+    icon: device_icons/05043f6672d9790f83e216061a1aa826.png
+    illuminance_raw: false
+    illuminance_calibration: 0
+  '0xa4c1387dd04aec1b':
+    friendly_name: Presencia Cocina
+    icon: device_icons/330e7f6eb614ed2449e37d05d346d89d.png
+  '0xa4c1384b6426ab04':
+    friendly_name: Presencia2 salón
+    temperature_precision: 1
+    humidity_precision: 1
+    icon: device_icons/330e7f6eb614ed2449e37d05d346d89d.png
+  '0xa4c13809d72b277f':
+    friendly_name: Temp. ext. norte
+    temperature_precision: 1
+    humidity_precision: 0
+    icon: device_icons/909ceb68f6716669b4822453a5aaede8.png
+  '0xa4c138f7f30b609b':
+    friendly_name: Detector agua Instalaciones
+    icon: device_icons/eb4790996bc65bec3d65a8972d27e560.png
+  '0xa4c138f06a4c3aa8':
+    friendly_name: Detector agua Cocina
+    icon: device_icons/eb4790996bc65bec3d65a8972d27e560.png
+  '0xa4c138e8f8669558':
+    friendly_name: Temperatura instalaciones
+    humidity_precision: 0
+    temperature_precision: 1
+    icon: device_icons/b96d64c7d849a80d52772a6ffc9ac81d.png
+  '0xa4c138f0f78d91c0':
+    friendly_name: Temp. ext. cobertizo
+    temperature_precision: 1
+    icon: device_icons/b96d64c7d849a80d52772a6ffc9ac81d.png
+  '0xa4c138afef749a65':
+    friendly_name: Presencia1 Salón
+    icon: device_icons/330e7f6eb614ed2449e37d05d346d89d.png
+  '0xa4c1382ca3038d42':
+    friendly_name: Presencia ext. este
+    icon: device_icons/330e7f6eb614ed2449e37d05d346d89d.png
+  '0xa4c13826fd8fead5':
+    friendly_name: Presencia baño
+    temperature_precision: 1
+    humidity_precision: 1
+    icon: device_icons/330e7f6eb614ed2449e37d05d346d89d.png
+  '0xa4c1381c1f0d4972':
+    friendly_name: Presencia ext. parking
