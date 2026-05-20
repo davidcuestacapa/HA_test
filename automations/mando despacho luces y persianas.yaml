@@ -1,0 +1,660 @@
+id: '1766228860999'
+alias: Mando despacho - Luz despacho, persianas y luz patio
+description: Control del mando del despacho (Botón 1 y Botón 2)
+mode: single
+
+triggers:
+  # -------------------------
+  # BOTÓN 1 (Luz despacho + lámparas PC)
+  # -------------------------
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_1
+    subtype: press
+    trigger: device
+    id: b1_press
+
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_1
+    subtype: double_press
+    trigger: device
+    id: b1_double
+
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_1
+    subtype: long_press
+    trigger: device
+    id: b1_long
+
+  # -------------------------
+  # BOTÓN 2 (Persianas Norte)
+  # -------------------------
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_2
+    subtype: press
+    trigger: device
+    id: b2_press
+
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_2
+    subtype: double_press
+    trigger: device
+    id: b2_double
+
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_2
+    subtype: triple_press
+    trigger: device
+    id: b2_triple
+  # -------------------------
+  # BOTÓN 3 (Persianas Este)
+  # -------------------------
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_3
+    subtype: press
+    trigger: device
+    id: b3_press
+  # ============================================================
+  # BOTÓN 4 → Luz patio: CLIC SIMPLE → activar PM + modo ambiente + ciclo colores  LONG → apagar patio
+  # ============================================================
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_4
+    subtype: press
+    trigger: device
+    id: b4_press
+
+  - device_id: 65a0427b19bf53e469660d5afbcd9194
+    domain: bthome
+    type: button_4
+    subtype: long_press
+    trigger: device
+    id: b4_long
+
+    
+actions:
+  - choose:
+
+      # ============================================================
+      # BOTÓN 1 → CLIC SIMPLE → Alternar luz despacho
+      # ============================================================
+      - conditions:
+          - condition: trigger
+            id: b1_press
+        sequence:
+          - action: light.toggle
+            target:
+              entity_id:
+                - light.lampara_pc1_despacho
+                - light.lampara_pc2_despacho
+      # ============================================================
+      # BOTÓN 1 → DOBLE PULSACIÓN → Alternar lámparas PC
+      # ============================================================
+      - conditions:
+          - condition: trigger
+            id: b1_double
+        sequence:
+          - action: switch.toggle
+            target:
+              entity_id: switch.luz_despacho
+      # ============================================================
+      # BOTÓN 1 → Long press (Activar/desactivar boleano despacho dormir)
+      # ============================================================
+
+      - conditions:
+          - condition: trigger
+            id: b1_long
+        sequence:
+          - action: input_boolean.toggle
+            metadata: {}
+            target:
+              entity_id: input_boolean.despacho_dormir
+            data: {}
+      # ============================================================
+      # BOTÓN 2 → CLIC SIMPLE → Persianas Norte (lógica completa)
+      # ============================================================
+      - conditions:
+          - condition: trigger
+            id: b2_press
+        sequence:
+          # Variables de estado
+          - variables:
+              estado1: "{{ states('cover.persiana_despacho_izda_cover_0') }}"
+              estado2: "{{ states('cover.persiana_despacho_centro') }}"
+              pos1: "{{ state_attr('cover.persiana_despacho_izda_cover_0','current_position') | int }}"
+              pos2: "{{ state_attr('cover.persiana_despacho_centro','current_position') | int }}"
+              ultima: "{{ states('input_select.persianas_norte_ultima_direccion') }}"
+
+          # --- Si alguna está moviéndose → STOP ---
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >
+                      {{ estado1 in ['opening','closing'] or estado2 in ['opening','closing'] }}
+                sequence:
+                  - action: cover.stop_cover
+                    target:
+                      entity_id:
+                        - cover.persiana_despacho_izda_cover_0
+                        - cover.persiana_despacho_centro
+
+          # --- Si están paradas → decidir dirección ---
+              - conditions:
+                  - condition: template
+                    value_template: >
+                      {{ estado1 in ['open','closed','stopped'] and estado2 in ['open','closed','stopped'] }}
+                sequence:
+
+                  # Si están abajo → SUBIR
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: >
+                             {{ pos1 == 0 and pos2 == 0 }}
+                        sequence:
+                          - action: scene.turn_on
+                            metadata: {}
+                            target:
+                              entity_id: scene.modo_dia_despacho
+                            data: {}
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.persianas_norte_ultima_direccion
+                            data:
+                              option: subiendo
+
+                  # Si están arriba → BAJAR
+                      - conditions:
+                          - condition: template
+                            value_template: >
+                              {{ pos1 == 100 and pos2 == 100 }}
+                        sequence:
+                          - action: cover.close_cover
+                            target:
+                              entity_id:
+                                - cover.persiana_despacho_izda_cover_0
+                                - cover.persiana_despacho_centro
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.persianas_norte_ultima_direccion
+                            data:
+                              option: bajando
+
+                  # Si están en medio → alternar según ayudante
+                      - conditions:
+                          - condition: template
+                            value_template: >
+                              {{ pos1 > 0 and pos1 < 100 and pos2 > 0 and pos2 < 100 }}
+                        sequence:
+
+                          # Última fue subiendo → ahora bajar
+                          - choose:
+                              - conditions:
+                                  - condition: template
+                                    value_template: "{{ ultima == 'subiendo' }}"
+                                sequence:
+                                  - action: cover.close_cover
+                                    target:
+                                      entity_id:
+                                        - cover.persiana_despacho_izda_cover_0
+                                        - cover.persiana_despacho_centro
+                                  - action: input_select.select_option
+                                    target:
+                                      entity_id: input_select.persianas_norte_ultima_direccion
+                                    data:
+                                      option: bajando
+
+                          # Última fue bajando → ahora subir
+                              - conditions:
+                                  - condition: template
+                                    value_template: "{{ ultima == 'bajando' }}"
+                                sequence:
+                                  - action: cover.open_cover
+                                    target:
+                                      entity_id:
+                                        - cover.persiana_despacho_izda_cover_0
+                                        - cover.persiana_despacho_centro
+                                  - action: input_select.select_option
+                                    target:
+                                      entity_id: input_select.persianas_norte_ultima_direccion
+                                    data:
+                                      option: subiendo
+                    default:
+                      - action: logbook.log
+                        data:
+                          name: Persianas Norte
+                          message: "Sin acción: estados mixtos o ayudante no válido"
+                          entity_id: input_select.persianas_norte_ultima_direccion
+            default:
+              - action: logbook.log
+                data:
+                  name: Persianas Norte
+                  message: "Sin acción: estados mixtos o ayudante no válido"
+                  entity_id: input_select.persianas_norte_ultima_direccion
+      # ============================================================
+      # BOTÓN 2 → DOBLE PULSACIÓN → Persiana centro
+      # ============================================================
+      - conditions:
+          - condition: trigger
+            id: b2_double
+        sequence:
+          - variables:
+              est: "{{ states('cover.persiana_despacho_centro') }}"
+              pos: "{{ state_attr('cover.persiana_despacho_centro','current_position') | int }}"
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ est in ['opening','closing'] }}"
+                sequence:
+                  - action: cover.stop_cover
+                    target:
+                      entity_id: cover.persiana_despacho_centro
+              - conditions:
+                  - condition: template
+                    value_template: "{{ pos == 0 }}"
+                sequence:
+                  - action: cover.open_cover
+                    target:
+                      entity_id: cover.persiana_despacho_centro
+              - conditions:
+                  - condition: template
+                    value_template: "{{ pos == 100 }}"
+                sequence:
+                  - action: cover.close_cover
+                    target:
+                      entity_id: cover.persiana_despacho_centro
+              - conditions:
+                  - condition: template
+                    value_template: "{{ pos > 0 and pos < 100 }}"
+                sequence:
+                  - action: cover.close_cover
+                    target:
+                      entity_id: cover.persiana_despacho_centro
+
+      # ============================================================
+      # BOTÓN 2 → TRIPLE PULSACIÓN → Persiana izquierda
+      # ============================================================
+      - conditions:
+          - condition: trigger
+            id: b2_triple
+        sequence:
+          - variables:
+              est: "{{ states('cover.persiana_despacho_izda_cover_0') }}"
+              pos: "{{ state_attr('cover.persiana_despacho_izda_cover_0','current_position') | int }}"
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ est in ['opening','closing'] }}"
+                sequence:
+                  - action: cover.stop_cover
+                    target:
+                      entity_id: cover.persiana_despacho_izda_cover_0
+              - conditions:
+                  - condition: template
+                    value_template: "{{ pos == 0 }}"
+                sequence:
+                  - action: cover.open_cover
+                    target:
+                      entity_id: cover.persiana_despacho_izda_cover_0
+              - conditions:
+                  - condition: template
+                    value_template: "{{ pos == 100 }}"
+                sequence:
+                  - action: cover.close_cover
+                    target:
+                      entity_id: cover.persiana_despacho_izda_cover_0
+              - conditions:
+                  - condition: template
+                    value_template: "{{ pos > 0 and pos < 100 }}"
+                sequence:
+                  - action: cover.close_cover
+                    target:
+                      entity_id: cover.persiana_despacho_izda_cover_0
+
+      # ============================================================
+      # BOTÓN 3 → CLIC SIMPLE → Persiana derecha (lógica completa)
+      # ============================================================
+      - conditions:
+          - condition: trigger
+            id: b3_press
+        sequence:
+          # Variables de estado
+          - variables:
+              estado: "{{ states('cover.persiana_despacho_dcha_cover_0') }}"
+              pos: "{{ state_attr('cover.persiana_despacho_dcha_cover_0','current_position') | int }}"
+              ultima: "{{ states('input_select.persiana_despacho_dcha_ultima_direccion') }}"
+
+          # --- Si está moviéndose → STOP ---
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >
+                      {{ estado in ['opening','closing'] }}
+                sequence:
+                  - action: cover.stop_cover
+                    target:
+                      entity_id: cover.persiana_despacho_dcha_cover_0
+
+          # --- Si está parada → decidir dirección ---
+              - conditions:
+                  - condition: template
+                    value_template: >
+                      {{ estado in ['open','closed','stopped'] }}
+                sequence:
+
+                  # Si está abajo → SUBIR
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: >
+                              {{ pos == 0 }}
+                        sequence:
+                          - action: cover.open_cover
+                            target:
+                              entity_id: cover.persiana_despacho_dcha_cover_0
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.persiana_despacho_dcha_ultima_direccion
+                            data:
+                              option: subiendo
+
+                  # Si está arriba → BAJAR
+                      - conditions:
+                          - condition: template
+                            value_template: >
+                              {{ pos == 100 }}
+                        sequence:
+                          - action: cover.close_cover
+                            target:
+                              entity_id: cover.persiana_despacho_dcha_cover_0
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.persiana_despacho_dcha_ultima_direccion
+                            data:
+                              option: bajando
+
+                  # Si está en medio → alternar según ayudante
+                      - conditions:
+                          - condition: template
+                            value_template: >
+                              {{ pos > 0 and pos < 100 }}
+                        sequence:
+
+                          # Última fue subiendo → ahora bajar
+                          - choose:
+                              - conditions:
+                                  - condition: template
+                                    value_template: "{{ ultima == 'subiendo' }}"
+                                sequence:
+                                  - action: cover.close_cover
+                                    target:
+                                      entity_id: cover.persiana_despacho_dcha_cover_0
+                                  - action: input_select.select_option
+                                    target:
+                                      entity_id: input_select.persiana_despacho_dcha_ultima_direccion
+                                    data:
+                                      option: bajando
+
+                          # Última fue bajando → ahora subir
+                              - conditions:
+                                  - condition: template
+                                    value_template: "{{ ultima == 'bajando' }}"
+                                sequence:
+                                  - action: cover.open_cover
+                                    target:
+                                      entity_id: cover.persiana_despacho_dcha_cover_0
+                                  - action: input_select.select_option
+                                    target:
+                                      entity_id: input_select.persiana_despacho_dcha_ultima_direccion
+                                    data:
+                                      option: subiendo
+                    default:
+                      - action: logbook.log
+                        data:
+                          name: Persianas Norte
+                          message: "Sin acción: estados mixtos o ayudante no válido"
+                          entity_id: input_select.persianas_norte_ultima_direccion
+            default:
+              - action: logbook.log
+                data:
+                  name: Persianas Norte
+                  message: "Sin acción: estados mixtos o ayudante no válido"
+                  entity_id: input_select.persianas_norte_ultima_direccion
+      # ============================================================
+      # BOTÓN 4 → CLIC SIMPLE → Luz patio: activar PM + modo ambiente + ciclo colores
+      # ============================================================
+      - conditions:
+          - condition: trigger
+            id: b4_press
+        sequence:
+
+          # --- Activar PM si está apagado ---
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.luz_patio_trasero
+                    state: "off"
+                sequence:
+                  - action: switch.turn_on
+                    target:
+                      entity_id: switch.luz_patio_trasero
+                  - delay: "00:00:01"   # Espera 1 segundo para que las bombillas reciban alimentación
+
+          # Variables
+          - variables:
+              estado: "{{ states('light.luces_ext_detras') }}"
+              ciclo: "{{ states('input_select.luz_patio_ciclo_colores') }}"
+   
+
+          # --- Si está apagada → MODO AMBIENTE SEGÚN HORA ---
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >
+                      {{ estado == 'off' }}
+                sequence:
+                  - choose:
+                      # Mañana (07:00–12:00) → Blanco frío
+                      - conditions:
+                          - condition: time
+                            after: "07:00:00"
+                            before: "12:00:00"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              color_temp: 153
+                              brightness_pct: 90
+                              transition: 2
+
+                      # Tarde (12:00–18:00) → Blanco neutro
+                      - conditions:
+                          - condition: time
+                            after: "12:00:00"
+                            before: "18:00:00"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              color_temp: 300
+                              brightness_pct: 80
+                              transition: 2
+
+                      # Noche (18:00–00:00) → Ámbar cálido
+                      - conditions:
+                          - condition: time
+                            after: "18:00:00"
+                            before: "00:00:00"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              rgb_color: [255, 180, 80]
+                              brightness_pct: 60
+                              transition: 2
+
+                      # Madrugada (00:00–07:00) → Azul tenue
+                      - conditions:
+                          - condition: time
+                            after: "00:00:00"
+                            before: "07:00:00"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              rgb_color: [80, 120, 255]
+                              brightness_pct: 30
+                              transition: 2
+
+          # --- Si está encendida → CICLO DE COLORES ---
+              - conditions:
+                  - condition: template
+                    value_template: >
+                      {{ estado == 'on' }}
+                sequence:
+                  - choose:
+                      # Blanco cálido
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ ciclo == 'blanco_calido' }}"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              color_temp: 370
+                              brightness_pct: 90
+                              transition: 2
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.luz_patio_ciclo_colores
+                            data:
+                              option: ambar
+
+                      # Ámbar
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ ciclo == 'ambar' }}"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              rgb_color: [255, 160, 60]
+                              brightness_pct: 80
+                              transition: 2
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.luz_patio_ciclo_colores
+                            data:
+                              option: verde
+
+                      # Verde
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ ciclo == 'verde' }}"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              rgb_color: [0, 255, 120]
+                              brightness_pct: 80
+                              transition: 2
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.luz_patio_ciclo_colores
+                            data:
+                              option: azul
+
+                      # Azul
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ ciclo == 'azul' }}"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              rgb_color: [80, 120, 255]
+                              brightness_pct: 70
+                              transition: 2
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.luz_patio_ciclo_colores
+                            data:
+                              option: magenta
+
+                      # Magenta
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ ciclo == 'magenta' }}"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              rgb_color: [255, 60, 255]
+                              brightness_pct: 70
+                              transition: 2
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.luz_patio_ciclo_colores
+                            data:
+                              option: rojo
+
+                      # Rojo
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ ciclo == 'rojo' }}"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              rgb_color: [255, 0, 0]
+                              brightness_pct: 70
+                              transition: 2
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.luz_patio_ciclo_colores
+                            data:
+                              option: blanco_frio
+
+                      # Blanco frío
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ ciclo == 'blanco_frio' }}"
+                        sequence:
+                          - action: light.turn_on
+                            target:
+                              entity_id: light.luces_patio_trasero
+                            data:
+                              color_temp: 153
+                              brightness_pct: 100
+                              transition: 2
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.luz_patio_ciclo_colores
+                            data:
+                              option: blanco_calido
+
+      - conditions:
+          - condition: trigger
+            id: b4_long
+        sequence:
+          - action: switch.toggle
+            target:
+              entity_id: switch.luz_patio_trasero
+
+    default: []
