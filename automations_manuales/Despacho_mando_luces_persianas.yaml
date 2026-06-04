@@ -1,4 +1,3 @@
-
 - alias: Mando despacho - Luz despacho, persianas y luz patio
   description: Control del mando del despacho (Botón 1 y Botón 2)
   mode: single
