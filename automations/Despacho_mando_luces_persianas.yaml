@@ -186,7 +186,7 @@
                             - choose:
                                 - conditions:
                                     - condition: template
-                                      value_template: "{{ ultima == 'subiendo' }}"
+                                      value_template: "{{ states('input_select.persianas_norte_ultima_direccion') == 'subiendo' }}"
                                   sequence:
                                     - action: cover.close_cover
                                       target:
@@ -198,33 +198,18 @@
                                         entity_id: input_select.persianas_norte_ultima_direccion
                                       data:
                                         option: bajando
-                            # Última fue bajando → ahora subir
-                                - conditions:
-                                    - condition: template
-                                      value_template: "{{ ultima == 'bajando' }}"
-                                  sequence:
-                                    - action: cover.open_cover
-                                      target:
-                                        entity_id:
-                                          - cover.persiana_despacho_izda_cover_0
-                                          - cover.persiana_despacho_centro
-                                    - action: input_select.select_option
-                                      target:
-                                        entity_id: input_select.persianas_norte_ultima_direccion
-                                      data:
-                                        option: subiendo
+                      # SI NO ERA 'SUBIENDO' (ERA 'BAJANDO', 'UNKNOWN', ETC.) -> AHORA TOCA SUBIR
                       default:
-                        - action: logbook.log
-                          data:
-                            name: Persianas Norte
-                            message: "Sin acción: estados mixtos o ayudante no válido"
-                            entity_id: input_select.persianas_norte_ultima_direccion
-              default:
-                - action: logbook.log
-                  data:
-                    name: Persianas Norte
-                    message: "Sin acción: estados mixtos o ayudante no válido"
-                    entity_id: input_select.persianas_norte_ultima_direccion
+                          - action: cover.open_cover
+                            target:
+                              entity_id:
+                                - cover.persiana_despacho_izda_cover_0
+                                - cover.persiana_despacho_centro
+                          - action: input_select.select_option
+                            target:
+                              entity_id: input_select.persianas_norte_ultima_direccion
+                            data:
+                              option: subiendo
         # ============================================================
         # BOTÓN 2 → DOBLE PULSACIÓN → Persiana centro
         # ============================================================
