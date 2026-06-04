@@ -10,8 +10,9 @@ homeassistant:
     - /config/media
     - /config/www
 
-automation:
-  - !include automations.yaml
-  - !include_dir_merge_list automations_manuales/
+automation: !include automations.yaml
+
+automation manual: !include_dir_merge_list automations_manuales/
+
 script: !include scripts.yaml
 scene: !include scenes.yaml
