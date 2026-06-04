@@ -1,0 +1,61 @@
+- id: '1780568608869'
+  alias: Aviso - Solar hay producción FW establa >1000W
+  description: 'prueba tras migrar  '
+  triggers:
+  - type: power
+    device_id: fbc794a067f8f8e3c1d953f44f284059
+    entity_id: 82f68aa3bd8e66091fc32535bc8a6f3b
+    domain: sensor
+    trigger: device
+    above: 1000
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  conditions:
+  - condition: sun
+    after: sunrise
+    after_offset: 01:00:00
+  - condition: sun
+    before: sunrise
+    before_offset: '3:00:00'
+  actions:
+  - action: script.notificar_a_administradores
+    metadata: {}
+    data:
+      title: HA-Energia -⚡Generación FV estable >1000W
+      message: "\U0001F552{{ now().strftime('%H:%M') }}"
+  mode: single
+- id: '1780570891925'
+  alias: Aviso - Solar hay producción FW establa >1000W
+  description: ''
+  triggers:
+  - type: power
+    device_id: fbc794a067f8f8e3c1d953f44f284059
+    entity_id: 82f68aa3bd8e66091fc32535bc8a6f3b
+    domain: sensor
+    trigger: device
+    above: 1000
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  conditions:
+  - condition: sun
+    after: sunrise
+    after_offset: 01:00:00
+  - condition: sun
+    before: sunrise
+    before_offset: '3:00:00'
+  actions:
+  - action: script.notificar_a_administradores
+    metadata: {}
+    data:
+      title: HA-Energia -⚡Generación FV estable >1000W
+      message: "\U0001F552{{ now().strftime('%H:%M') }}"
+  - action: light.turn_on
+    metadata: {}
+    target:
+      entity_id: light.despacho
+    data: {}
+  mode: single
