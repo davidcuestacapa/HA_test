@@ -149,7 +149,7 @@
                         - conditions:
                             - condition: template
                               value_template: >
-                                {{ pos1 == 0 or  pos2 == 0 }}
+                                {{ pos1 == 0 and  pos2 == 0 }}
                           sequence:
                             - action: scene.turn_on
                               metadata: {}
@@ -165,7 +165,7 @@
                         - conditions:
                             - condition: template
                               value_template: >
-                                {{ pos1 == 100 or  pos2 == 100 }}
+                                {{ pos1 == 100 and  pos2 == 100 }}
                           sequence:
                             - action: cover.close_cover
                               target:
@@ -181,7 +181,7 @@
                         - conditions:
                             - condition: template
                               value_template: >
-                                {{ pos1 > 0 and pos1 < 100 and pos2 > 0 and pos2 < 100 }}
+                                {{ (pos1 > 0 and pos1 < 100) or (pos2 > 0 and pos2 < 100) or (pos1 != pos2) }}
                           sequence:
                             # Última fue subiendo → ahora bajar
                             - choose:
