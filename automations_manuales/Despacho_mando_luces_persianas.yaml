@@ -1,8 +1,8 @@
-id: '1766228860999'
+
 alias: Mando despacho - Luz despacho, persianas y luz patio
 description: Control del mando del despacho (Botón 1 y Botón 2)
 mode: single
-
+#id: '1766228860999'
 triggers:
   # -------------------------
   # BOTÓN 1 (Luz despacho + lámparas PC)
