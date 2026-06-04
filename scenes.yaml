@@ -101,30 +101,35 @@
   name: Modo mañana Salón
   entities:
     cover.persiana_salon_del_dcha_cover_0:
-      current_position: 0
+      is_closed: false
+      current_position: 27
       device_class: shutter
       friendly_name: Persiana Salón del. dcha.
       supported_features: 15
       state: open
     cover.persiana_salon_del_izda_cover_0:
-      current_position: 60
+      is_closed: false
+      current_position: 38
       device_class: shutter
       friendly_name: Persiana Salón del. izda.
       supported_features: 15
       state: open
     cover.persiana_salon_lat_dcha_cover_0:
-      current_position: 60
+      is_closed: false
+      current_position: 56
       device_class: shutter
       friendly_name: Persiana Salón lat. dcha.
       supported_features: 15
       state: open
     cover.persiana_salon_lat_izda_cover_0:
+      is_closed: false
       current_position: 69
       device_class: shutter
       friendly_name: Persiana Salón lat. izda.
       supported_features: 15
       state: open
     cover.persiana_cocina_cover_0:
+      is_closed: false
       current_position: 100
       device_class: blind
       friendly_name: Persiana Cocina
@@ -133,8 +138,6 @@
     light.hue_tento_color_panel_1:
       min_color_temp_kelvin: 2000
       max_color_temp_kelvin: 6535
-      min_mireds: 153
-      max_mireds: 500
       effect_list:
       - 'off'
       - candle
@@ -156,7 +159,6 @@
       color_mode:
       brightness:
       color_temp_kelvin:
-      color_temp:
       hs_color:
       rgb_color:
       xy_color:
@@ -168,8 +170,6 @@
     light.hue_tento_color_panel_2:
       min_color_temp_kelvin: 2000
       max_color_temp_kelvin: 6535
-      min_mireds: 153
-      max_mireds: 500
       effect_list:
       - 'off'
       - candle
@@ -191,7 +191,6 @@
       color_mode:
       brightness:
       color_temp_kelvin:
-      color_temp:
       hs_color:
       rgb_color:
       xy_color:
