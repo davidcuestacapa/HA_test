@@ -185,7 +185,7 @@
                           sequence:
                             # Última fue subiendo → ahora bajar
                             - choose:
-                                - conditions:
+                                - condition:
                                     - condition: template
                                       value_template: "{{ states('input_select.persianas_norte_ultima_direccion') == 'subiendo' }}"
                                   sequence:
