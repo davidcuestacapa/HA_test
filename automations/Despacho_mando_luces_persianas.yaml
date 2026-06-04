@@ -145,28 +145,13 @@
                         {{ estado1 in ['open','closed','stopped'] and estado2 in ['open','closed','stopped'] }}
                   # --- CHOOSE SECUNDARIO: Evaluar posiciones ---
                   sequence:
-                    # Si están abajo → SUBIR
+                    # --- Decidir dirección de forma inteligente ---
                     - choose:
+                        # 1) Si alguna está arriba → BAJAR
                         - conditions:
                             - condition: template
                               value_template: >
-                                {{ pos1 == 0 and  pos2 == 0 }}
-                          sequence:
-                            - action: scene.turn_on
-                              metadata: {}
-                              target:
-                                entity_id: scene.modo_dia_despacho
-                              data: {}
-                            - action: input_select.select_option
-                              target:
-                                entity_id: input_select.persianas_norte_ultima_direccion
-                              data:
-                                option: subiendo
-                    # Si están arriba → BAJAR
-                        - conditions:
-                            - condition: template
-                              value_template: >
-                                {{ pos1 == 100 and  pos2 == 100 }}
+                                {{ pos1 == 100 or pos2 == 100 }}
                           sequence:
                             - action: cover.close_cover
                               target:
@@ -178,16 +163,33 @@
                                 entity_id: input_select.persianas_norte_ultima_direccion
                               data:
                                 option: bajando
-                    # 3. Cualquier otra combinación (una arriba y otra en medio, las dos en medio, etc.)
+
+                        # 2) Si alguna está abajo → SUBIR
                         - conditions:
                             - condition: template
-                              value_template: "{{ true }}"
+                              value_template: >
+                                {{ pos1 == 0 or pos2 == 0 }}
                           sequence:
-                            # Última fue subiendo → ahora bajar
+                            - action: scene.turn_on
+                              target:
+                                entity_id: scene.modo_dia_despacho
+                            - action: input_select.select_option
+                              target:
+                                entity_id: input_select.persianas_norte_ultima_direccion
+                              data:
+                                option: subiendo
+
+                        # 3) Si ambas están en medio → usar última dirección
+                        - conditions:
+                            - condition: template
+                              value_template: >
+                                {{ pos1 not in [0,100] and pos2 not in [0,100] }}
+                          sequence:
                             - choose:
-                                - condition:
+                                # Última fue subiendo → ahora bajar
+                                - conditions:
                                     - condition: template
-                                      value_template: "{{ states('input_select.persianas_norte_ultima_direccion') == 'subiendo' }}"
+                                      value_template: "{{ ultima == 'subiendo' }}"
                                   sequence:
                                     - action: cover.close_cover
                                       target:
@@ -199,18 +201,18 @@
                                         entity_id: input_select.persianas_norte_ultima_direccion
                                       data:
                                         option: bajando
-                              # SI NO ERA 'SUBIENDO' (ERA 'BAJANDO', 'UNKNOWN', ETC.) -> AHORA TOCA SUBIR
                               default:
-                                  - action: cover.open_cover
-                                    target:
-                                      entity_id:
-                                        - cover.persiana_despacho_izda_cover_0
-                                        - cover.persiana_despacho_centro
-                                  - action: input_select.select_option
-                                    target:
-                                      entity_id: input_select.persianas_norte_ultima_direccion
-                                    data:
-                                      option: subiendo
+                                # Última fue bajando → ahora subir
+                                - action: cover.open_cover
+                                  target:
+                                    entity_id:
+                                      - cover.persiana_despacho_izda_cover_0
+                                      - cover.persiana_despacho_centro
+                                - action: input_select.select_option
+                                  target:
+                                    entity_id: input_select.persianas_norte_ultima_direccion
+                                  data:
+                                    option: subiendo
         # ============================================================
         # BOTÓN 2 → DOBLE PULSACIÓN → Persiana centro
         # ============================================================
