@@ -143,6 +143,7 @@
                     - condition: template
                       value_template: >
                         {{ estado1 in ['open','closed','stopped'] and estado2 in ['open','closed','stopped'] }}
+                  # --- CHOOSE SECUNDARIO: Evaluar posiciones ---
                   sequence:
                     # Si están abajo → SUBIR
                     - choose:
@@ -198,18 +199,18 @@
                                         entity_id: input_select.persianas_norte_ultima_direccion
                                       data:
                                         option: bajando
-                      # SI NO ERA 'SUBIENDO' (ERA 'BAJANDO', 'UNKNOWN', ETC.) -> AHORA TOCA SUBIR
-                      default:
-                          - action: cover.open_cover
-                            target:
-                              entity_id:
-                                - cover.persiana_despacho_izda_cover_0
-                                - cover.persiana_despacho_centro
-                          - action: input_select.select_option
-                            target:
-                              entity_id: input_select.persianas_norte_ultima_direccion
-                            data:
-                              option: subiendo
+                              # SI NO ERA 'SUBIENDO' (ERA 'BAJANDO', 'UNKNOWN', ETC.) -> AHORA TOCA SUBIR
+                              default:
+                                  - action: cover.open_cover
+                                    target:
+                                      entity_id:
+                                        - cover.persiana_despacho_izda_cover_0
+                                        - cover.persiana_despacho_centro
+                                  - action: input_select.select_option
+                                    target:
+                                      entity_id: input_select.persianas_norte_ultima_direccion
+                                    data:
+                                      option: subiendo
         # ============================================================
         # BOTÓN 2 → DOBLE PULSACIÓN → Persiana centro
         # ============================================================
