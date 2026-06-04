@@ -177,11 +177,10 @@
                                 entity_id: input_select.persianas_norte_ultima_direccion
                               data:
                                 option: bajando
-                    # Si están en medio → alternar según ayudante
+                    # 3. Cualquier otra combinación (una arriba y otra en medio, las dos en medio, etc.)
                         - conditions:
                             - condition: template
-                              value_template: >
-                                {{ (pos1 > 0 and pos1 < 100) or (pos2 > 0 and pos2 < 100) or (pos1 != pos2) }}
+                              value_template: "{{ true }}"
                           sequence:
                             # Última fue subiendo → ahora bajar
                             - choose:
