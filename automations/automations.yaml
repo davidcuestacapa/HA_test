@@ -2145,7 +2145,7 @@
   mode: restart
   max_exceeded: silent
 - id: '1765208241617'
-  alias: Aviso - Consumo en inversor muy alto (>5300W)
+  alias: Aviso - Consumo en inversor muy alto (>5600W)
   description: ''
   triggers:
   - type: power
@@ -2153,7 +2153,7 @@
     entity_id: 37a20ba6e175e5c07c2f502b46b23f48
     domain: sensor
     trigger: device
-    above: 5300
+    above: 5600
   conditions: []
   actions:
   - data:
