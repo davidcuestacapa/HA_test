@@ -102,7 +102,7 @@
   entities:
     cover.persiana_salon_del_dcha_cover_0:
       is_closed: false
-      current_position: 27
+      current_position: 33
       device_class: shutter
       friendly_name: Persiana Salón del. dcha.
       supported_features: 15
@@ -116,14 +116,14 @@
       state: open
     cover.persiana_salon_lat_dcha_cover_0:
       is_closed: false
-      current_position: 56
+      current_position: 76
       device_class: shutter
       friendly_name: Persiana Salón lat. dcha.
       supported_features: 15
       state: open
     cover.persiana_salon_lat_izda_cover_0:
       is_closed: false
-      current_position: 69
+      current_position: 25
       device_class: shutter
       friendly_name: Persiana Salón lat. izda.
       supported_features: 15
