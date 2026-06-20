@@ -506,24 +506,28 @@
   name: 'Según Sol Persianas laterales - Cerrar parcial todas '
   entities:
     cover.persiana_dani_cover_0:
+      is_closed: false
       current_position: 40
       device_class: shutter
-      friendly_name: Persiana Dani
+      friendly_name: Persiana Dormitorio Dani
       supported_features: 15
       state: open
     cover.persiana_despacho_dcha_cover_0:
-      current_position: 40
+      is_closed: false
+      current_position: 32
       device_class: shutter
-      friendly_name: Persiana Despacho dcha
+      friendly_name: Persiana Despacho lateral
       supported_features: 15
       state: open
     cover.persiana_salon_lat_dcha_cover_0:
+      is_closed: false
       current_position: 40
       device_class: shutter
       friendly_name: Persiana Salón lat. dcha.
       supported_features: 15
       state: open
     cover.persiana_salon_lat_izda_cover_0:
+      is_closed: false
       current_position: 40
       device_class: shutter
       friendly_name: Persiana Salón lat. izda.
