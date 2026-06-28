@@ -233,15 +233,18 @@ camra_tapo_activar_sirena:
           state:
           - 'off'
       then:
-      - action: button.press
+      - action: siren.turn_on
+        metadata: {}
         target:
-          entity_id:
-          - button.tapo_c125_259c_manual_alarm_start
-        data: {}
+          entity_id: siren.yelmo
+        data:
+          volume_level: 0.25
+          duration: '7'
+          tone: Alarm 5
       - delay:
           hours: 0
-          minutes: 0
-          seconds: 20
+          minutes: 2
+          seconds: 30
           milliseconds: 0
       - action: input_boolean.turn_on
         metadata: {}
@@ -253,12 +256,16 @@ camra_tapo_activar_sirena:
           title: ⚠️ No pudo sonar alarma. Camarás Tapo no activas
           message: Las cámaras Tapo no están listas. No se activo sirena.
         action: persistent_notification.create
+        enabled: false
     else:
-    - action: button.press
+    - action: siren.turn_on
+      metadata: {}
       target:
-        entity_id:
-        - button.tapo_c125_259c_manual_alarm_start
-      data: {}
+        entity_id: siren.yelmo
+      data:
+        volume_level: 0.25
+        duration: '7'
+        tone: Alarm 5
   description: ''
 check_cameras_ready_ej_scrip_lanzador_con_parametros_bidireccionales:
   sequence:
