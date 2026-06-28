@@ -197,6 +197,14 @@ camra_tapo_activar_sirena:
   mode: single
   fields: {}
   sequence:
+  - action: siren.turn_on
+    metadata: {}
+    target:
+      entity_id: siren.yelmo
+    data:
+      volume_level: 0.25
+      duration: '7'
+      tone: Alarm 5
   - if:
     - condition: or
       conditions:
@@ -233,14 +241,6 @@ camra_tapo_activar_sirena:
           state:
           - 'off'
       then:
-      - action: siren.turn_on
-        metadata: {}
-        target:
-          entity_id: siren.yelmo
-        data:
-          volume_level: 0.25
-          duration: '7'
-          tone: Alarm 5
       - delay:
           hours: 0
           minutes: 2
@@ -257,15 +257,6 @@ camra_tapo_activar_sirena:
           message: Las cámaras Tapo no están listas. No se activo sirena.
         action: persistent_notification.create
         enabled: false
-    else:
-    - action: siren.turn_on
-      metadata: {}
-      target:
-        entity_id: siren.yelmo
-      data:
-        volume_level: 0.25
-        duration: '7'
-        tone: Alarm 5
   description: ''
 check_cameras_ready_ej_scrip_lanzador_con_parametros_bidireccionales:
   sequence:
