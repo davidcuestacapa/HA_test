@@ -2183,13 +2183,14 @@
         cocina {{ states('sensor.m_aux_phase_a_active_power') }}W \U0001F6CB️Aux habitaciones
         \ {{ states('sensor.m_aux_phase_b_active_power') }}W \U0001F4BBAux IT {{ states('sensor.m_aux_phase_c_active_power')
         }}W \U0001F4A1Luces {{ states('sensor.m_var_em1_power') }}W  "
+    enabled: false
   - action: script.notificar_con_mensaje_de_voz
     data:
       title: "Advertencia. Consumo muy alto ahora mismo. Recomendado APAGAR algún
         consumo;;;; Detectado que {{\n trigger.to_state.attributes.friendly_name }}
         alcanzó  {{\n trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement\n
         }}W Recomendado APAGAR algún consumo"
-      zona: surface
+      zona: surface cocina
   - action: script.encender_luces_casa_parpadeantes_alertas
     data:
       color_name: YELLOW
