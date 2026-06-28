@@ -40,6 +40,7 @@ advanced:
     - 167
     - 114
     - 133
+  log_directories_to_keep: 1000
 frontend:
   enabled: true
   port: 8099
