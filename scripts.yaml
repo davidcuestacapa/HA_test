@@ -379,3 +379,71 @@ prueba_de_notificacion_con_confirmacion_denegacion:
       title: notificacion de prueba
       message: aaaaaaaaaaaaaaaa
   description: ''
+alerta_activar_sirena_camera_tapo_duplicar:
+  sequence:
+  - if:
+    - condition: or
+      conditions:
+      - condition: device
+        type: is_off
+        device_id: f77c25f378f1cf5f0c783ec39eb16e1b
+        entity_id: 184da4ff5d2aa3df02be0f5e982cba2e
+        domain: switch
+      - condition: state
+        entity_id: input_boolean.privacidad_camaras
+        state:
+        - 'on'
+    then:
+    - action: input_boolean.turn_off
+      metadata: {}
+      target:
+        entity_id: input_boolean.privacidad_camaras
+      data: {}
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 15
+        milliseconds: 0
+    - if:
+      - condition: or
+        conditions:
+        - condition: device
+          type: is_on
+          device_id: f77c25f378f1cf5f0c783ec39eb16e1b
+          entity_id: 184da4ff5d2aa3df02be0f5e982cba2e
+          domain: switch
+        - condition: state
+          entity_id: input_boolean.privacidad_camaras
+          state:
+          - 'off'
+      then:
+      - action: button.press
+        target:
+          entity_id:
+          - button.tapo_c125_259c_manual_alarm_start
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 20
+          milliseconds: 0
+      - action: input_boolean.turn_on
+        metadata: {}
+        target:
+          entity_id: input_boolean.privacidad_camaras
+        data: {}
+      else:
+      - data:
+          title: ⚠️ No pudo sonar alarma. Camarás Tapo no activas
+          message: Las cámaras Tapo no están listas. No se activo sirena.
+        action: persistent_notification.create
+    else:
+    - action: button.press
+      target:
+        entity_id:
+        - button.tapo_c125_259c_manual_alarm_start
+      data: {}
+  alias: Alerta - Activar Sirena Camera Tapo (Duplicar)
+  mode: single
+  fields: {}
+  description: ''
