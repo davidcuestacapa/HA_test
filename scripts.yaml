@@ -445,3 +445,16 @@ alerta_activar_sirena_camera_tapo_duplicar:
   mode: single
   fields: {}
   description: ''
+coche_cambiar_corriente_carga_ac:
+  fields:
+    porcentaje:
+      description: Porcentaje de corriente (60, 90 o 100)
+      example: '90'
+  sequence:
+  - action: kia_uvo.set_charging_current
+    data:
+      current_value: '{{ porcentaje }}'
+  - delay: 00:00:05
+  - action: kia_uvo.force_update
+  alias: 'Coche: Cambiar Corriente Carga AC'
+  description: Cambia la corriente de carga (100, 90 o 60) y fuerza el refresco
