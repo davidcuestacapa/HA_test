@@ -2648,3 +2648,18 @@
           - scene.modo_noche_dani
         data: {}
   mode: single
+- id: '1782747822155'
+  alias: 'Coche: Aplicar cambio de corriente desde panel'
+  description: ''
+  triggers:
+  - entity_id: input_select.coche_potencia_de_carga_ac_seleccionada
+    trigger: state
+  conditions:
+  - condition: template
+    value_template: '{{ trigger.from_state is not none and trigger.to_state is not
+      none and trigger.from_state.state != trigger.to_state.state }}'
+  actions:
+  - action: script.coche_cambiar_corriente_carga_ac
+    data:
+      porcentaje: '{{ trigger.to_state.state | replace(''%'', '''') }}'
+  mode: single
