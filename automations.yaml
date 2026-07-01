@@ -2156,6 +2156,17 @@
     above: 5600
   conditions: []
   actions:
+  - action: siren.turn_on
+    metadata: {}
+    target:
+      entity_id: siren.yelmo
+    data:
+      volume_level: 0.25
+      duration: '7'
+      tone: Alarm 5
+  - action: kia_uvo.stop_charge
+    metadata: {}
+    data: {}
   - data:
       title: "⚠️ Aviso de ⚡\U0001F53A consumo muy alto"
       message: "\U0001F552{{ now().strftime('%H:%M:%S') }}\n⚡{{ trigger.to_state.attributes.friendly_name
