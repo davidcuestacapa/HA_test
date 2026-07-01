@@ -1489,7 +1489,7 @@
       color_name: GREEN
   mode: single
 - id: '1761470349141'
-  alias: Alerta - Temperatura alta en cuarto de instalaciones
+  alias: Alerta - Temperatura alta o humo en cuarto de instalaciones
   description: 'Notifica y alerta si la temperatura supera los 35 °C durante más de
     3 minutos.
 
@@ -1503,12 +1503,26 @@
       minutes: 0
       seconds: 5
     trigger: numeric_state
+  - trigger: state
+    entity_id:
+    - binary_sensor.detector_humo_instalaciones_humo
+    to:
+    - 'on'
   conditions: []
   actions:
+  - action: siren.turn_on
+    metadata: {}
+    target:
+      entity_id: siren.yelmo
+    data:
+      volume_level: 0.25
+      duration: '7'
+      tone: Alarm 5
+    note: 5 pitidos
   - data:
-      title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53Atemperatura elevada en Cuarto
-        instalaciones"
-      message: Detectado en cuarto de instalaciones que {{ trigger.to_state.attributes.friendly_name
+      title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53Atemperatura elevada o humo
+        en Cuarto instalaciones"
+      message: Detectado en cuarto de instalaciones que detecto humo o {{ trigger.to_state.attributes.friendly_name
         }} alcanzó  {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
         }}
       notification_id: temp_alta_cuarto
@@ -1523,17 +1537,17 @@
     action: browser_mod.notification
   - action: script.notificar_a_familia
     data:
-      title: "\U0001F6A8HA-EMERGENCIA - \U0001F321️\U0001F53AAlerta de temperatura
+      title: "\U0001F6A8HA-EMERGENCIA - \U0001F321️\U0001F53AAlerta de humo o temperatura
         \ elevada en Cuarto instalaciones"
       message: "\U0001F552Hora: {{ now().strftime('%H:%M') }} \U0001F50B#Bateria {{
         states('sensor.inversor_battery') }}%\nDetectado en cuarto de instalaciones
-        que {{ trigger.to_state.attributes.friendly_name }} alcanzó  {{   trigger.to_state.state
+        humo o que {{ trigger.to_state.attributes.friendly_name }} alcanzó  {{   trigger.to_state.state
         }}{{ trigger.to_state.attributes.unit_of_measurement }}"
   - action: script.notificar_con_mensaje_de_voz
     metadata: {}
     data:
       title: Alerta de temperatura elevada en el Cuarto de instalaciones
-      message: "Detectado en cuarto de instalaciones que {{ trigger.to_state.attributes.friendly_name
+      message: "Detectado en cuarto de instalaciones humo o que {{ trigger.to_state.attributes.friendly_name
         }} alcanzó  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
         }} \U0001F50BBateria {{   states('sensor.inversor_battery') }}%"
   - action: script.encender_luces_casa_parpadeantes_alertas
