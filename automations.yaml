@@ -2158,7 +2158,7 @@
   mode: restart
   max_exceeded: silent
 - id: '1765208241617'
-  alias: Aviso - Consumo en inversor muy alto (>5600W)
+  alias: Aviso - Consumo en inversor muy alto (>5600W) Apaga Coche y Termo
   description: ''
   triggers:
   - type: power
@@ -2180,6 +2180,14 @@
   - action: kia_uvo.stop_charge
     metadata: {}
     data: {}
+    continue_on_error: true
+  - action: water_heater.set_operation_mode
+    metadata: {}
+    target:
+      entity_id: water_heater.instalaciones_dhw
+    data:
+      operation_mode: Eco
+    continue_on_error: true
   - data:
       title: "⚠️ Aviso de ⚡\U0001F53A consumo muy alto"
       message: "\U0001F552{{ now().strftime('%H:%M:%S') }}\n⚡{{ trigger.to_state.attributes.friendly_name
