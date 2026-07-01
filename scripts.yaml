@@ -31,7 +31,7 @@ notificar_a_familia:
   mode: parallel
   description: ''
 encender_luces_casa_parpadeantes_alertas:
-  alias: Alerta - Encender luz casa parpadeante
+  alias: Alerta - Encender luz casa parpadeante y Script activar camaras Tapo
   description: ''
   mode: restart
   fields:
@@ -193,18 +193,10 @@ check_cameras_ready_tapo:
   - stop: Cámara fallida
     response_variable: resultado
 camra_tapo_activar_sirena:
-  alias: Alerta - Activar Sirena Camera Tapo
+  alias: Alerta - Activar Cameras Tapo
   mode: single
   fields: {}
   sequence:
-  - action: siren.turn_on
-    metadata: {}
-    target:
-      entity_id: siren.yelmo
-    data:
-      volume_level: 0.25
-      duration: '7'
-      tone: Alarm 5
   - if:
     - condition: or
       conditions:
