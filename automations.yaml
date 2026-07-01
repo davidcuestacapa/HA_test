@@ -2767,7 +2767,7 @@
         action: script.notificar_a_administradores
     - conditions:
       - condition: template
-        value_template: '{{ (modo_objetivo | trim) in [''heat'', ''cool''] }}'
+        value_template: '{{ modo_objetivo | trim | lower in [''heat'', ''cool''] }}'
       sequence:
       - if:
         - condition: template
