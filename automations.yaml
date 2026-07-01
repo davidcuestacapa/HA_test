@@ -2158,7 +2158,8 @@
   mode: restart
   max_exceeded: silent
 - id: '1765208241617'
-  alias: Aviso - Consumo en inversor muy alto (>5600W) Apaga Coche y Termo
+  alias: Aviso - Consumo en inversor muy alto (>5600W) Apagado de Cargador coche y
+    Termo
   description: ''
   triggers:
   - type: power
@@ -2739,10 +2740,10 @@
       nueva_consigna: "{% set nivel = states('sensor.nivel_energetico') %} {% set
         modo = modo_objetivo | trim %}\n{% if modo == 'heat' %}\n  {% if nivel ==
         'bajo' %}\n    18\n  {% elif nivel == 'normal' %}\n    20\n  {% elif nivel
-        == 'alto' %}\n    21\n  {% elif nivel == 'excedente' %}\n    22.5\n  {% else
+        == 'alto' %}\n    21\n  {% elif nivel == 'excedente' %}\n    23\n  {% else
         %}\n    none\n  {% endif %}\n\n{% elif modo == 'cool' %}\n  {% if nivel ==
-        'bajo' %}\n    27\n  {% elif nivel == 'normal' %}\n    25\n  {% elif nivel
-        == 'alto' %}\n    24\n  {% elif nivel == 'excedente' %}\n    23\n  {% else
+        'bajo' %}\n    25\n  {% elif nivel == 'normal' %}\n    24\n  {% elif nivel
+        == 'alto' %}\n    23\n  {% elif nivel == 'excedente' %}\n    22\n  {% else
         %}\n    none\n  {% endif %}\n\n{% else %}\n  none\n{% endif %}"
   - choose:
     - conditions:
