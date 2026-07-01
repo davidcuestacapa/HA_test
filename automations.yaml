@@ -1871,7 +1871,6 @@
     entity_id: climate.zona1
     state:
     - heat
-    - auto
   actions:
   - target:
       entity_id: input_boolean.notificar_evento
