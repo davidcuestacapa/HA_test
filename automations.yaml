@@ -1531,10 +1531,17 @@
         }}
       notification_id: temp_alta_cuarto
     action: persistent_notification.create
+  - action: script.notificar_con_mensaje_de_voz
+    metadata: {}
+    data:
+      title: Alerta de humo o temperatura elevada en el Cuarto de instalaciones
+      message: "Detectado en cuarto de instalaciones humo o que {{ trigger.to_state.attributes.friendly_name
+        }} alcanzó  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
+        }} \U0001F50BBateria {{   states('sensor.inversor_battery') }}%"
   - data:
       deviceID:
       - 413c6641-f214c141
-      title: ⚠️ Temperatura elevada
+      title: ⚠️ Humo o temperatura elevada
       message: Cuarto de instalaciones > 35 °C
       duration: 100000
       icon: mdi:thermometer-alert
@@ -1547,13 +1554,6 @@
         states('sensor.inversor_battery') }}%\nDetectado en cuarto de instalaciones
         humo o que {{ trigger.to_state.attributes.friendly_name }} alcanzó  {{   trigger.to_state.state
         }}{{ trigger.to_state.attributes.unit_of_measurement }}"
-  - action: script.notificar_con_mensaje_de_voz
-    metadata: {}
-    data:
-      title: Alerta de temperatura elevada en el Cuarto de instalaciones
-      message: "Detectado en cuarto de instalaciones humo o que {{ trigger.to_state.attributes.friendly_name
-        }} alcanzó  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
-        }} \U0001F50BBateria {{   states('sensor.inversor_battery') }}%"
   mode: single
 - id: '1762779646441'
   alias: Aerotermia subir y bajar cale si hay buena producción solar.

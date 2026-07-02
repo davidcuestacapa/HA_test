@@ -8,26 +8,12 @@ notificar_a_familia:
       description: Mensaje de la notificación
       example: Temperatura normal
   sequence:
-  - data:
-      title: '{{ title }}'
-      message: '{{ message }}'
-    action: notify.mobile_app_cph2343
-  - data:
-      title: '{{ title }}'
-      message: '{{ message }}'
-    action: notify.mobile_app_cph2483
-  - data:
-      title: '{{ title }}'
-      message: '{{ message }}'
-    action: notify.mobile_app_edison_3_3g
-  - data:
-      title: '{{ title }}'
-      message: '{{ message }}'
-    action: notify.mobile_app_oppo_dashboard
-  - data:
-      title: '{{ title }}'
-      message: '{{ message }}'
-    action: notify.mobile_app_sm_x826b
+  - action: notify.mobile_app_sm_x826b_tablet
+    data: {}
+  - action: notify.mobile_app_cph2783_dani
+    data: {}
+  - action: notify.mobile_app_david_x
+    data: {}
   mode: parallel
   description: ''
 encender_luces_casa_parpadeantes_alertas:
