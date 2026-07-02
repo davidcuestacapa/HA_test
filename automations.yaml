@@ -1524,7 +1524,7 @@
     data:
       color_name: RED
   - data:
-      title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53Atemperatura elevada o humo
+      title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53AHumo o temperatura elevada
         en Cuarto instalaciones"
       message: Detectado en cuarto de instalaciones que detecto humo o {{ trigger.to_state.attributes.friendly_name
         }} alcanzó  {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
@@ -2167,7 +2167,7 @@
     entity_id: 37a20ba6e175e5c07c2f502b46b23f48
     domain: sensor
     trigger: device
-    above: 5600
+    above: 5800
   conditions: []
   actions:
   - action: siren.turn_on
