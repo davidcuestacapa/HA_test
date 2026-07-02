@@ -1510,7 +1510,8 @@
     - 'on'
   conditions: []
   actions:
-  - action: siren.turn_on
+  - note: 1 submarino 3 timbre-campana bomberos 4 pitidos 5 sirena
+    action: siren.turn_on
     metadata: {}
     target:
       entity_id: siren.yelmo
@@ -1518,7 +1519,6 @@
       volume_level: 0.25
       duration: '7'
       tone: Alarm 5
-    note: 5 pitidos
   - data:
       title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53Atemperatura elevada o humo
         en Cuarto instalaciones"
