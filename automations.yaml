@@ -1519,6 +1519,10 @@
       volume_level: 0.25
       duration: '7'
       tone: Alarm 5
+  - action: script.encender_luces_casa_parpadeantes_alertas
+    metadata: {}
+    data:
+      color_name: RED
   - data:
       title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53Atemperatura elevada o humo
         en Cuarto instalaciones"
@@ -1550,10 +1554,6 @@
       message: "Detectado en cuarto de instalaciones humo o que {{ trigger.to_state.attributes.friendly_name
         }} alcanzó  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
         }} \U0001F50BBateria {{   states('sensor.inversor_battery') }}%"
-  - action: script.encender_luces_casa_parpadeantes_alertas
-    metadata: {}
-    data:
-      color_name: RED
   mode: single
 - id: '1762779646441'
   alias: Aerotermia subir y bajar cale si hay buena producción solar.
