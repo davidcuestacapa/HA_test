@@ -694,6 +694,10 @@
     attribute: azimuth
     above: 0
     below: 115
+  - condition: state
+    entity_id: input_select.ems_modo_climatizacion
+    state:
+    - Auto
   actions:
   - target:
       entity_id: cover.persiana_despacho_dcha_cover_0
