@@ -2726,6 +2726,7 @@
     state: 'on'
   actions:
   - variables:
+      debug: true
       nivel: '{{ states(''sensor.nivel_energetico'') }}'
       modo_ems: '{{ states(''input_select.ems_modo_climatizacion'') }}'
       temp_exterior: '{{ states(''sensor.cerce_outdoor_temperature'') | float(0) }}'
