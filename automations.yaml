@@ -2762,24 +2762,33 @@
         action: climate.turn_off
       - delay:
           seconds: 5
-      - data:
-          title: ⚠️ Aerotermia - Apagada por nivel energético crítico
-          message: "\U0001F552 Hora: {{ now().strftime('%H:%M') }}\nNivel energético:
-            {{ nivel }}\nEMS climatización: {{ modo_ems }}\n\U0001F321️ Exterior:
-            {{ temp_exterior }} ºC\nModo anterior: {{ modo_actual }}\nAcción HVAC
-            anterior: {{ hvac_action }}\n\U0001F50B Batería: {{ states('sensor.inversor_battery')
-            }}%\n☀️ Producción restante hoy: {{ states('sensor.energy_production_today_remaining')
-            }} kWh\n\U0001F4C5 Producción estimada mañana: {{ states('sensor.energy_production_tomorrow')
-            }} kWh\n{% if trigger.to_state is defined %}\n  Disparado por {{ trigger.to_state.attributes.friendly_name
-            }} cambió a {{ trigger.to_state.state }}\n{% else %}\n  Disparado por
-            evento sin estado\n{% endif %}"
-        action: persistent_notification.create
-      - data:
-          title: HA-Aerotermia - ⚠️ Apagada por nivel crítico
-          message: "\U0001F552 {{ now().strftime('%H:%M') }}\nNivel: {{ nivel }}\nBatería:
-            {{ states('sensor.inversor_battery') }}%\nExterior: {{ temp_exterior }}
-            ºC\nModo anterior: {{ modo_actual }}"
-        action: script.notificar_a_administradores
+      - if:
+        - condition: template
+          value_template: "{{\n  debug\n  or (\n    trigger.entity_id == 'sensor.nivel_energetico'\n
+            \   and trigger.from_state is not none\n    and trigger.to_state is not
+            none\n    and trigger.from_state.state != 'critico'\n    and trigger.to_state.state
+            == 'critico'\n  )\n}}\n"
+        then:
+        - data:
+            title: ⚠️ Aerotermia - Apagada por nivel energético crítico
+            message: "\U0001F552 Hora: {{ now().strftime('%H:%M') }}\nNivel energético:
+              {{ nivel }}\nEMS climatización: {{ modo_ems }}\n\U0001F321️ Exterior:
+              {{ temp_exterior }} ºC\nModo anterior: {{ modo_actual }}\nAcción HVAC
+              anterior: {{ hvac_action }}\n\U0001F50B Batería: {{ states('sensor.inversor_battery')
+              }}%\n☀️ Producción restante hoy: {{ states('sensor.energy_production_today_remaining')
+              }} kWh\n\U0001F4C5 Producción estimada mañana: {{ states('sensor.energy_production_tomorrow')
+              }} kWh\n{% if debug %} \U0001F41E MODO DEBUG ACTIVO {% endif %}\n{%
+              if trigger.to_state is defined %}\n  Disparado por {{ trigger.to_state.attributes.friendly_name
+              }}\n  cambió a {{ trigger.to_state.state }}\n{% else %}\n  Disparado
+              por un evento sin estado\n{% endif %}"
+          action: persistent_notification.create
+        - data:
+            title: HA-Aerotermia - ⚠️ Apagada por nivel crítico
+            message: "\U0001F552 {{ now().strftime('%H:%M') }}\nNivel: {{ nivel }}\nBatería:
+              {{ states('sensor.inversor_battery') }}%\nExterior: {{ temp_exterior
+              }} ºC\nModo anterior: {{ modo_actual }}\n{% if debug %} \U0001F41E Notificación
+              generada en modo DEBUG {% endif %}"
+          action: script.notificar_a_administradores
     - conditions:
       - condition: template
         value_template: '{{ modo_objetivo | trim | lower in [''heat'', ''cool''] }}'
