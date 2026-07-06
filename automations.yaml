@@ -2162,18 +2162,65 @@
   mode: restart
   max_exceeded: silent
 - id: '1765208241617'
-  alias: Aviso - Consumo en inversor muy alto (>5600W) Apagado de Cargador coche y
-    Termo
-  description: ''
+  alias: Aviso - Consumo en inversor muy alto (>6000W) Protección cargas controlables
+  description: "Protección rápida ante exceso de consumo en inversor. Prioriza cortar
+    DHW, lavadora y lavavajillas antes que parar la carga del coche. Consumo inversor
+    > 6000 W\n        │\n        ├─ Si DHW apoyo >300 W → DHW a Eco\n        ├─ Si
+    lavadora >400 W → switch.lavadora OFF\n        ├─ Si lavavajillas >400 W → switch.lavavajillas
+    OFF\n        │\n        └─ Si no basta, o no había nada anterior:\n              └─
+    si coche enchufado → stop charge + force refresh"
   triggers:
   - type: power
     device_id: fbc794a067f8f8e3c1d953f44f284059
     entity_id: 37a20ba6e175e5c07c2f502b46b23f48
     domain: sensor
     trigger: device
-    above: 5800
+    above: 6000
   conditions: []
   actions:
+  - variables:
+      potencia_inversor: '{{ trigger.to_state.state | float(0) }}'
+      unidad_inversor: '{{ trigger.to_state.attributes.unit_of_measurement | default(''W'')
+        }}'
+      nombre_inversor: '{{ trigger.to_state.attributes.friendly_name | default(''Inversor'')
+        }}'
+      dhw_w: '{{ states(''sensor.baxi_apoyo_potencia'') | float(0) }}'
+      lavadora_w: '{{ states(''sensor.lavadora_consumo_actual'') | float(0) }}'
+      lavavajillas_w: '{{ states(''sensor.lavavajillas_consumo_actual'') | float(0)
+        }}'
+      coche_w: '{{ states(''sensor.m_ext_coche_potenciab'') | float(0) }}'
+      coche_enchufado: '{{ is_state(''binary_sensor.ioniq_ev_battery_plug'', ''on'')
+        }}'
+  - variables:
+      cortar_dhw: '{{ dhw_w > 300 }}'
+      cortar_lavadora: "{{\n  lavadora_w > 400\n  and is_state('switch.lavadora',
+        'on')\n}}"
+      cortar_lavavajillas: "{{\n  lavavajillas_w > 400\n  and is_state('switch.lavavajillas',
+        'on')\n}}"
+  - variables:
+      potencia_liberable_estim: "{{\n  (dhw_w if cortar_dhw else 0)\n  + (lavadora_w
+        if cortar_lavadora else 0)\n  + (lavavajillas_w if cortar_lavavajillas else
+        0)\n}}"
+      potencia_estimada_post_cortes: "{{\n  potencia_inversor - (\n    (dhw_w if cortar_dhw
+        else 0)\n    + (lavadora_w if cortar_lavadora else 0)\n    + (lavavajillas_w
+        if cortar_lavavajillas else 0)\n  )\n}}"
+  - variables:
+      cortar_coche: "{{\n  coche_enchufado\n  and (\n    (\n      not cortar_dhw\n
+        \     and not cortar_lavadora\n      and not cortar_lavavajillas\n    )\n
+        \   or potencia_estimada_post_cortes > 5700\n  )\n}}"
+      potencia_liberable_total_estim: "{{\n  potencia_liberable_estim\n  + (4000 if
+        cortar_coche else 0)\n}}"
+      acciones_realizadas: "{% set ns = namespace(a=[]) %} {% if cortar_dhw %}\n  {%
+        set ns.a = ns.a + ['♨️ DHW puesto en Eco. Apoyo eléctrico detectado: ' ~ (dhw_w
+        | round(0)) ~ ' W'] %}\n{% endif %} {% if cortar_lavadora %}\n  {% set ns.a
+        = ns.a + ['\U0001F455 Lavadora apagada. Consumo detectado: ' ~ (lavadora_w
+        | round(0)) ~ ' W'] %}\n{% endif %} {% if cortar_lavavajillas %}\n  {% set
+        ns.a = ns.a + ['\U0001F37D️ Lavavajillas apagado. Consumo detectado: ' ~ (lavavajillas_w
+        | round(0)) ~ ' W'] %}\n{% endif %} {% if cortar_coche %}\n  {% set ns.a =
+        ns.a + ['\U0001F697 Carga del coche detenida. Coche enchufado. Límite estimado
+        de carga: hasta 4000 W'] %}\n{% endif %} {% if ns.a | count > 0 %}\n  {{ ns.a
+        | join('\\n') }}\n{% else %}\n  ⚠️ No se ha encontrado ninguna carga controlable
+        activa para cortar automáticamente.\n{% endif %}"
   - action: siren.turn_on
     metadata: {}
     target:
@@ -2182,52 +2229,78 @@
       volume_level: 0.25
       duration: '7'
       tone: Alarm 5
-  - action: kia_uvo.stop_charge
-    metadata: {}
-    data: {}
-    continue_on_error: true
-  - action: water_heater.set_operation_mode
-    metadata: {}
-    target:
-      entity_id: water_heater.instalaciones_dhw
+  - if:
+    - condition: template
+      value_template: '{{ cortar_dhw }}'
+    then:
+    - action: water_heater.set_operation_mode
+      metadata: {}
+      target:
+        entity_id: water_heater.instalaciones_dhw
+      data:
+        operation_mode: Eco
+      continue_on_error: true
+  - if:
+    - condition: template
+      value_template: '{{ cortar_lavadora }}'
+    then:
+    - action: switch.turn_off
+      metadata: {}
+      target:
+        entity_id: switch.lavadora
+      data: {}
+      continue_on_error: true
+  - if:
+    - condition: template
+      value_template: '{{ cortar_lavavajillas }}'
+    then:
+    - action: switch.turn_off
+      metadata: {}
+      target:
+        entity_id: switch.lavavajillas
+      data: {}
+      continue_on_error: true
+  - if:
+    - condition: template
+      value_template: '{{ cortar_coche }}'
+    then:
+    - action: kia_uvo.stop_charge
+      metadata: {}
+      data: {}
+      continue_on_error: true
+    - action: button.press
+      metadata: {}
+      target:
+        entity_id: button.ioniq_force_refresh
+      data: {}
+      continue_on_error: true
+  - action: persistent_notification.create
     data:
-      operation_mode: Eco
-    continue_on_error: true
-  - data:
       title: "⚠️ Aviso de ⚡\U0001F53A consumo muy alto"
-      message: "\U0001F552{{ now().strftime('%H:%M:%S') }}\n⚡{{ trigger.to_state.attributes.friendly_name
-        }} alcanzó  {{  trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
-        }}.\n\nRecomendado APAGAR algún consumo.\n\n\U0001F373 Vitro {{ states('sensor.m_var_em2_power')
-        }}W\n\U0001F455 Lavadora {{\n  states('sensor.lavadora_consumo_actual') }}W\n\U0001F37D️
-        Lavavajillas {{\n  states('sensor.lavavajillas_consumo_actual') }}W\n\U0001F355
-        Horno {{\n  states('sensor.m_var_em0_power') }}W \n♨️❄️ Aerotermia {{\n  states('sensor.baxi_total_potencia')
-        }}W \n\U0001F374 Aux cocina/baño {{\n  states('sensor.m_aux_phase_a_active_power')
-        }}W\n\U0001F6CB️ Aux habitaciones  {{\n  states('sensor.m_aux_phase_b_active_power')
-        }}W\n\U0001F4BB Aux IT: {{ states('sensor.m_aux_phase_c_active_power') }}W\n\U0001F4A1
-        Luces {{ states('sensor.m_var_em1_power') }}W  \n\n"
       notification_id: Consumo_alto_casa
-    action: persistent_notification.create
-  - action: script.notificar_a_administradores
-    metadata: {}
-    data:
-      title: "⚠️HA-Energia -⚡\U0001F53AAviso de consumo muy alto"
-      message: "\U0001F552{{ now().strftime('%H:%M') }} ⚡Detectado que {{ trigger.to_state.attributes.friendly_name
-        }} alcanzó  {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
-        }}W Recomendado APAGAR algún consumo\n\U0001F373Vitro {{ states('sensor.m_var_em2_power')
-        }}W \U0001F455Lavadora {{ states('sensor.lavadora_consumo_actual') }}W   \U0001F37D️Lavavajillas
-        {{ states('sensor.lavavajillas_consumo_actual') }}W \U0001F525Horno {{ states('sensor.m_var_em0_power')
-        }}W ❄️Aerotermia {{ states('sensor.baxi_total_potencia') }}W \U0001F374Aux
-        cocina {{ states('sensor.m_aux_phase_a_active_power') }}W \U0001F6CB️Aux habitaciones
-        \ {{ states('sensor.m_aux_phase_b_active_power') }}W \U0001F4BBAux IT {{ states('sensor.m_aux_phase_c_active_power')
-        }}W \U0001F4A1Luces {{ states('sensor.m_var_em1_power') }}W  "
-    enabled: false
+      message: "\U0001F552 {{ now().strftime('%H:%M:%S') }}\n⚡ {{ nombre_inversor
+        }} alcanzó {{ potencia_inversor | round(0) }}{{ unidad_inversor }}.\n\U0001F6E1️
+        Protección automática ejecutada:\n{{ acciones_realizadas }}\n\U0001F4C9 Potencia
+        liberable estimada: {{ potencia_liberable_total_estim | round(0) }} W\n\U0001F4CA
+        Potencia estimada tras cortar DHW/lavadora/lavavajillas: {{ potencia_estimada_post_cortes
+        | round(0) }} W\n----------------------------\nEstado de consumos en el momento
+        del disparo:\n\U0001F697 Coche: {{ coche_w | round(0) }} W \U0001F697 Coche
+        enchufado: {{ 'sí' if coche_enchufado else 'no' }}\n♨️ Apoyo DHW: {{ dhw_w
+        | round(0) }} W \U0001F455 Lavadora: {{ lavadora_w | round(0) }} W \U0001F37D️
+        Lavavajillas: {{ lavavajillas_w | round(0) }} W\n\U0001F373 Vitro: {{ states('sensor.m_var_em2_power')
+        }} W \U0001F355 Horno: {{ states('sensor.m_var_em0_power') }} W ♨️❄️ Aerotermia
+        total: {{ states('sensor.baxi_total_potencia') }} W\n\U0001F374 Aux cocina/baño:
+        {{ states('sensor.m_aux_phase_a_active_power') }} W \U0001F6CB️ Aux habitaciones:
+        {{ states('sensor.m_aux_phase_b_active_power') }} W \U0001F4BB Aux IT: {{
+        states('sensor.m_aux_phase_c_active_power') }} W \U0001F4A1 Luces: {{ states('sensor.m_var_em1_power')
+        }} W"
   - action: script.notificar_con_mensaje_de_voz
     data:
-      title: "Advertencia. Consumo muy alto ahora mismo. Intentando APAGAR algún consumo;;;;
-        Detectado que {{\n trigger.to_state.attributes.friendly_name }} alcanzó  {{\n
-        trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement\n
-        }}W;;; Recomendado Revisar el estado de Carga del coche y el Apoyo electrico
-        de la Aerotermia"
+      title: Advertencia. Consumo muy alto ahora mismo. Se ha activado la protección
+        automática de cargas controlables. Potencia detectada {{ potencia_inversor
+        | round(0) }} vatios. Potencia liberable estimada {{ potencia_liberable_total_estim
+        | round(0) }} vatios. Revisar coche, apoyo eléctrico de aerotermia, lavadora
+        y lavavajillas.
       zona: surface cocina
   - action: script.encender_luces_casa_parpadeantes_alertas
     data:
