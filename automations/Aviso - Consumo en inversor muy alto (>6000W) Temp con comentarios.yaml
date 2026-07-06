@@ -208,6 +208,10 @@
     # ============================================================
     # NOTIFICACIÓN
     # ============================================================
+    - service: persistent_notification.create
+      data:
+        title: "TEST"
+        message: "Automatización cargada y ejecutada"
 
     - service: persistent_notification.create
       data:
