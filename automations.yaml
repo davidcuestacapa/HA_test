@@ -2703,8 +2703,11 @@
   mode: single
 - id: '1782920645626'
   alias: Aerotermia - Gestión energética inteligente
-  description: Control único de aerotermia según EMS, modo climatización, temperatura
-    exterior, nivel energético y consigna dinámica.
+  description: "Control único de aerotermia según EMS, modo climatización, temperatura
+    exterior, nivel energético y consigna dinámica.\nideas v2\nV2, yo iría en este
+    orden:\n1️⃣ Zona neutra + histéresis + \nEvita cambios innecesarios \n2 Aprovechar
+    FV predictivo (sobre-calent/enfriar) o si no hay gente\noptimiza antes de mañana
+    peor\n3️⃣ Dashboard explicativo EMS\nMuy útil para depurar.\n"
   triggers:
   - trigger: state
     entity_id: sensor.nivel_energetico
