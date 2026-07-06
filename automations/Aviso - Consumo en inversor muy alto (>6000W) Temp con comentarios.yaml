@@ -1,272 +1,273 @@
-alias: >-
-  Aviso - Consumo en inversor muy alto (>6000W)
-description: Protección rápida para evitar caída del inversor.
-
-trigger:
-  - type: power
-    device_id: fbc794a067f8f8e3c1d953f44f284059
-    entity_id: 37a20ba6e175e5c07c2f502b46b23f48
-    domain: sensor
-    trigger: device
-    above: 6000
-
-condition: []
-
-action:
-
-  ####################################################################
-  # CONFIGURACIÓN
-  ####################################################################
-
-  - variables:
-
-      umbral_dhw_w: 300
-      umbral_lavadora_w: 400
-      umbral_lavavajillas_w: 400
-      umbral_coche_w: 500
-
-      potencia_inversor: >
-        {{ trigger.to_state.state | float(0) }}
-
-      nombre_sensor: >
-        {{ trigger.to_state.attributes.friendly_name }}
-
-      unidad_sensor: >
-        {{ trigger.to_state.attributes.unit_of_measurement }}
-
-      ################################################################
-      # MEDIDAS REALES
-      ################################################################
-
-      dhw_w: >
-        {{ states('sensor.baxi_apoyo_potencia') | float(0) }}
-
-      lavadora_w: >
-        {{ states('sensor.lavadora_consumo_actual') | float(0) }}
-
-      lavavajillas_w: >
-        {{ states('sensor.lavavajillas_consumo_actual') | float(0) }}
-
-      coche_w: >
-        {{ states('sensor.m_ext_coche_potencia') | float(0) }}
-
-      coche_charge_api: >
-        {{ states('binary_sensor.ioniq_ev_battery_charge') }}
-
-      ################################################################
-      # DECISIONES
-      ################################################################
-
-      cortar_dhw: >
-        {{ dhw_w > umbral_dhw_w }}
-
-      cortar_lavadora: >
-        {{
-          lavadora_w > umbral_lavadora_w
-          and is_state('switch.lavadora','on')
-        }}
-
-      cortar_lavavajillas: >
-        {{
-          lavavajillas_w > umbral_lavavajillas_w
-          and is_state('switch.lavavajillas','on')
-        }}
-
-      cortar_coche: >
-        {{ coche_w > umbral_coche_w }}
-
-      ################################################################
-      # POTENCIA LIBERABLE ESTIMADA
-      ################################################################
-
-      potencia_liberada: >
-        {{
-          (dhw_w if dhw_w > umbral_dhw_w else 0)
-          +
-          (lavadora_w if lavadora_w > umbral_lavadora_w else 0)
-          +
-          (lavavajillas_w if lavavajillas_w > umbral_lavavajillas_w else 0)
-          +
-          (coche_w if coche_w > umbral_coche_w else 0)
-        }}
-
-      acciones_realizadas: >
-        {% set ns = namespace(txt=[]) %}
-
-        {% if cortar_dhw %}
-          {% set ns.txt = ns.txt + ['♨️ DHW → ECO (' ~ (dhw_w|round(0)) ~ 'W)'] %}
-        {% endif %}
-
-        {% if cortar_lavadora %}
-          {% set ns.txt = ns.txt + ['👕 Lavadora → OFF (' ~ (lavadora_w|round(0)) ~ 'W)'] %}
-        {% endif %}
-
-        {% if cortar_lavavajillas %}
-          {% set ns.txt = ns.txt + ['🍽️ Lavavajillas → OFF (' ~ (lavavajillas_w|round(0)) ~ 'W)'] %}
-        {% endif %}
-
-        {% if cortar_coche %}
-          {% set ns.txt = ns.txt + ['🚗 Carga coche → STOP (' ~ (coche_w|round(0)) ~ 'W)'] %}
-        {% endif %}
-
-        {% if ns.txt | count == 0 %}
-          Sin cargas controlables disponibles.
-        {% else %}
-          {{ ns.txt | join('\n') }}
-        {% endif %}
-
-  ####################################################################
-  # SIRENA
-  ####################################################################
-
-  - service: siren.turn_on
-    target:
-      entity_id: siren.yelmo
-    data:
-      volume_level: 0.25
-      duration: 7
-      tone: Alarm 5
-
-  ####################################################################
-  # DHW
-  ####################################################################
-
-  - if:
-      - condition: template
-        value_template: "{{ cortar_dhw }}"
-    then:
-      - service: water_heater.set_operation_mode
+-   id: '1765208241617'
+    alias: >-
+      Aviso - Consumo en inversor muy alto (>6000W)
+    description: Protección rápida para evitar caída del inversor.
+    
+    trigger:
+      - type: power
+        device_id: fbc794a067f8f8e3c1d953f44f284059
+        entity_id: 37a20ba6e175e5c07c2f502b46b23f48
+        domain: sensor
+        trigger: device
+        above: 6000
+    
+    condition: []
+    
+    action:
+    
+      ####################################################################
+      # CONFIGURACIÓN
+      ####################################################################
+    
+      - variables:
+    
+          umbral_dhw_w: 300
+          umbral_lavadora_w: 400
+          umbral_lavavajillas_w: 700
+          umbral_coche_w: 500
+    
+          potencia_inversor: >
+            {{ trigger.to_state.state | float(0) }}
+    
+          nombre_sensor: >
+            {{ trigger.to_state.attributes.friendly_name }}
+    
+          unidad_sensor: >
+            {{ trigger.to_state.attributes.unit_of_measurement }}
+    
+          ################################################################
+          # MEDIDAS REALES
+          ################################################################
+    
+          dhw_w: >
+            {{ states('sensor.baxi_apoyo_potencia') | float(0) }}
+    
+          lavadora_w: >
+            {{ states('sensor.lavadora_consumo_actual') | float(0) }}
+    
+          lavavajillas_w: >
+            {{ states('sensor.lavavajillas_consumo_actual') | float(0) }}
+    
+          coche_w: >
+            {{ states('sensor.m_ext_coche_potencia') | float(0) }}
+    
+          coche_charge_api: >
+            {{ states('binary_sensor.ioniq_ev_battery_charge') }}
+    
+          ################################################################
+          # DECISIONES
+          ################################################################
+    
+          cortar_dhw: >
+            {{ dhw_w > umbral_dhw_w }}
+    
+          cortar_lavadora: >
+            {{
+              lavadora_w > umbral_lavadora_w
+              and is_state('switch.lavadora','on')
+            }}
+    
+          cortar_lavavajillas: >
+            {{
+              lavavajillas_w > umbral_lavavajillas_w
+              and is_state('switch.lavavajillas','on')
+            }}
+    
+          cortar_coche: >
+            {{ coche_w > umbral_coche_w }}
+    
+          ################################################################
+          # POTENCIA LIBERABLE ESTIMADA
+          ################################################################
+    
+          potencia_liberada: >
+            {{
+              (dhw_w if dhw_w > umbral_dhw_w else 0)
+              +
+              (lavadora_w if lavadora_w > umbral_lavadora_w else 0)
+              +
+              (lavavajillas_w if lavavajillas_w > umbral_lavavajillas_w else 0)
+              +
+              (coche_w if coche_w > umbral_coche_w else 0)
+            }}
+    
+          acciones_realizadas: >
+            {% set ns = namespace(txt=[]) %}
+    
+            {% if cortar_dhw %}
+              {% set ns.txt = ns.txt + ['♨️ DHW → ECO (' ~ (dhw_w|round(0)) ~ 'W)'] %}
+            {% endif %}
+    
+            {% if cortar_lavadora %}
+              {% set ns.txt = ns.txt + ['👕 Lavadora → OFF (' ~ (lavadora_w|round(0)) ~ 'W)'] %}
+            {% endif %}
+    
+            {% if cortar_lavavajillas %}
+              {% set ns.txt = ns.txt + ['🍽️ Lavavajillas → OFF (' ~ (lavavajillas_w|round(0)) ~ 'W)'] %}
+            {% endif %}
+    
+            {% if cortar_coche %}
+              {% set ns.txt = ns.txt + ['🚗 Carga coche → STOP (' ~ (coche_w|round(0)) ~ 'W)'] %}
+            {% endif %}
+    
+            {% if ns.txt | count == 0 %}
+              Sin cargas controlables disponibles.
+            {% else %}
+              {{ ns.txt | join('\n') }}
+            {% endif %}
+    
+      ####################################################################
+      # SIRENA
+      ####################################################################
+    
+      - service: siren.turn_on
         target:
-          entity_id: water_heater.instalaciones_dhw
+          entity_id: siren.yelmo
         data:
-          operation_mode: Eco
-        continue_on_error: true
-
-  ####################################################################
-  # LAVADORA
-  ####################################################################
-
-  - if:
-      - condition: template
-        value_template: "{{ cortar_lavadora }}"
-    then:
-      - service: switch.turn_off
-        target:
-          entity_id: switch.lavadora
-        continue_on_error: true
-
-  ####################################################################
-  # LAVAVAJILLAS
-  ####################################################################
-
-  - if:
-      - condition: template
-        value_template: "{{ cortar_lavavajillas }}"
-    then:
-      - service: switch.turn_off
-        target:
-          entity_id: switch.lavavajillas
-        continue_on_error: true
-
-  ####################################################################
-  # COCHE
-  ####################################################################
-
-  - if:
-      - condition: template
-        value_template: "{{ cortar_coche }}"
-    then:
-      - service: kia_uvo.stop_charge
-        continue_on_error: true
-
-      - service: button.press
-        target:
-          entity_id: button.ioniq_force_refresh
-        continue_on_error: true
-
-  ####################################################################
-  # NOTIFICACIÓN PERSISTENTE
-  ####################################################################
-
-  - service: persistent_notification.create
-    data:
-      notification_id: Consumo_alto_casa
-      title: "⚠️ Consumo muy alto detectado"
-      message: >-
-
-        🕒 {{ now().strftime('%H:%M:%S') }}
-
-        ⚡ {{ nombre_sensor }}
-        alcanzó {{ potencia_inversor|round(0) }}{{ unidad_sensor }}
-
-        ------------------------------------------------
-
-        🛡️ Acciones ejecutadas:
-
-        {{ acciones_realizadas }}
-
-        ------------------------------------------------
-
-        📉 Potencia liberada estimada:
-        {{ potencia_liberada|round(0) }}W
-
-        ------------------------------------------------
-
-        🚗 Coche:
-        {{ coche_w|round(0) }}W
-        (API Hyundai: {{ coche_charge_api }})
-
-        ♨️ DHW:
-        {{ dhw_w|round(0) }}W
-
-        👕 Lavadora:
-        {{ lavadora_w|round(0) }}W
-
-        🍽️ Lavavajillas:
-        {{ lavavajillas_w|round(0) }}W
-
-        ------------------------------------------------
-
-        🍳 Vitro:
-        {{ states('sensor.m_var_em2_power') }}W
-
-        🍕 Horno:
-        {{ states('sensor.m_var_em0_power') }}W
-
-        ♨️❄️ Aerotermia:
-        {{ states('sensor.baxi_total_potencia') }}W
-
-        🍴 Aux cocina:
-        {{ states('sensor.m_aux_phase_a_active_power') }}W
-
-        🛋️ Aux habitaciones:
-        {{ states('sensor.m_aux_phase_b_active_power') }}W
-
-        💻 Aux IT:
-        {{ states('sensor.m_aux_phase_c_active_power') }}W
-
-        💡 Luces:
-        {{ states('sensor.m_var_em1_power') }}W
-
-  ####################################################################
-  # VOZ
-  ####################################################################
-
-  - service: script.notificar_con_mensaje_de_voz
-    data:
-      title: >-
-        Advertencia.
-        Consumo muy alto detectado.
-        Potencia actual {{ potencia_inversor|round(0) }} vatios.
-        Se han aplicado medidas automáticas de protección.
-      zona: surface cocina
-
-  ####################################################################
-  # ALERTA VISUAL
-  ####################################################################
-
-  - service: script.encender_luces_casa_parpadeantes_alertas
-    data:
-      color_name: YELLOW
-
-mode: single
+          volume_level: 0.25
+          duration: 7
+          tone: Alarm 5
+    
+      ####################################################################
+      # DHW
+      ####################################################################
+    
+      - if:
+          - condition: template
+            value_template: "{{ cortar_dhw }}"
+        then:
+          - service: water_heater.set_operation_mode
+            target:
+              entity_id: water_heater.instalaciones_dhw
+            data:
+              operation_mode: Eco
+            continue_on_error: true
+    
+      ####################################################################
+      # LAVADORA
+      ####################################################################
+    
+      - if:
+          - condition: template
+            value_template: "{{ cortar_lavadora }}"
+        then:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.lavadora
+            continue_on_error: true
+    
+      ####################################################################
+      # LAVAVAJILLAS
+      ####################################################################
+    
+      - if:
+          - condition: template
+            value_template: "{{ cortar_lavavajillas }}"
+        then:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.lavavajillas
+            continue_on_error: true
+    
+      ####################################################################
+      # COCHE
+      ####################################################################
+    
+      - if:
+          - condition: template
+            value_template: "{{ cortar_coche }}"
+        then:
+          - service: kia_uvo.stop_charge
+            continue_on_error: true
+    
+          - service: button.press
+            target:
+              entity_id: button.ioniq_force_refresh
+            continue_on_error: true
+    
+      ####################################################################
+      # NOTIFICACIÓN PERSISTENTE
+      ####################################################################
+    
+      - service: persistent_notification.create
+        data:
+          notification_id: Consumo_alto_casa
+          title: "⚠️ Consumo muy alto detectado"
+          message: >-
+    
+            🕒 {{ now().strftime('%H:%M:%S') }}
+    
+            ⚡ {{ nombre_sensor }}
+            alcanzó {{ potencia_inversor|round(0) }}{{ unidad_sensor }}
+    
+            ------------------------------------------------
+    
+            🛡️ Acciones ejecutadas:
+    
+            {{ acciones_realizadas }}
+    
+            ------------------------------------------------
+    
+            📉 Potencia liberada estimada:
+            {{ potencia_liberada|round(0) }}W
+    
+            ------------------------------------------------
+    
+            🚗 Coche:
+            {{ coche_w|round(0) }}W
+            (API Hyundai: {{ coche_charge_api }})
+    
+            ♨️ DHW:
+            {{ dhw_w|round(0) }}W
+    
+            👕 Lavadora:
+            {{ lavadora_w|round(0) }}W
+    
+            🍽️ Lavavajillas:
+            {{ lavavajillas_w|round(0) }}W
+    
+            ------------------------------------------------
+    
+            🍳 Vitro:
+            {{ states('sensor.m_var_em2_power') }}W
+    
+            🍕 Horno:
+            {{ states('sensor.m_var_em0_power') }}W
+    
+            ♨️❄️ Aerotermia:
+            {{ states('sensor.baxi_total_potencia') }}W
+    
+            🍴 Aux cocina:
+            {{ states('sensor.m_aux_phase_a_active_power') }}W
+    
+            🛋️ Aux habitaciones:
+            {{ states('sensor.m_aux_phase_b_active_power') }}W
+    
+            💻 Aux IT:
+            {{ states('sensor.m_aux_phase_c_active_power') }}W
+    
+            💡 Luces:
+            {{ states('sensor.m_var_em1_power') }}W
+    
+      ####################################################################
+      # VOZ
+      ####################################################################
+    
+      - service: script.notificar_con_mensaje_de_voz
+        data:
+          title: >-
+            Advertencia.
+            Consumo muy alto detectado.
+            Potencia actual {{ potencia_inversor|round(0) }} vatios.
+            Se han aplicado medidas automáticas de protección.
+          zona: surface cocina
+    
+      ####################################################################
+      # ALERTA VISUAL
+      ####################################################################
+    
+      - service: script.encender_luces_casa_parpadeantes_alertas
+        data:
+          color_name: YELLOW
+    
+    mode: single
