@@ -1,15 +1,15 @@
 - id: '1765208241617'
   alias: >-
     Aviso - Consumo en inversor muy alto 2 (>6000W)
-  description: >-
+  description: |-
   Protección rápida para evitar caída del inversor.
     Consumo inversor > 6000 W
   │
   ├─ Si DHW apoyo >300 W → DHW a Eco
   ├─ Si lavadora >400 W → switch.lavadora OFF
-  ├─ Si lavavajillas >400 W → switch.lavavajillas OFF
+  ├─ Si lavavajillas >700 W → switch.lavavajillas OFF
   │
-  └─ Si no basta, o no había nada anterior:
+  └─ Si no basta, o no había nada anterior
   └─ si coche enchufado → stop charge + force refresh
   trigger:
     - type: power
