@@ -1,6 +1,6 @@
 - id: '1765208241617'
   alias: >
-    Aviso - Consumo en inversor muy alto (>6000W) RRRRRRRR
+    Aviso - Consumo en inversor muy alto (>6000W) v2
 
   description: |-
     Protección rápida para evitar caída del inversor.
@@ -13,11 +13,8 @@
     - Si no basta → detener carga del coche
 
   trigger:
-    - type: power
-      device_id: fbc794a067f8f8e3c1d953f44f284059
-      entity_id: 37a20ba6e175e5c07c2f502b46b23f48
-      domain: sensor
-      trigger: device
+    - platform: numeric_state
+      entity_id: sensor.inversor_power
       above: 6000
 
   condition: []
@@ -37,16 +34,18 @@
 
         # ============================================================
         # DATOS DEL DISPARO
-        # ============================================================
-
+        # =============
+        
         potencia_inversor: >
-          {{ trigger.to_state.state | float(0) }}
+          {{ states('sensor.inversor_power') | float(0) }}
 
         nombre_sensor: >
-          {{ trigger.to_state.attributes.friendly_name }}
+          {{ state_attr('sensor.inversor_power', 'friendly_name')
+             | default('Potencia inversor') }}
 
         unidad_sensor: >
-          {{ trigger.to_state.attributes.unit_of_measurement }}
+          {{ state_attr('sensor.inversor_power', 'unit_of_measurement')
+             | default('W') }}
 
         # ============================================================
         # MEDIDAS REALES
