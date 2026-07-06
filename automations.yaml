@@ -2163,7 +2163,11 @@
   max_exceeded: silent
 - id: '1765208241617'
   alias: Aviso - Consumo en inversor muy alto (>6000W)
-  description: Protección rápida para evitar caída del inversor.
+  description: "Protección rápida para evitar caída del inversor.\n  Consumo inversor
+    > 6000 W\n          │\n          ├─ Si DHW apoyo >300 W → DHW a Eco\n          ├─
+    Si lavadora >400 W → switch.lavadora OFF\n          ├─ Si lavavajillas >400 W
+    → switch.lavavajillas OFF\n          │\n          └─ Si no basta, o no había nada
+    anterior:\n                └─ si coche enchufado → stop charge + force refresh"
   triggers:
   - type: power
     device_id: fbc794a067f8f8e3c1d953f44f284059
@@ -2176,7 +2180,7 @@
   - variables:
       umbral_dhw_w: 300
       umbral_lavadora_w: 400
-      umbral_lavavajillas_w: 400
+      umbral_lavavajillas_w: 700
       umbral_coche_w: 500
       potencia_inversor: '{{ trigger.to_state.state | float(0) }}
 
