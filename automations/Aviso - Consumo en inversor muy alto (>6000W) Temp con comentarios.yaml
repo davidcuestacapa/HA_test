@@ -7,7 +7,8 @@
 
     Consumo inversor > 6000 W
 
-    - Si DHW apoyo >300 W → DHW a Eco
+    - Si DHW apoyo >300 W → DHW a Eco   DESACTIVADO TEMP por
+    - Si el apoyo eléctrico del ACS consumía >300W
     - Si lavadora >400 W → switch.lavadora OFF
     - Si lavavajillas >700 W → switch.lavavajillas OFF
     - Si no basta → detener carga del coche
@@ -31,7 +32,7 @@
         umbral_resistencia_w: 300
         umbral_lavadora_w: 400
         umbral_lavavajillas_w: 700
-        umbral_coche_w: 500
+        umbral_coche_w: 2000
 
         # ============================================================
         # DATOS DEL DISPARO
@@ -53,7 +54,7 @@
         # ============================================================
 
         #dhw_w: >
-        #  {{ states('sensor.baxi_apoyo_potencia') | float(0) }}
+        #  {{ states('sensor.aerotermia_apoyo_electrico_potencia') | float(0) }}
 
         resistencia_w: >
           {{ states('sensor.aerotermia_apoyo_electrico_potencia') | float(0) }}
@@ -74,6 +75,7 @@
         # DECISIONES
         
         # ============================================================
+
         # DHW (DESHABILITADO TEMPORALMENTE)
         #
         # Versión anterior:
@@ -83,7 +85,6 @@
         # Se mantiene comentado por si en el futuro se vuelve
         # a utilizar junto con la desconexión de resistencias.
         # ============================================================
-
         #cortar_dhw: >
         #  {{
         #    dhw_w > umbral_dhw_w
@@ -194,16 +195,16 @@
     # DHW
     # ============================================================
 
-    - if:
-        - condition: template
-          value_template: "{{ cortar_dhw }}"
-      then:
-        - service: water_heater.set_operation_mode
-          target:
-            entity_id: water_heater.instalaciones_dhw
-          data:
-            operation_mode: Eco
-          continue_on_error: true
+    #- if:
+    #    - condition: template
+    #      value_template: "{{ cortar_dhw }}"
+    #  then:
+    #    - service: water_heater.set_operation_mode
+    #      target:
+    #        entity_id: water_heater.instalaciones_dhw
+    #      data:
+    #        operation_mode: Eco
+    #      continue_on_error: true
 
     # ============================================================
     # RESISTENCIA APOYO ACS
