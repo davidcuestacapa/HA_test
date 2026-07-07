@@ -1,6 +1,6 @@
 - id: '1765208241617'
   alias: >
-    Aviso - Consumo en inversor muy alto (>6000W) v2
+    Aviso - Consumo en inversor muy alto (>6000W) v3
 
   description: |-
     Protección rápida para evitar caída del inversor.
@@ -27,7 +27,8 @@
         # CONFIGURACIÓN
         # ============================================================
 
-        umbral_dhw_w: 300
+        #umbral_dhw_w: 300
+        umbral_resistencia_w: 300
         umbral_lavadora_w: 400
         umbral_lavavajillas_w: 700
         umbral_coche_w: 500
@@ -51,8 +52,11 @@
         # MEDIDAS REALES
         # ============================================================
 
-        dhw_w: >
-          {{ states('sensor.baxi_apoyo_potencia') | float(0) }}
+        #dhw_w: >
+        #  {{ states('sensor.baxi_apoyo_potencia') | float(0) }}
+
+        resistencia_w: >
+          {{ states('sensor.aerotermia_apoyo_electrico_potencia') | float(0) }}
 
         lavadora_w: >
           {{ states('sensor.lavadora_consumo_actual') | float(0) }}
@@ -68,15 +72,31 @@
 
         # ============================================================
         # DECISIONES
+        
+        # ============================================================
+        # DHW (DESHABILITADO TEMPORALMENTE)
+        #
+        # Versión anterior:
+        #   Si el apoyo eléctrico del ACS consumía >300W
+        #   se cambiaba el modo DHW a Eco.
+        #
+        # Se mantiene comentado por si en el futuro se vuelve
+        # a utilizar junto con la desconexión de resistencias.
         # ============================================================
 
-        cortar_dhw: >
+        #cortar_dhw: >
+        #  {{
+        #    dhw_w > umbral_dhw_w
+        #    and state_attr(
+        #      'water_heater.instalaciones_dhw',
+        #      'operation_mode'
+        #    ) != 'Eco'
+        #  }}
+
+        cortar_resistencia: >
           {{
-            dhw_w > umbral_dhw_w
-            and state_attr(
-              'water_heater.instalaciones_dhw',
-              'operation_mode'
-            ) != 'Eco'
+            resistencia_w > umbral_resistencia_w
+            and is_state('switch.aerotermia_apoyo_electrico','on')
           }}
 
         cortar_lavadora: >
@@ -91,10 +111,18 @@
             and is_state('switch.lavavajillas','on')
           }}
 
+        #cortar_coche: >
+        #  {{
+        #    coche_w > umbral_coche_w
+        #    and not cortar_dhw
+        #    and not cortar_lavadora
+        #    and not cortar_lavavajillas
+        #  }}
+
         cortar_coche: >
           {{
             coche_w > umbral_coche_w
-            and not cortar_dhw
+            and not cortar_resistencia
             and not cortar_lavadora
             and not cortar_lavavajillas
           }}
@@ -103,9 +131,19 @@
         # ESTIMACIÓN DE POTENCIA LIBERADA
         # ============================================================
 
+        #potencia_liberada: >
+        #  {{
+        #    (dhw_w if cortar_dhw else 0)
+        #    +
+        #    (lavadora_w if cortar_lavadora else 0)
+        #    +
+        #    (lavavajillas_w if cortar_lavavajillas else 0)
+        #    +
+        #    (coche_w if cortar_coche else 0)
+        #  }}
         potencia_liberada: >
           {{
-            (dhw_w if cortar_dhw else 0)
+            (resistencia_w if cortar_resistencia else 0)
             +
             (lavadora_w if cortar_lavadora else 0)
             +
@@ -114,11 +152,16 @@
             (coche_w if cortar_coche else 0)
           }}
 
+        # METER EN acciones_realizadas
+        #  {% if cortar_dhw %}
+        #    {% set ns.txt = ns.txt + ['♨️ DHW → ECO (' ~ (dhw_w|round(0)) ~ 'W)'] %}
+        #  {% endif %}
         acciones_realizadas: >
+
           {% set ns = namespace(txt=[]) %}
 
-          {% if cortar_dhw %}
-            {% set ns.txt = ns.txt + ['♨️ DHW → ECO (' ~ (dhw_w|round(0)) ~ 'W)'] %}
+          {% if cortar_resistencia %}
+            {% set ns.txt = ns.txt + ['🔥 Resistencia apoyo → OFF (' ~ (resistencia_w|round(0)) ~ 'W)'] %}
           {% endif %}
 
           {% if cortar_lavadora %}
@@ -160,6 +203,19 @@
             entity_id: water_heater.instalaciones_dhw
           data:
             operation_mode: Eco
+          continue_on_error: true
+
+    # ============================================================
+    # RESISTENCIA APOYO ACS
+    # ============================================================
+    
+    - if:
+        - condition: template
+          value_template: "{{ cortar_resistencia }}"
+      then:
+        - service: switch.turn_off
+          target:
+            entity_id: switch.aerotermia_apoyo_electrico
           continue_on_error: true
 
     # ============================================================
