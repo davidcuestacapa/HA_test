@@ -2679,8 +2679,8 @@
         'bajo' %}\n    18\n  {% elif nivel == 'normal' %}\n    20\n  {% elif nivel
         == 'alto' %}\n    21\n  {% elif nivel == 'excedente' %}\n    23\n  {% else
         %}\n    none\n  {% endif %}\n\n{% elif modo == 'cool' %}\n  {% if nivel ==
-        'bajo' %}\n    25\n  {% elif nivel == 'normal' %}\n    24\n  {% elif nivel
-        == 'alto' %}\n    23\n  {% elif nivel == 'excedente' %}\n    22\n  {% else
+        'bajo' %}\n    25\n  {% elif nivel == 'normal' %}\n    23\n  {% elif nivel
+        == 'alto' %}\n    22\n  {% elif nivel == 'excedente' %}\n    21\n  {% else
         %}\n    none\n  {% endif %}\n\n{% else %}\n  none\n{% endif %}"
   - choose:
     - conditions:
