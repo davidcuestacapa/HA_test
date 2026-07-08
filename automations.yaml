@@ -2820,3 +2820,15 @@
               }} kWh"
           action: script.notificar_a_administradores
   mode: restart
+- id: '1783506836832'
+  alias: Test
+  description: ''
+  triggers: []
+  conditions: []
+  actions:
+  - action: input_boolean.turn_on
+    metadata: {}
+    target:
+      entity_id: input_boolean.familia_en_casa
+    data: {}
+  mode: single
