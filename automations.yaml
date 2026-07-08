@@ -2658,7 +2658,7 @@
   actions:
   - variables:
       version_ems: 1.0 No apaga en temp ext templada ni por histeresis
-      debug: true
+      debug: false
       nivel: '{{ states(''sensor.nivel_energetico'') }}'
       modo_ems: '{{ states(''input_select.ems_modo_climatizacion'') }}'
       temp_exterior: '{{ states(''sensor.cerce_outdoor_temperature'') | float(0) }}'
