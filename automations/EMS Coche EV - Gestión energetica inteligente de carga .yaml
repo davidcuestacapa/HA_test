@@ -107,7 +107,7 @@
         potencia_carga_activa_w: 500
 
         # Objetivos SOC por nivel energético
-        objetivo_bajo: 30
+        objetivo_bajo: 20
         objetivo_normal: 60
         objetivo_alto: 80
         objetivo_excedente: 90
