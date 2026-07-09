@@ -2359,6 +2359,15 @@
       %} {% set ios_data = {"attachment": {"url": "%s", "content_type": "JPEG"}} |
       format(snapshot_access_file_path) %} {{ ios_data if is_ios else android_data
       }}'
+  - action: notify.mobile_app_david_x
+    metadata: {}
+    data:
+      title: '{{ notification_title }}'
+      message: '{{ notification_message }}  {% if trigger.to_state is defined %}  Disparado
+        por {{ trigger.to_state.attributes.friendly_name }} cambió a  {{ trigger.to_state.state
+        }}{% else %}  Disparado por un evento sin estado{% endif %}'
+      data:
+        image: '{{ snapshot_access_file_path }}'
   - action: script.notificar_con_mensaje_de_voz
     data:
       title: 'Bienvenido;;;; Batería {{ states(''sensor.inversor_battery'') }}%. La
