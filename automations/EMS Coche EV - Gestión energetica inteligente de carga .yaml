@@ -6,10 +6,10 @@
 # Versión: 1.0
 #
 # Requiere, si quieres cálculo de energía cargada:
-#   input_number.ev_energia_inicio_carga
-#   input_number.ev_soc_inicio_carga
-#   input_number.ev_autonomia_inicio_carga
-#   input_datetime.ev_inicio_carga
+#   input_number.ems_ev_energia_inicio_carga
+#   input_number.ems_ev_soc_inicio_carga
+#   input_number.ems_ev_autonomia_inicio_carga
+#   input_datetime.ems_ev_inicio_carga
 #
 # Entidades usadas:
 #   sensor.nivel_energetico
@@ -258,15 +258,15 @@
             and ev_autonomia_km | float(0) < aviso_autonomia_sin_enchufar_km
           }}
 
-        energia_inicio_kwh: "{{ states('input_number.ev_energia_inicio_carga') | float(0) }}"
-        soc_inicio_carga: "{{ states('input_number.ev_soc_inicio_carga') | float(0) }}"
-        autonomia_inicio_carga: "{{ states('input_number.ev_autonomia_inicio_carga') | float(0) }}"
+        energia_inicio_kwh: "{{ states('input_number.ems_ev_energia_inicio_carga') | float(0) }}"
+        soc_inicio_carga: "{{ states('input_number.ems_ev_soc_inicio_carga') | float(0) }}"
+        autonomia_inicio_carga: "{{ states('input_number.ems_ev_autonomia_inicio_carga') | float(0) }}"
         energia_cargada_kwh: "{{ (ev_consumido_kwh | float(0) - energia_inicio_kwh | float(0)) | round(2) }}"
 
-        hora_inicio_carga: "{{ states('input_datetime.ev_inicio_carga') }}"
+        hora_inicio_carga: "{{ states('input_datetime.ems_ev_inicio_carga') }}"
 
         duracion_carga_min: >-
-          {% set inicio = states('input_datetime.ev_inicio_carga') %}
+          {% set inicio = states('input_datetime.ems_ev_inicio_carga') %}
           {% if inicio not in ['unknown', 'unavailable', 'none', 'None', ''] %}
             {{ ((as_timestamp(now()) - as_timestamp(inicio)) / 60) | round(0) }}
           {% else %}
@@ -549,25 +549,25 @@
           sequence:
             # Guardar datos de inicio de carga para notificación final
             - target:
-                entity_id: input_number.ev_energia_inicio_carga
+                entity_id: input_number.ems_ev_energia_inicio_carga
               data:
                 value: "{{ ev_consumido_kwh | float(0) }}"
               action: input_number.set_value
 
             - target:
-                entity_id: input_number.ev_soc_inicio_carga
+                entity_id: input_number.ems_ev_soc_inicio_carga
               data:
                 value: "{{ ev_soc | float(0) }}"
               action: input_number.set_value
 
             - target:
-                entity_id: input_number.ev_autonomia_inicio_carga
+                entity_id: input_number.ems_ev_autonomia_inicio_carga
               data:
                 value: "{{ ev_autonomia_km | float(0) }}"
               action: input_number.set_value
 
             - target:
-                entity_id: input_datetime.ev_inicio_carga
+                entity_id: input_datetime.ems_ev_inicio_carga
               data:
                 datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
               action: input_datetime.set_datetime
