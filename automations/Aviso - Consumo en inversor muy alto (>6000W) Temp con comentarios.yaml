@@ -29,7 +29,7 @@
         # ============================================================
 
         #umbral_dhw_w: 300
-        umbral_resistencia_w: 300
+        umbral_dhw_apoyo_elec_w: 300
         umbral_lavadora_w: 400
         umbral_lavavajillas_w: 700
         umbral_coche_w: 2000
@@ -56,8 +56,8 @@
         #dhw_w: >
         #  {{ states('sensor.aerotermia_apoyo_electrico_potencia') | float(0) }}
 
-        resistencia_w: >
-          {{ states('sensor.aerotermia_apoyo_electrico_potencia') | float(0) }}
+        dhw_apoyo_elec_w: >
+          {{ states('sensor.m_aerotermia_apoyo_electrico_potencia') | float(0) }}
 
         lavadora_w: >
           {{ states('sensor.lavadora_consumo_actual') | float(0) }}
@@ -94,9 +94,9 @@
         #    ) != 'Eco'
         #  }}
 
-        cortar_resistencia: >
+        cortar_dhw_apoyo_elec: >
           {{
-            resistencia_w > umbral_resistencia_w
+            dhw_apoyo_elec_w > umbral_dhw_apoyo_elec_w
             and is_state('switch.aerotermia_apoyo_electrico','on')
           }}
 
@@ -123,7 +123,7 @@
         cortar_coche: >
           {{
             coche_w > umbral_coche_w
-            and not cortar_resistencia
+            and not cortar_dhw_apoyo_elec
             and not cortar_lavadora
             and not cortar_lavavajillas
           }}
@@ -144,7 +144,7 @@
         #  }}
         potencia_liberada: >
           {{
-            (resistencia_w if cortar_resistencia else 0)
+            (dhw_apoyo_elec_w if cortar_dhw_apoyo_elec else 0)
             +
             (lavadora_w if cortar_lavadora else 0)
             +
@@ -161,8 +161,8 @@
 
           {% set ns = namespace(txt=[]) %}
 
-          {% if cortar_resistencia %}
-            {% set ns.txt = ns.txt + ['🔥 Resistencia apoyo → OFF (' ~ (resistencia_w|round(0)) ~ 'W)'] %}
+          {% if cortar_dhw_apoyo_elec %}
+            {% set ns.txt = ns.txt + ['🔥 Resistencia apoyo → OFF (' ~ (dhw_apoyo_elec_w|round(0)) ~ 'W)'] %}
           {% endif %}
 
           {% if cortar_lavadora %}
@@ -212,7 +212,7 @@
     
     - if:
         - condition: template
-          value_template: "{{ cortar_resistencia }}"
+          value_template: "{{ cortar_dhw_apoyo_elec }}"
       then:
         - service: switch.turn_off
           target:
@@ -298,7 +298,7 @@
           (API Hyundai: {{ coche_charge_api }})
 
           ♨️ DHW:
-          {{ dhw_w|round(0) }}W
+          {{ dhw_apoyo_elec_w|round(0) }}W
 
           👕 Lavadora:
           {{ lavadora_w|round(0) }}W
