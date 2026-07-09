@@ -2301,13 +2301,11 @@
     entity_id: bdee6468f9ba569f66f8c22a3f8770d6
     domain: binary_sensor
     trigger: device
-  - trigger: state
-    entity_id:
-    - binary_sensor.salon_tapo_c125_284f_cell_motion_detection
-    to:
-    - 'on'
-    from:
-    enabled: false
+  - type: motion
+    device_id: c8e1fbb45e0de6869ca1c708ecaddc31
+    entity_id: 8463805002d7505ed5331fa120ac23d6
+    domain: binary_sensor
+    trigger: device
   - type: motion
     device_id: 4168f096afbb050d0e3be5f14bd96a73
     entity_id: 2d6d84aa54457914f9dbfd6d55193bd5
@@ -2324,63 +2322,36 @@
     state:
     - 'on'
   actions:
-  - variables:
-      motion_sensor: binary_sensor.salon_tapo_c125_284f_cell_motion_detection
-      motion_sensor_name: '{{ states[motion_sensor].name }}'
-      camera: camera.camara_salon_sd_stream
-      notify_device: 609b265bb757951f33e233cd1d0c49b4
-      is_ios: false
-      notification_title: Motion detected!
-      notification_message: '{{ motion_sensor_name }} detected movement!'
-      delay: '3'
-      snapshot_create_file_path: /config/www/tmp/snapshot_{{ states[camera].object_id
-        }}.jpg
-      snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/www'',''/local'')
-        }}'
   - delay: '{{ delay }}'
   - data:
+      entity_id: '{{ camera }}'
       filename: '{{ snapshot_create_file_path }}'
     action: camera.snapshot
-    target:
-      entity_id: camera.camara_salon_sd_stream
   - delay:
-      hours: 0
-      minutes: 0
-      seconds: 2
-      milliseconds: 0
-  - action: notify.mobile_app_david_x
-    metadata: {}
-    data:
-      title: '{{ notification_title }}'
-      message: '{{ notification_message }}  {% if trigger.to_state is defined %}  Disparado
-        por {{ trigger.to_state.attributes.friendly_name }} cambió a  {{ trigger.to_state.state
-        }}{% else %}  Disparado por un evento sin estado{% endif %}'
-      data:
-        image: '{{ snapshot_access_file_path }}'
+      milliseconds: 800
+  - device_id: 609b265bb757951f33e233cd1d0c49b4
+    domain: mobile_app
+    type: notify
+    title: '{{ notification_title }}'
+    message: "{{ notification_message }}  {% if trigger.to_state is defined %}\n  Disparado
+      por {{ trigger.to_state.attributes.friendly_name }} cambió a\n  {{ trigger.to_state.state
+      }}{{ trigger.to_state.attributes.unit_of_measurement }}\n{% else %}\n  Disparado
+      por un evento sin estado\n{% endif %}"
+    data: '{{ admin_image_payload }}'
   - action: script.notificar_con_mensaje_de_voz
     data:
-      title: 'Bienvenido;;;; Batería de casa al {{ states(''sensor.inversor_battery'')
-        }}%. La temperatura en casa es de {{ state_attr(''climate.zona1'',''current_temperature'')
+      title: 'Bienvenido;;;; Batería {{ states(''sensor.inversor_battery'') }}%. La
+        temperatura en casa {{ state_attr(''climate.zona1'',''current_temperature'')
         }}°. Termostato a {{ state_attr(''climate.zona1'',''temperature'') }}°.;;;;
-        Hoy se ha producido {{  states(''sensor.inversor_today_production'') }}Kilovatios
-        hora;; aunque  había estimado producir {{ states(''sensor.energy_production_today'')
+        Producido {{  states(''sensor.inversor_today_production'') }}Kilovatios hora;;
+        Hoy había estimado producir {{ states(''sensor.energy_production_today'')
         }}Kilovatios hora;; Estimado mañana {{  states(''sensor.energy_production_tomorrow'')
         }}Kilovatios hora;;
 
-        {% if is_state(''binary_sensor.ioniq_ev_battery_plug'', ''on'') %} El coche
-        está enchufado. {% else %} El coche no está enchufado. {% endif %} Actualmente
-        tiene un {{ states(''sensor.ioniq_ev_battery_level'') }} % de batería y una
-        autonomía estimada de {{ states(''sensor.ioniq_total_driving_range'') }} km;;
-
         '
       zona: surface
-  - delay:
-      hours: 0
-      minutes: 1
-      seconds: 0
-      milliseconds: 0
-  - alias: Según estado puerta avisa si esta cerrada o abierta
-    if:
+  - delay: '{{ delay }}'
+  - if:
     - type: is_not_open
       condition: device
       device_id: ca615ed7f6c9431a48251a77ea4902a8
@@ -2394,12 +2365,6 @@
           {{ trigger.to_state.name }} en estado {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
           | default('') }}.\n"
     else:
-    - action: script.notificar_con_mensaje_de_voz
-      data:
-        title: 'No se ha detectado el CIERRE de la puerta principal. Por favor comprobar
-
-          '
-        zona: surface
     - action: script.notificar_a_administradores
       data:
         title: "HA-Seguridad - \U0001F6AARevisar cierre de puerta principal"
@@ -2665,7 +2630,7 @@
       porcentaje: '{{ trigger.to_state.state | replace(''%'', '''') }}'
   mode: single
 - id: '1782920645626'
-  alias: EMS Aerotermia - Gestión energética inteligente
+  alias: Aerotermia - Gestión energética inteligente
   description: "Control único de aerotermia según EMS, modo climatización, temperatura
     exterior, nivel energético y consigna dinámica.\nideas v2\nV2, yo iría en este
     orden:\n1️⃣ Zona neutra + histéresis + \nEvita cambios innecesarios \n2 Aprovechar
@@ -2855,25 +2820,3 @@
               }} kWh"
           action: script.notificar_a_administradores
   mode: restart
-- id: '1783506836832'
-  alias: Test
-  description: ''
-  triggers: []
-  conditions: []
-  actions:
-  - action: input_boolean.turn_on
-    metadata: {}
-    target:
-      entity_id: input_boolean.familia_en_casa
-    data: {}
-  mode: single
-- id: '1783580400955'
-  alias: __Send a camera snapshot when motion is detected
-  description: ''
-  use_blueprint:
-    path: vorion/send-camera-snapshot-notification-on-motion.yaml
-    input:
-      camera: camera.camara_salon_sd_stream
-      notify_device: 609b265bb757951f33e233cd1d0c49b4
-      motion_sensor: binary_sensor.salon_movimiento
-      delay: 2

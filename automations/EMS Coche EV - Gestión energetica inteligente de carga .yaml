@@ -23,7 +23,7 @@
 #   sensor.ioniq_estimated_charge_duration
 #   sensor.m_ext_coche_potencia
 #   sensor.m_ext_coche_coche_consumido
-#   switch.exterior_ioniq_ev_charging
+#   switch.ioniq_ev_charging
 #   number.ioniq_ac_charging_limit
 #   button.ioniq_force_refresh
 #   script.notificar_a_administradores
@@ -183,7 +183,7 @@
         ev_tiempo_estimado: "{{ states('sensor.ioniq_estimated_charge_duration') }}"
         ev_last_updated: "{{ states('sensor.ioniq_last_updated_at') }}"
 
-        cargador_switch_on: "{{ is_state('switch.exterior_ioniq_ev_charging', 'on') }}"
+        cargador_switch_on: "{{ is_state('switch.ioniq_ev_charging', 'on') }}"
         limite_ac_actual: "{{ states('number.ioniq_ac_charging_limit') | float(0) }}"
 
         # ====================================================
@@ -331,7 +331,7 @@
                   value_template: "{{ cargador_switch_on or ev_cargando_real }}"
               then:
                 - target:
-                    entity_id: switch.exterior_ioniq_ev_charging
+                    entity_id: switch.ioniq_ev_charging
                   action: switch.turn_off
 
                 - delay:
@@ -466,7 +466,7 @@
                   value_template: "{{ cargador_switch_on or ev_cargando_real }}"
               then:
                 - target:
-                    entity_id: switch.exterior_ioniq_ev_charging
+                    entity_id: switch.ioniq_ev_charging
                   action: switch.turn_off
 
                 - delay:
@@ -665,7 +665,7 @@
 
             # Activar carga
             - target:
-                entity_id: switch.exterior_ioniq_ev_charging
+                entity_id: switch.ioniq_ev_charging
               action: switch.turn_on
 
             - delay:
@@ -736,7 +736,7 @@
               value_template: "{{ cargador_switch_on or ev_cargando_real }}"
           sequence:
             - target:
-                entity_id: switch.exterior_ioniq_ev_charging
+                entity_id: switch.ioniq_ev_charging
               action: switch.turn_off
 
             - delay:
