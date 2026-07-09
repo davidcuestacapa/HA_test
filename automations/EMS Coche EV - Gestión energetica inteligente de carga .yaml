@@ -42,40 +42,51 @@
     # Cambios principales del EMS energético
     - platform: state
       entity_id: sensor.nivel_energetico
+      id: nivel_energetico
 
     # Cambios del coche
     - platform: state
       entity_id: sensor.ioniq_ev_battery_level
+      id: ev_soc
 
     - platform: state
       entity_id: sensor.ioniq_total_driving_range
+      id: ev_autonomia
 
     - platform: state
       entity_id: binary_sensor.ioniq_ev_battery_charge
+      id: ev_estado_carga
 
     - platform: state
       entity_id: binary_sensor.ioniq_ev_battery_plug
+      id: ev_enchufe
 
     - platform: state
       entity_id: binary_sensor.ioniq_engine
+      id: ev_motor
 
     - platform: state
       entity_id: device_tracker.ioniq_location
+      id: ev_ubicacion
 
     - platform: state
       entity_id: sensor.ioniq_last_updated_at
+      id: hyundai_actualizado
 
     # Potencia real medida en el enchufe/medidor del coche
     - platform: state
       entity_id: sensor.m_ext_coche_potencia
+      id: ev_potencia
 
     # Evaluación periódica por seguridad
     - platform: time_pattern
-      minutes: "/15"
+      minutes: "/30"
+      id: evaluacion_periodica
 
     # Al iniciar Home Assistant
     - platform: homeassistant
       event: start
+      id: inicio_homeassistant
 
   condition:
     # Usa el mismo booleano general de optimización energética.
@@ -107,7 +118,7 @@
         potencia_carga_activa_w: 500
 
         # Objetivos SOC por nivel energético
-        objetivo_bajo: 20
+        objetivo_bajo: 22
         objetivo_normal: 60
         objetivo_alto: 80
         objetivo_excedente: 90
@@ -189,7 +200,25 @@
 
         ev_datos_obsoletos: >-
           {{ ev_datos_antiguedad_min | int(999) > max_antiguedad_datos_min }}
+          
+        # ====================================================
+        # CONTROL DE REFRESH HYUNDAI
+        # ====================================================
+        # Evitamos despertar el coche innecesariamente.
+        # Sólo permitimos force_refresh si está en casa y enchufado,
+        # o si ya estamos cargando/tenemos el cargador activo.
+        permitir_refresh_hyundai: >-
+          {{
+            (ev_en_casa and ev_enchufado)
+            or cargador_switch_on
+            or ev_cargando_real
+          }}
 
+        necesita_refresh_hyundai: >-
+          {{
+            ev_datos_obsoletos
+            and permitir_refresh_hyundai
+          }}
         # ====================================================
         # OBJETIVO DINÁMICO SEGÚN EMS
         # ====================================================
@@ -273,13 +302,21 @@
             0
           {% endif %}
 
+        disparador_id: >-
+          {% if trigger is defined and trigger.id is defined %}
+            {{ trigger.id }}
+          {% else %}
+            manual
+          {% endif %}
+
         disparador: >-
           {% if trigger is defined and trigger.entity_id is defined %}
             {{ trigger.entity_id }}
+          {% elif trigger is defined and trigger.id is defined %}
+            {{ trigger.id }}
           {% else %}
             evento manual o inicio
           {% endif %}
-
     # ========================================================
     # 1. NIVEL CRÍTICO: CORTAR SIEMPRE
     # ========================================================
@@ -356,7 +393,7 @@
     - choose:
         - conditions:
             - condition: template
-              value_template: "{{ ev_datos_obsoletos }}"
+              value_template: "{{ necesita_refresh_hyundai }}"
           sequence:
             - target:
                 entity_id: button.ioniq_force_refresh
@@ -382,6 +419,38 @@
                   action: persistent_notification.create
 
             - stop: "EMS EV detenido: datos Hyundai obsoletos, refresh solicitado."
+
+    # ========================================================
+    # 2B. DATOS OBSOLETOS PERO NO INTERESA DESPERTAR EL COCHE
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ ev_datos_obsoletos and not permitir_refresh_hyundai }}"
+          sequence:
+            - if:
+                - condition: template
+                  value_template: "{{ debug }}"
+              then:
+                - data:
+                    title: "🐞 EMS EV - Datos obsoletos, sin refresh"
+                    message: >-
+                      🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                      Los datos Hyundai tienen {{ ev_datos_antiguedad_min }} minutos,
+                      pero NO se lanza force_refresh para evitar despertar el coche.
+
+                      Estado actual:
+                      - En casa: {{ ev_en_casa }}
+                      - Enchufado: {{ ev_enchufado }}
+                      - Cargando real: {{ ev_cargando_real }}
+                      - Switch cargador ON: {{ cargador_switch_on }}
+
+                      Última actualización Hyundai: {{ ev_last_updated }}
+
+                      Disparado por: {{ disparador }}
+                  action: persistent_notification.create
 
     # ========================================================
     # 3. MOTOR ENCENDIDO: NO INICIAR CARGA Y CORTAR SI PROCEDE
@@ -507,6 +576,18 @@
               value_template: "{{ ev_objetivo_soc_int > 0 }}"
             - condition: template
               value_template: "{{ limite_ac_actual | int(0) != ev_objetivo_soc_int | int(0) }}"
+            - condition: template
+              value_template: >-
+                {{
+                  ev_en_casa
+                  and ev_enchufado
+                  and not ev_motor_encendido
+                  and (
+                    ev_debe_cargar
+                    or cargador_switch_on
+                    or ev_cargando_real
+                  )
+                }}
           sequence:
             - target:
                 entity_id: number.ioniq_ac_charging_limit
@@ -759,7 +840,14 @@
     - choose:
         - conditions:
             - condition: template
-              value_template: "{{ debug }}"
+              value_template: >-
+                {{
+                  debug
+                  and (
+                    disparador != 'evento manual o inicio'
+                    and disparador != 'time_pattern'
+                  )
+                }}
             - condition: template
               value_template: "{{ not ev_debe_cargar and not ev_debe_parar }}"
           sequence:
