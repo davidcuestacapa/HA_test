@@ -2301,11 +2301,13 @@
     entity_id: bdee6468f9ba569f66f8c22a3f8770d6
     domain: binary_sensor
     trigger: device
-  - type: motion
-    device_id: c8e1fbb45e0de6869ca1c708ecaddc31
-    entity_id: 8463805002d7505ed5331fa120ac23d6
-    domain: binary_sensor
-    trigger: device
+  - trigger: state
+    entity_id:
+    - binary_sensor.salon_tapo_c125_284f_cell_motion_detection
+    to:
+    - 'on'
+    from:
+    enabled: false
   - type: motion
     device_id: 4168f096afbb050d0e3be5f14bd96a73
     entity_id: 2d6d84aa54457914f9dbfd6d55193bd5
@@ -2322,6 +2324,19 @@
     state:
     - 'on'
   actions:
+  - variables:
+      motion_sensor: binary_sensor.salon_tapo_c125_284f_cell_motion_detection
+      motion_sensor_name: '{{ states[motion_sensor].name }}'
+      camera: camera.camara_salon_sd_stream
+      notify_device: 609b265bb757951f33e233cd1d0c49b4
+      is_ios: false
+      notification_title: Motion detected!
+      notification_message: '{{ motion_sensor_name }} detected movement!'
+      delay: ''
+      snapshot_create_file_path: /config/www/tmp/snapshot_{{ states[camera].object_id
+        }}.jpg
+      snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/www'',''/local'')
+        }}'
   - delay: '{{ delay }}'
   - data:
       entity_id: '{{ camera }}'
