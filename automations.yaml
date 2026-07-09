@@ -2339,9 +2339,10 @@
         }}'
   - delay: '{{ delay }}'
   - data:
-      entity_id: '{{ camera }}'
       filename: '{{ snapshot_create_file_path }}'
     action: camera.snapshot
+    target:
+      entity_id: camera.camara_salon_sd_stream
   - delay:
       milliseconds: 800
   - device_id: 609b265bb757951f33e233cd1d0c49b4
@@ -2352,7 +2353,10 @@
       por {{ trigger.to_state.attributes.friendly_name }} cambió a\n  {{ trigger.to_state.state
       }}{{ trigger.to_state.attributes.unit_of_measurement }}\n{% else %}\n  Disparado
       por un evento sin estado\n{% endif %}"
-    data: '{{ admin_image_payload }}'
+    data: '{% set android_data = {"image": "%s"} | format(snapshot_access_file_path)
+      %} {% set ios_data = {"attachment": {"url": "%s", "content_type": "JPEG"}} |
+      format(snapshot_access_file_path) %} {{ ios_data if is_ios else android_data
+      }}'
   - action: script.notificar_con_mensaje_de_voz
     data:
       title: 'Bienvenido;;;; Batería {{ states(''sensor.inversor_battery'') }}%. La
