@@ -1,0 +1,802 @@
+# ============================================================
+# EMS EV - Gestión energética inteligente Ioniq
+# Fichero pensado para incluirse como automatización independiente
+# dentro de automation manual: !include_dir_merge_list ...
+#
+# Versión: 1.0
+#
+# Requiere, si quieres cálculo de energía cargada:
+#   input_number.ev_energia_inicio_carga
+#   input_number.ev_soc_inicio_carga
+#   input_number.ev_autonomia_inicio_carga
+#   input_datetime.ev_inicio_carga
+#
+# Entidades usadas:
+#   sensor.nivel_energetico
+#   sensor.ioniq_ev_battery_level
+#   sensor.ioniq_total_driving_range
+#   binary_sensor.ioniq_ev_battery_charge
+#   binary_sensor.ioniq_ev_battery_plug
+#   binary_sensor.ioniq_engine
+#   device_tracker.ioniq_location
+#   sensor.ioniq_last_updated_at
+#   sensor.ioniq_estimated_charge_duration
+#   sensor.m_ext_coche_potencia
+#   sensor.m_ext_coche_coche_consumido
+#   switch.exterior_ioniq_ev_charging
+#   number.ioniq_ac_charging_limit
+#   button.ioniq_force_refresh
+#   script.notificar_a_administradores
+# ============================================================
+
+- alias: EMS EV - Gestión energética inteligente Ioniq
+  id: ems_ev_gestion_energetica_inteligente_ioniq
+  description: >
+    Control inteligente de carga del coche eléctrico según nivel energético,
+    SOC del vehículo, autonomía, ubicación, estado de enchufe, potencia real,
+    límite AC del coche y estado actualizado de Hyundai.
+
+  mode: restart
+
+  trigger:
+    # Cambios principales del EMS energético
+    - platform: state
+      entity_id: sensor.nivel_energetico
+
+    # Cambios del coche
+    - platform: state
+      entity_id: sensor.ioniq_ev_battery_level
+
+    - platform: state
+      entity_id: sensor.ioniq_total_driving_range
+
+    - platform: state
+      entity_id: binary_sensor.ioniq_ev_battery_charge
+
+    - platform: state
+      entity_id: binary_sensor.ioniq_ev_battery_plug
+
+    - platform: state
+      entity_id: binary_sensor.ioniq_engine
+
+    - platform: state
+      entity_id: device_tracker.ioniq_location
+
+    - platform: state
+      entity_id: sensor.ioniq_last_updated_at
+
+    # Potencia real medida en el enchufe/medidor del coche
+    - platform: state
+      entity_id: sensor.m_ext_coche_potencia
+
+    # Evaluación periódica por seguridad
+    - platform: time_pattern
+      minutes: "/15"
+
+    # Al iniciar Home Assistant
+    - platform: homeassistant
+      event: start
+
+  condition:
+    # Usa el mismo booleano general de optimización energética.
+    # Si quieres uno específico para EV en V2, podemos cambiarlo a input_boolean.optimizacion_ev.
+    - condition: state
+      entity_id: input_boolean.optimizacion_energetica
+      state: "on"
+
+  action:
+    - variables:
+        # ====================================================
+        # CONFIGURACIÓN GENERAL
+        # ====================================================
+
+        version_ems_ev: "1.0"
+
+        # Durante pruebas déjalo en true.
+        # Cuando esté estable, ponlo en false para recibir sólo eventos relevantes.
+        debug: true
+
+        # Antigüedad máxima aceptada de datos Hyundai antes de forzar refresh.
+        max_antiguedad_datos_min: 30
+
+        # Margen para no arrancar/parar por 1%.
+        # Ejemplo objetivo 60: arranca si SOC < 58 y para en >= 60.
+        margen_soc_arranque: 2
+
+        # Potencia mínima para considerar que el coche está cargando realmente.
+        potencia_carga_activa_w: 500
+
+        # Objetivos SOC por nivel energético
+        objetivo_bajo: 30
+        objetivo_normal: 60
+        objetivo_alto: 80
+        objetivo_excedente: 90
+
+        # Condición de emergencia EV en nivel bajo
+        soc_min_bajo: 20
+        autonomia_min_bajo_km: 100
+
+        # Aviso si está en casa pero no enchufado
+        aviso_soc_sin_enchufar: 30
+        aviso_autonomia_sin_enchufar_km: 150
+
+        # ====================================================
+        # ESTADO EMS
+        # ====================================================
+
+        nivel: "{{ states('sensor.nivel_energetico') | lower | trim }}"
+
+        bateria_casa_pct: "{{ states('sensor.inversor_battery') | float(0) }}"
+        produccion_restante_kwh: "{{ states('sensor.energy_production_today_remaining') | float(0) }}"
+        produccion_ahora_w: "{{ states('sensor.power_production_now') | float(0) }}"
+        produccion_manana_kwh: "{{ states('sensor.energy_production_tomorrow') | float(0) }}"
+
+        # ====================================================
+        # ESTADO VEHÍCULO
+        # ====================================================
+
+        ev_soc: "{{ states('sensor.ioniq_ev_battery_level') | float(0) }}"
+        ev_autonomia_km: "{{ states('sensor.ioniq_total_driving_range') | float(0) }}"
+        ev_location: "{{ states('device_tracker.ioniq_location') }}"
+        ev_en_casa: "{{ states('device_tracker.ioniq_location') == 'En Casa' }}"
+        ev_fuera: "{{ states('device_tracker.ioniq_location') == 'Fuera' }}"
+
+        ev_enchufado: >-
+          {{
+            states('binary_sensor.ioniq_ev_battery_plug') in
+            ['on', 'Enchufado', 'enchufado', 'Plugged', 'plugged']
+          }}
+
+        ev_cargando_sensor: >-
+          {{
+            states('binary_sensor.ioniq_ev_battery_charge') in
+            ['on', 'Cargando', 'cargando', 'Charging', 'charging']
+          }}
+
+        ev_motor_encendido: >-
+          {{
+            states('binary_sensor.ioniq_engine') in
+            ['on', 'Encendido', 'encendido', 'On', 'on']
+          }}
+
+        ev_potencia_w: "{{ states('sensor.m_ext_coche_potencia') | float(0) }}"
+
+        ev_cargando_real: >-
+          {{
+            states('binary_sensor.ioniq_ev_battery_charge') in
+            ['on', 'Cargando', 'cargando', 'Charging', 'charging']
+            or states('sensor.m_ext_coche_potencia') | float(0) > potencia_carga_activa_w
+          }}
+
+        ev_consumido_kwh: "{{ states('sensor.m_ext_coche_coche_consumido') | float(0) }}"
+        ev_tiempo_estimado: "{{ states('sensor.ioniq_estimated_charge_duration') }}"
+        ev_last_updated: "{{ states('sensor.ioniq_last_updated_at') }}"
+
+        cargador_switch_on: "{{ is_state('switch.exterior_ioniq_ev_charging', 'on') }}"
+        limite_ac_actual: "{{ states('number.ioniq_ac_charging_limit') | float(0) }}"
+
+        # ====================================================
+        # ANTIGÜEDAD DE DATOS HYUNDAI
+        # ====================================================
+
+        ev_datos_antiguedad_min: >-
+          {% set raw = states('sensor.ioniq_last_updated_at') %}
+          {% if raw not in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {{ ((as_timestamp(now()) - as_timestamp(as_datetime(raw))) / 60) | round(0) }}
+          {% else %}
+            999
+          {% endif %}
+
+        ev_datos_obsoletos: >-
+          {{ ev_datos_antiguedad_min | int(999) > max_antiguedad_datos_min }}
+
+        # ====================================================
+        # OBJETIVO DINÁMICO SEGÚN EMS
+        # ====================================================
+
+        ev_objetivo_soc: >-
+          {% set n = states('sensor.nivel_energetico') | lower | trim %}
+          {% set soc = states('sensor.ioniq_ev_battery_level') | float(0) %}
+          {% set autonomia = states('sensor.ioniq_total_driving_range') | float(0) %}
+
+          {% if n == 'critico' %}
+            0
+
+          {% elif n == 'bajo' %}
+            {% if soc < soc_min_bajo and autonomia < autonomia_min_bajo_km %}
+              {{ objetivo_bajo }}
+            {% else %}
+              0
+            {% endif %}
+
+          {% elif n == 'normal' %}
+            {{ objetivo_normal }}
+
+          {% elif n == 'alto' %}
+            {{ objetivo_alto }}
+
+          {% elif n == 'excedente' %}
+            {{ objetivo_excedente }}
+
+          {% else %}
+            0
+          {% endif %}
+
+        ev_objetivo_soc_int: "{{ ev_objetivo_soc | int(0) }}"
+
+        # ====================================================
+        # DECISIONES
+        # ====================================================
+
+        ev_debe_cargar: >-
+          {{
+            ev_en_casa
+            and ev_enchufado
+            and not ev_motor_encendido
+            and ev_objetivo_soc | int(0) > 0
+            and ev_soc | float(0) < ((ev_objetivo_soc | int(0)) - margen_soc_arranque)
+          }}
+
+        ev_debe_parar: >-
+          {{
+            nivel == 'critico'
+            or ev_motor_encendido
+            or not ev_en_casa
+            or not ev_enchufado
+            or ev_objetivo_soc | int(0) == 0
+            or (
+              ev_objetivo_soc | int(0) > 0
+              and ev_soc | float(0) >= ev_objetivo_soc | int(0)
+            )
+          }}
+
+        ev_aviso_sin_enchufar: >-
+          {{
+            ev_en_casa
+            and not ev_enchufado
+            and ev_soc | float(0) < aviso_soc_sin_enchufar
+            and ev_autonomia_km | float(0) < aviso_autonomia_sin_enchufar_km
+          }}
+
+        energia_inicio_kwh: "{{ states('input_number.ev_energia_inicio_carga') | float(0) }}"
+        soc_inicio_carga: "{{ states('input_number.ev_soc_inicio_carga') | float(0) }}"
+        autonomia_inicio_carga: "{{ states('input_number.ev_autonomia_inicio_carga') | float(0) }}"
+        energia_cargada_kwh: "{{ (ev_consumido_kwh | float(0) - energia_inicio_kwh | float(0)) | round(2) }}"
+
+        hora_inicio_carga: "{{ states('input_datetime.ev_inicio_carga') }}"
+
+        duracion_carga_min: >-
+          {% set inicio = states('input_datetime.ev_inicio_carga') %}
+          {% if inicio not in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {{ ((as_timestamp(now()) - as_timestamp(inicio)) / 60) | round(0) }}
+          {% else %}
+            0
+          {% endif %}
+
+        disparador: >-
+          {% if trigger is defined and trigger.entity_id is defined %}
+            {{ trigger.entity_id }}
+          {% else %}
+            evento manual o inicio
+          {% endif %}
+
+    # ========================================================
+    # 1. NIVEL CRÍTICO: CORTAR SIEMPRE
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ nivel == 'critico' }}"
+          sequence:
+            - if:
+                - condition: template
+                  value_template: "{{ cargador_switch_on or ev_cargando_real }}"
+              then:
+                - target:
+                    entity_id: switch.exterior_ioniq_ev_charging
+                  action: switch.turn_off
+
+                - delay:
+                    seconds: 5
+
+                - target:
+                    entity_id: button.ioniq_force_refresh
+                  action: button.press
+
+                - data:
+                    title: "🔴 EMS EV - Carga detenida por nivel crítico"
+                    message: >-
+                      🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                      Nivel energético: {{ nivel }}
+
+                      Acción: carga del Ioniq detenida para proteger batería/inversor.
+
+                      🔋 Batería casa: {{ bateria_casa_pct }} %
+                      ☀️ Producción restante hoy: {{ produccion_restante_kwh }} kWh
+                      📈 Producción ahora: {{ produccion_ahora_w }} W
+                      📅 Producción estimada mañana: {{ produccion_manana_kwh }} kWh
+
+                      🚗 SOC EV: {{ ev_soc }} %
+                      🚗 Autonomía EV: {{ ev_autonomia_km }} km
+                      📍 Ubicación: {{ ev_location }}
+                      🔌 Enchufado: {{ ev_enchufado }}
+                      ⚡ Potencia coche: {{ ev_potencia_w }} W
+
+                      Última actualización Hyundai: {{ ev_last_updated }}
+                      Antigüedad datos: {{ ev_datos_antiguedad_min }} min
+
+                      Disparado por: {{ disparador }}
+
+                      {% if debug %}🐞 MODO DEBUG ACTIVO{% endif %}
+                  action: persistent_notification.create
+
+                - data:
+                    title: "HA-EMS EV - 🔴 Carga detenida"
+                    message: >-
+                      🕒 {{ now().strftime('%H:%M') }}
+
+                      Nivel crítico.
+
+                      EV: {{ ev_soc }} % / {{ ev_autonomia_km }} km
+
+                      Casa: {{ bateria_casa_pct }} %
+
+                      Potencia coche: {{ ev_potencia_w }} W
+                  action: script.notificar_a_administradores
+
+            - stop: "EMS EV detenido: nivel energético crítico."
+
+    # ========================================================
+    # 2. DATOS HYUNDAI OBSOLETOS: FORZAR REFRESH Y SALIR
+    #    Excepción: ya hemos tratado crítico antes.
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ ev_datos_obsoletos }}"
+          sequence:
+            - target:
+                entity_id: button.ioniq_force_refresh
+              action: button.press
+
+            - if:
+                - condition: template
+                  value_template: "{{ debug }}"
+              then:
+                - data:
+                    title: "🐞 EMS EV - Datos Hyundai obsoletos"
+                    message: >-
+                      🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                      Se ha lanzado force_refresh porque los datos del coche tienen
+                      {{ ev_datos_antiguedad_min }} minutos.
+
+                      Última actualización: {{ ev_last_updated }}
+
+                      No se toman más decisiones en esta ejecución para esperar datos nuevos.
+
+                      Disparado por: {{ disparador }}
+                  action: persistent_notification.create
+
+            - stop: "EMS EV detenido: datos Hyundai obsoletos, refresh solicitado."
+
+    # ========================================================
+    # 3. MOTOR ENCENDIDO: NO INICIAR CARGA Y CORTAR SI PROCEDE
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ ev_motor_encendido }}"
+          sequence:
+            - if:
+                - condition: template
+                  value_template: "{{ cargador_switch_on or ev_cargando_real }}"
+              then:
+                - target:
+                    entity_id: switch.exterior_ioniq_ev_charging
+                  action: switch.turn_off
+
+                - delay:
+                    seconds: 5
+
+                - target:
+                    entity_id: button.ioniq_force_refresh
+                  action: button.press
+
+            - data:
+                title: "⚠️ EMS EV - Vehículo encendido"
+                message: >-
+                  🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                  El motor del Ioniq aparece encendido.
+
+                  Por seguridad, el EMS EV no inicia carga automática.
+                  Si estaba cargando, se ha ordenado detener la carga.
+
+                  🚗 SOC: {{ ev_soc }} %
+                  🚗 Autonomía: {{ ev_autonomia_km }} km
+                  📍 Ubicación: {{ ev_location }}
+                  🔌 Enchufado: {{ ev_enchufado }}
+                  ⚡ Potencia coche: {{ ev_potencia_w }} W
+
+                  Disparado por: {{ disparador }}
+
+                  {% if debug %}🐞 MODO DEBUG ACTIVO{% endif %}
+              action: persistent_notification.create
+
+            - data:
+                title: "HA-EMS EV - ⚠️ Vehículo encendido"
+                message: >-
+                  Ioniq con motor encendido.
+
+                  EMS EV suspendido.
+
+                  SOC: {{ ev_soc }} %
+                  Autonomía: {{ ev_autonomia_km }} km
+              action: script.notificar_a_administradores
+
+            - stop: "EMS EV detenido: vehículo encendido."
+
+    # ========================================================
+    # 4. AVISO SI ESTÁ EN CASA, BAJO Y SIN ENCHUFAR
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ ev_aviso_sin_enchufar }}"
+            # Para evitar avisos en cada evaluación periódica,
+            # se limita a cambios relevantes o debug.
+            - condition: template
+              value_template: >-
+                {{
+                  debug
+                  or disparador in [
+                    'device_tracker.ioniq_location',
+                    'binary_sensor.ioniq_ev_battery_plug',
+                    'sensor.ioniq_ev_battery_level',
+                    'sensor.ioniq_total_driving_range'
+                  ]
+                }}
+          sequence:
+            - data:
+                title: "🚗 EMS EV - Ioniq en casa sin enchufar"
+                message: >-
+                  🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                  El Ioniq está en casa, pero no está enchufado.
+
+                  🔋 SOC EV: {{ ev_soc }} %
+                  🚗 Autonomía: {{ ev_autonomia_km }} km
+
+                  Sería recomendable conectarlo para que el EMS pueda gestionar la carga
+                  si el nivel energético lo permite.
+
+                  Nivel energético actual: {{ nivel }}
+
+                  🔋 Batería casa: {{ bateria_casa_pct }} %
+                  ☀️ Producción restante hoy: {{ produccion_restante_kwh }} kWh
+
+                  Disparado por: {{ disparador }}
+
+                  {% if debug %}🐞 MODO DEBUG ACTIVO{% endif %}
+              action: persistent_notification.create
+
+            - data:
+                title: "HA-EMS EV - 🚗 Ioniq sin enchufar"
+                message: >-
+                  Ioniq en casa sin enchufar.
+
+                  SOC: {{ ev_soc }} %
+                  Autonomía: {{ ev_autonomia_km }} km
+
+                  Nivel EMS: {{ nivel }}
+              action: script.notificar_a_administradores
+
+    # ========================================================
+    # 5. AJUSTAR LÍMITE AC DEL COCHE SI HAY OBJETIVO VÁLIDO
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ ev_objetivo_soc_int > 0 }}"
+            - condition: template
+              value_template: "{{ limite_ac_actual | int(0) != ev_objetivo_soc_int | int(0) }}"
+          sequence:
+            - target:
+                entity_id: number.ioniq_ac_charging_limit
+              data:
+                value: "{{ ev_objetivo_soc_int }}"
+              action: number.set_value
+
+            - delay:
+                seconds: 3
+
+            - if:
+                - condition: template
+                  value_template: "{{ debug }}"
+              then:
+                - data:
+                    title: "🐞 EMS EV - Límite AC ajustado"
+                    message: >-
+                      🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                      Límite AC anterior: {{ limite_ac_actual }} %
+                      Nuevo límite AC: {{ ev_objetivo_soc_int }} %
+
+                      Nivel energético: {{ nivel }}
+                      SOC EV actual: {{ ev_soc }} %
+                      Autonomía: {{ ev_autonomia_km }} km
+
+                      Disparado por: {{ disparador }}
+                  action: persistent_notification.create
+
+    # ========================================================
+    # 6. INICIAR CARGA SI PROCEDE
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ ev_debe_cargar }}"
+            - condition: template
+              value_template: "{{ not cargador_switch_on }}"
+          sequence:
+            # Guardar datos de inicio de carga para notificación final
+            - target:
+                entity_id: input_number.ev_energia_inicio_carga
+              data:
+                value: "{{ ev_consumido_kwh | float(0) }}"
+              action: input_number.set_value
+
+            - target:
+                entity_id: input_number.ev_soc_inicio_carga
+              data:
+                value: "{{ ev_soc | float(0) }}"
+              action: input_number.set_value
+
+            - target:
+                entity_id: input_number.ev_autonomia_inicio_carga
+              data:
+                value: "{{ ev_autonomia_km | float(0) }}"
+              action: input_number.set_value
+
+            - target:
+                entity_id: input_datetime.ev_inicio_carga
+              data:
+                datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              action: input_datetime.set_datetime
+
+            # Asegurar límite AC antes de activar carga
+            - target:
+                entity_id: number.ioniq_ac_charging_limit
+              data:
+                value: "{{ ev_objetivo_soc_int }}"
+              action: number.set_value
+
+            - delay:
+                seconds: 3
+
+            # Activar carga
+            - target:
+                entity_id: switch.exterior_ioniq_ev_charging
+              action: switch.turn_on
+
+            - delay:
+                seconds: 20
+
+            - target:
+                entity_id: button.ioniq_force_refresh
+              action: button.press
+
+            - data:
+                title: "🟢 EMS EV - Carga iniciada"
+                message: >-
+                  🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                  Acción: carga del Ioniq iniciada.
+
+                  Nivel energético: {{ nivel }}
+                  Objetivo EMS EV: {{ ev_objetivo_soc_int }} %
+
+                  🚗 SOC actual: {{ ev_soc }} %
+                  🚗 Autonomía actual: {{ ev_autonomia_km }} km
+                  ⏱️ Tiempo estimado Hyundai: {{ ev_tiempo_estimado }}
+
+                  🔌 Enchufado: {{ ev_enchufado }}
+                  ⚡ Potencia coche antes de confirmar: {{ ev_potencia_w }} W
+
+                  🔋 Batería casa: {{ bateria_casa_pct }} %
+                  ☀️ Producción restante hoy: {{ produccion_restante_kwh }} kWh
+                  📈 Producción ahora: {{ produccion_ahora_w }} W
+                  📅 Producción estimada mañana: {{ produccion_manana_kwh }} kWh
+
+                  Se ha guardado inicio de carga:
+                  - SOC inicio: {{ ev_soc }} %
+                  - Autonomía inicio: {{ ev_autonomia_km }} km
+                  - Contador kWh inicio: {{ ev_consumido_kwh }} kWh
+
+                  Última actualización Hyundai: {{ ev_last_updated }}
+                  Antigüedad datos: {{ ev_datos_antiguedad_min }} min
+
+                  Disparado por: {{ disparador }}
+
+                  {% if debug %}🐞 MODO DEBUG ACTIVO{% endif %}
+              action: persistent_notification.create
+
+            - data:
+                title: "HA-EMS EV - 🟢 Carga iniciada"
+                message: >-
+                  Nivel: {{ nivel }}
+
+                  SOC: {{ ev_soc }} % → objetivo {{ ev_objetivo_soc_int }} %
+
+                  Autonomía: {{ ev_autonomia_km }} km
+
+                  Casa: {{ bateria_casa_pct }} %
+
+                  Restante hoy: {{ produccion_restante_kwh }} kWh
+              action: script.notificar_a_administradores
+
+    # ========================================================
+    # 7. PARAR CARGA SI PROCEDE
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ ev_debe_parar }}"
+            - condition: template
+              value_template: "{{ cargador_switch_on or ev_cargando_real }}"
+          sequence:
+            - target:
+                entity_id: switch.exterior_ioniq_ev_charging
+              action: switch.turn_off
+
+            - delay:
+                seconds: 20
+
+            - target:
+                entity_id: button.ioniq_force_refresh
+              action: button.press
+
+            - data:
+                title: >-
+                  {% if nivel == 'critico' %}
+                    🔴 EMS EV - Carga detenida por nivel crítico
+                  {% elif ev_soc | float(0) >= ev_objetivo_soc_int | float(0) and ev_objetivo_soc_int > 0 %}
+                    ✅ EMS EV - Objetivo de carga alcanzado
+                  {% elif not ev_en_casa %}
+                    📍 EMS EV - Carga detenida, vehículo fuera de casa
+                  {% elif not ev_enchufado %}
+                    🔌 EMS EV - Carga detenida, vehículo no enchufado
+                  {% else %}
+                    ⏹️ EMS EV - Carga detenida
+                  {% endif %}
+                message: >-
+                  🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                  Acción: carga del Ioniq detenida.
+
+                  Motivo evaluado:
+                  {% if nivel == 'critico' %}
+                    Nivel energético crítico.
+                  {% elif ev_objetivo_soc_int == 0 %}
+                    No hay objetivo de carga permitido para el nivel actual.
+                  {% elif ev_soc | float(0) >= ev_objetivo_soc_int | float(0) %}
+                    SOC objetivo alcanzado.
+                  {% elif not ev_en_casa %}
+                    El vehículo no está en casa.
+                  {% elif not ev_enchufado %}
+                    El vehículo no está enchufado.
+                  {% elif ev_motor_encendido %}
+                    Vehículo con motor encendido.
+                  {% else %}
+                    Condición de parada EMS.
+                  {% endif %}
+
+                  Nivel energético: {{ nivel }}
+                  Objetivo EMS EV: {{ ev_objetivo_soc_int }} %
+
+                  🚗 SOC:
+                  {{ soc_inicio_carga }} % → {{ ev_soc }} %
+
+                  🚗 Autonomía:
+                  {{ autonomia_inicio_carga }} km → {{ ev_autonomia_km }} km
+
+                  ⚡ Energía cargada estimada:
+                  {{ energia_cargada_kwh }} kWh
+
+                  ⏱️ Duración aproximada:
+                  {{ duracion_carga_min }} min
+
+                  Potencia final medida:
+                  {{ ev_potencia_w }} W
+
+                  🔋 Batería casa: {{ bateria_casa_pct }} %
+                  ☀️ Producción restante hoy: {{ produccion_restante_kwh }} kWh
+                  📈 Producción ahora: {{ produccion_ahora_w }} W
+                  📅 Producción estimada mañana: {{ produccion_manana_kwh }} kWh
+
+                  Última actualización Hyundai: {{ ev_last_updated }}
+                  Antigüedad datos: {{ ev_datos_antiguedad_min }} min
+
+                  Disparado por: {{ disparador }}
+
+                  {% if debug %}🐞 MODO DEBUG ACTIVO{% endif %}
+              action: persistent_notification.create
+
+            - data:
+                title: >-
+                  {% if ev_soc | float(0) >= ev_objetivo_soc_int | float(0) and ev_objetivo_soc_int > 0 %}
+                    HA-EMS EV - ✅ Objetivo alcanzado
+                  {% else %}
+                    HA-EMS EV - ⏹️ Carga detenida
+                  {% endif %}
+                message: >-
+                  Nivel: {{ nivel }}
+
+                  SOC: {{ soc_inicio_carga }} % → {{ ev_soc }} %
+
+                  Autonomía: {{ autonomia_inicio_carga }} km → {{ ev_autonomia_km }} km
+
+                  Energía: {{ energia_cargada_kwh }} kWh
+
+                  Duración: {{ duracion_carga_min }} min
+
+                  Objetivo: {{ ev_objetivo_soc_int }} %
+              action: script.notificar_a_administradores
+
+    # ========================================================
+    # 8. DEBUG FINAL SIN ACCIÓN
+    # ========================================================
+
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ debug }}"
+            - condition: template
+              value_template: "{{ not ev_debe_cargar and not ev_debe_parar }}"
+          sequence:
+            - data:
+                title: "🐞 EMS EV - Evaluación sin acción"
+                message: >-
+                  🕒 Hora: {{ now().strftime('%H:%M') }}
+
+                  No se ha iniciado ni detenido carga.
+
+                  Nivel energético: {{ nivel }}
+                  Objetivo EMS EV: {{ ev_objetivo_soc_int }} %
+
+                  🚗 SOC: {{ ev_soc }} %
+                  🚗 Autonomía: {{ ev_autonomia_km }} km
+                  📍 Ubicación: {{ ev_location }}
+                  🔌 Enchufado: {{ ev_enchufado }}
+                  🔋 Cargando sensor: {{ ev_cargando_sensor }}
+                  ⚡ Cargando real: {{ ev_cargando_real }}
+                  ⚡ Potencia coche: {{ ev_potencia_w }} W
+                  🚘 Motor encendido: {{ ev_motor_encendido }}
+
+                  Switch cargador ON: {{ cargador_switch_on }}
+                  Límite AC actual: {{ limite_ac_actual }} %
+
+                  Datos obsoletos: {{ ev_datos_obsoletos }}
+                  Antigüedad datos: {{ ev_datos_antiguedad_min }} min
+                  Última actualización Hyundai: {{ ev_last_updated }}
+
+                  🔋 Batería casa: {{ bateria_casa_pct }} %
+                  ☀️ Producción restante hoy: {{ produccion_restante_kwh }} kWh
+                  📈 Producción ahora: {{ produccion_ahora_w }} W
+                  📅 Producción estimada mañana: {{ produccion_manana_kwh }} kWh
+
+                  ¿Debe cargar?: {{ ev_debe_cargar }}
+                  ¿Debe parar?: {{ ev_debe_parar }}
+                  ¿Aviso sin enchufar?: {{ ev_aviso_sin_enchufar }}
+
+                  Disparado por: {{ disparador }}
+              action: persistent_notification.create
