@@ -2332,7 +2332,7 @@
       is_ios: false
       notification_title: Motion detected!
       notification_message: '{{ motion_sensor_name }} detected movement!'
-      delay: ''
+      delay: '3'
       snapshot_create_file_path: /config/www/tmp/snapshot_{{ states[camera].object_id
         }}.jpg
       snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/www'',''/local'')
