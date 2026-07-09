@@ -1,6 +1,6 @@
 - id: '1765208241617'
   alias: >
-    Aviso - Consumo en inversor muy alto (>6000W) v3
+    Aviso - Consumo en inversor muy alto (>6000W) v4
 
   description: |-
     Protección rápida para evitar caída del inversor.
@@ -336,6 +336,11 @@
           Consumo muy alto detectado.
           Potencia actual {{ potencia_inversor|round(0) }} vatios.
           Se han aplicado medidas automáticas de protección.
+          Potencia liberada estimada:
+          {{ potencia_liberada|round(0) }}W
+
+          Acciones ejecutadas:
+          {{ acciones_realizadas }}
         zona: surface cocina
 
     - service: script.encender_luces_casa_parpadeantes_alertas
