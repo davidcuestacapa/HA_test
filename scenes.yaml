@@ -691,12 +691,14 @@
   name: Modo dia despacho
   entities:
     cover.persiana_despacho_izda_cover_0:
+      is_closed: false
       current_position: 100
       device_class: shutter
-      friendly_name: Persiana Despacho izda
+      friendly_name: Persiana Despacho detrás
       supported_features: 15
       state: open
     cover.persiana_despacho_centro:
+      is_closed: false
       current_position: 50
       device_class: shutter
       friendly_name: Persiana Despacho centro
@@ -704,13 +706,14 @@
       state: open
     input_boolean.despacho_dormir:
       editable: true
-      icon: mdi:floor-lamp
+      icon: mdi:sleep
       friendly_name: Despacho dormir
       state: 'off'
     cover.persiana_despacho_dcha_cover_0:
-      current_position: 18
+      is_closed: false
+      current_position: 15
       device_class: shutter
-      friendly_name: Persiana Despacho dcha
+      friendly_name: Persiana Despacho lateral
       supported_features: 15
       state: open
   metadata:
