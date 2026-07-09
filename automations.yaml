@@ -2348,17 +2348,6 @@
       minutes: 0
       seconds: 2
       milliseconds: 0
-  - device_id: 609b265bb757951f33e233cd1d0c49b4
-    domain: mobile_app
-    type: notify
-    title: '{{ notification_title }}'
-    message: '{{ notification_message }}  {% if trigger.to_state is defined %}  Disparado
-      por {{ trigger.to_state.attributes.friendly_name }} cambió a  {{ trigger.to_state.state
-      }}{% else %}  Disparado por un evento sin estado{% endif %}'
-    data: '{% set android_data = {"image": "%s"} | format(snapshot_access_file_path)
-      %} {% set ios_data = {"attachment": {"url": "%s", "content_type": "JPEG"}} |
-      format(snapshot_access_file_path) %} {{ ios_data if is_ios else android_data
-      }}'
   - action: notify.mobile_app_david_x
     metadata: {}
     data:
@@ -2380,8 +2369,13 @@
 
         '
       zona: surface
-  - delay: '{{ delay }}'
-  - if:
+  - delay:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - alias: Según estado puerta avisa si esta cerrada o abierta
+    if:
     - type: is_not_open
       condition: device
       device_id: ca615ed7f6c9431a48251a77ea4902a8
@@ -2395,6 +2389,12 @@
           {{ trigger.to_state.name }} en estado {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
           | default('') }}.\n"
     else:
+    - action: script.notificar_con_mensaje_de_voz
+      data:
+        title: 'No se ha detectado el CIERRE de la puerta principal. Por favor comprobar
+
+          '
+        zona: surface
     - action: script.notificar_a_administradores
       data:
         title: "HA-Seguridad - \U0001F6AARevisar cierre de puerta principal"
