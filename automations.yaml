@@ -2832,3 +2832,13 @@
       entity_id: input_boolean.familia_en_casa
     data: {}
   mode: single
+- id: '1783580400955'
+  alias: __Send a camera snapshot when motion is detected
+  description: ''
+  use_blueprint:
+    path: vorion/send-camera-snapshot-notification-on-motion.yaml
+    input:
+      camera: camera.camara_salon_sd_stream
+      notify_device: 609b265bb757951f33e233cd1d0c49b4
+      motion_sensor: binary_sensor.salon_movimiento
+      delay: 2
