@@ -29,7 +29,7 @@
 #   script.notificar_a_administradores
 # ============================================================
 
-- alias: EMS EV - Gestión energética inteligente Ioniq
+- alias: EMS EV - Gestión energética inteligente Ioniq v2
   id: ems_ev_gestion_energetica_inteligente_ioniq
   description: >
     Control inteligente de carga del coche eléctrico según nivel energético,
