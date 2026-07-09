@@ -2344,7 +2344,10 @@
     target:
       entity_id: camera.camara_salon_sd_stream
   - delay:
-      milliseconds: 800
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
   - device_id: 609b265bb757951f33e233cd1d0c49b4
     domain: mobile_app
     type: notify
