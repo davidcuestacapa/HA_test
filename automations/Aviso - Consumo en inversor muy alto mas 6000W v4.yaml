@@ -97,7 +97,7 @@
         cortar_dhw_apoyo_elec: >
           {{
             dhw_apoyo_elec_w > umbral_dhw_apoyo_elec_w
-            and is_state('switch.aerotermia_apoyo_electrico','on')
+            and is_state('switch.m_aerotermia_apoyo_electrico','on')
           }}
 
         cortar_lavadora: >
@@ -216,7 +216,7 @@
       then:
         - service: switch.turn_off
           target:
-            entity_id: switch.aerotermia_apoyo_electrico
+            entity_id: switch.m_aerotermia_apoyo_electrico
           continue_on_error: true
 
     # ============================================================
