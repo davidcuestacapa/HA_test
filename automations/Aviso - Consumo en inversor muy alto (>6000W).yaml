@@ -266,13 +266,8 @@
     # ============================================================
     - service: persistent_notification.create
       data:
-        title: "TEST"
-        message: "Automatización cargada y ejecutada"
-
-    - service: persistent_notification.create
-      data:
         notification_id: Consumo_alto_casa
-        title: "⚠️ Consumo muy alto detectado"
+        title: "⚠️ Consumo muy alto detectado" V4
         message: >-
 
           🕒 {{ now().strftime('%H:%M:%S') }}
