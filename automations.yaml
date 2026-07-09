@@ -2359,13 +2359,18 @@
         image: '{{ snapshot_access_file_path }}'
   - action: script.notificar_con_mensaje_de_voz
     data:
-      title: 'Bienvenido;;;; Batería {{ states(''sensor.inversor_battery'') }}%. La
-        temperatura en casa {{ state_attr(''climate.zona1'',''current_temperature'')
+      title: 'Bienvenido;;;; Batería de casa al {{ states(''sensor.inversor_battery'')
+        }}%. La temperatura en casa es de {{ state_attr(''climate.zona1'',''current_temperature'')
         }}°. Termostato a {{ state_attr(''climate.zona1'',''temperature'') }}°.;;;;
-        Producido {{  states(''sensor.inversor_today_production'') }}Kilovatios hora;;
-        Hoy había estimado producir {{ states(''sensor.energy_production_today'')
+        Hoy se ha producido {{  states(''sensor.inversor_today_production'') }}Kilovatios
+        hora;; aunque  había estimado producir {{ states(''sensor.energy_production_today'')
         }}Kilovatios hora;; Estimado mañana {{  states(''sensor.energy_production_tomorrow'')
         }}Kilovatios hora;;
+
+        {% if is_state(''binary_sensor.ioniq_ev_battery_plug'', ''on'') %} El coche
+        está enchufado. {% else %} El coche no está enchufado. {% endif %} Actualmente
+        tiene un {{ states(''sensor.ioniq_ev_battery_level'') }} % de batería y una
+        autonomía estimada de {{ states(''sensor.ioniq_total_driving_range'') }} km;;
 
         '
       zona: surface
