@@ -36,14 +36,13 @@
       below: 42
 
   condition:
-
     # ==========================================================
-    # NO ESTAMOS DE VACACIONES
+    # ACTIVADO OPTIMIZADOR DE EFICIENCIA ENERGETICA IA
     # ==========================================================
 
     - condition: state
-      entity_id: input_boolean.familia_de_vacaciones
-      state: "off"
+      entity_id: input_boolean.optimizacion_energetica
+      state: "on"
 
     # ==========================================================
     # NO EXISTE ESTADO DE EMERGENCIA ACTIVO
@@ -51,6 +50,14 @@
 
     - condition: state
       entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+      state: "off"
+
+    # ==========================================================
+    # NO ESTAMOS DE VACACIONES
+    # ==========================================================
+
+    - condition: state
+      entity_id: input_boolean.familia_de_vacaciones
       state: "off"
 
     # ==========================================================
@@ -130,5 +137,9 @@
           momento favorable para producir agua
           caliente sanitaria.
         zona: surface cocina
+
+    - service: script.notificar_anadir_notificacion_david
+      data:
+        mensaje: "El calentador aumento a 50 grados en un momento favorable a las xxxx"
 
   mode: single

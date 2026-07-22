@@ -41,4 +41,8 @@
           desde hace más de veinticuatro horas.
         zona: surface cocina
 
+    - service: script.notificar_anadir_notificacion_david
+      data:
+        mensaje: "Calentador de agua en modo Eco desde hace más de24 horas"
+
   mode: single

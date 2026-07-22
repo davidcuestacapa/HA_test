@@ -20,6 +20,14 @@
 
   condition:
 
+    # ==========================================================
+    # ACTIVADO OPTIMIZADOR DE EFICIENCIA ENERGETICA IA
+    # ==========================================================
+
+    - condition: state
+      entity_id: input_boolean.optimizacion_energetica
+      state: "on"
+
     - condition: state
       entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
       state: "on"
@@ -38,9 +46,14 @@
           El consumo se ha mantenido por debajo de 2500 W
           durante 2 horas.
 
-          Se elimina la marca de emergencia ACS.
+          Finaliza el bloqueo del calentador de agua para reducir el consumo eléctrico
 
           Consumo actual:
           {{ states('sensor.inversor_power') }} W
+
+    - service: script.notificar_anadir_notificacion_david
+      data:
+        mensaje: "Finaliza el bloqueo del calentador de agua para reducir el consumo eléctrico"
+
 
   mode: single
