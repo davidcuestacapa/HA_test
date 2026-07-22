@@ -2327,22 +2327,23 @@
   - variables:
       motion_sensor: binary_sensor.salon_tapo_c125_284f_cell_motion_detection
       motion_sensor_name: '{{ states[motion_sensor].name }}'
-      camera: camera.camara_salon_sd_stream
+      camera: camera.salon_cam_284f_live_view
       notify_device: 609b265bb757951f33e233cd1d0c49b4
       is_ios: false
-      notification_title: Motion detected!
-      notification_message: '{{ motion_sensor_name }} detected movement!'
+      notification_title: HA-Seguridad
+      notification_message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. {{ motion_sensor_name
+        }} ha detectado movimiento!"
       delay: '3'
-      snapshot_create_file_path: /config/www/tmp/snapshot_{{ states[camera].object_id
-        }}.jpg
-      snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/www'',''/local'')
+      snapshot_create_file_path: /config/media/seguridad/foto_{{ states[camera].object_id
+        }}_{{ ts }}.jpg
+      snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/media'',''/local'')
         }}'
   - delay: '{{ delay }}'
   - data:
       filename: '{{ snapshot_create_file_path }}'
     action: camera.snapshot
     target:
-      entity_id: camera.camara_salon_sd_stream
+      entity_id: camera.salon_cam_284f_live_view
   - delay:
       hours: 0
       minutes: 0
@@ -2389,7 +2390,7 @@
     then:
     - action: script.notificar_a_administradores
       data:
-        title: "HA-Seguridad - \U0001F6AAAviso de cierre puerta principal"
+        title: "{{ notification_title }} -\U0001F6AAAviso de cierre puerta principal\n"
         message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. \U0001F6AACERRADA. Detectado
           {{ trigger.to_state.name }} en estado {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
           | default('') }}.\n"
