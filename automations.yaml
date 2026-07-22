@@ -2875,9 +2875,6 @@
       != '''' }}
 
       '
-  - condition: state
-    entity_id: input_boolean.notificaciones_david_leidas
-    state: 'off'
   actions:
   - choose:
     - conditions:
