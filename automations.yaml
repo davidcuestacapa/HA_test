@@ -2858,7 +2858,7 @@
           action: script.notificar_a_administradores
   mode: restart
 - id: '1784733048483'
-  alias: Notificaciones David - Reproducir notificaciones pendientes"
+  alias: Aviso Notificaciones David - Reproducir notificaciones pendientes"
   description: Lee las notificaciones acumuladas cuando David llega a casa
   triggers:
   - entity_id: binary_sensor.sensor_puerta_ppal_window
