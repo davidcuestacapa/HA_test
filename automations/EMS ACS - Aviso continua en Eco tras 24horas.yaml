@@ -25,6 +25,7 @@
       data:
         title: "⚠️ ACS en Eco más de 24 horas"
         message: >-
+          🕒 {{ now().strftime('%H:%M:%S') }}
 
           Temperatura ACS:
           {{ states('sensor.dhw_water_temperature') }}°C

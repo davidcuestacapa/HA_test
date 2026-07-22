@@ -114,6 +114,7 @@
         notification_id: ems_calentar_acs
         title: "♨️ EMS inicia calentamiento ACS"
         message: >-
+          🕒 {{ now().strftime('%H:%M:%S') }}
 
           Temperatura ACS:
           {{ states('sensor.dhw_water_temperature') }}°C
@@ -140,6 +141,6 @@
 
     - service: script.notificar_anadir_notificacion_david
       data:
-        mensaje: "El calentador aumento a 50 grados en un momento favorable a las xxxx"
+        mensaje: "El calentador aumento a 50 grados en un momento favorable a las {{ now().strftime('%H:%M') }}"
 
   mode: single
