@@ -2901,16 +2901,22 @@
       texto_avisos: "{% for linea in avisos.split('\\n') if linea|trim != '' %}\n
         \ {% set partes = linea.split('|',1) %}\n  Aviso {{ loop.index }}.\n  {{ partes[1]
         }}.\n{% endfor %}\n"
-  - target:
-      entity_id: tts.google_translate_es_es
+  - action: script.notificar_con_mensaje_de_voz
     data:
-      media_player_entity_id: media_player.surface
-      message: "David, tienes {{ total }} {% if total == 1 %}\n  aviso pendiente.\n{%
-        else %}\n  avisos pendientes.\n{% endif %}\n{{ texto_avisos }}\n"
-    action: tts.speak
-  - target:
-      entity_id: input_boolean.notificaciones_david_leidas
-    action: input_boolean.turn_on
+      title: 'David, tienes {{ total }} {% if total == 1 %}
+
+        aviso pendiente.
+
+        {% else %}
+
+        avisos pendientes.
+
+        {% endif %}
+
+        {{ texto_avisos }}
+
+        '
+      zona: surface
   - target:
       entity_id: input_text.notificaciones_pendientes_david
     data:
