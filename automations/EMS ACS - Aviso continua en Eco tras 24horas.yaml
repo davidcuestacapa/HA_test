@@ -1,7 +1,7 @@
 
 - id: aviso_acs_eco_24h
 
-  alias: EMS - ACS en Eco más de 24 horas
+  alias: EMS ACS - Aviso continua en Eco más de 24 horas
 
   trigger:
 
