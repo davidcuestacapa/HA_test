@@ -1,0 +1,46 @@
+
+- id: ems_acs_fin_emergencia_consumo_alto_v1
+
+  alias: EMS ACS - Fin de emergencia por consumo alto inversor v1
+
+  description: |-
+    Elimina la marca de emergencia ACS cuando
+    el consumo se ha estabilizado.
+
+    No restaura DHW ni resistencia.
+    Únicamente limpia el estado de emergencia.
+
+  trigger:
+
+    - platform: numeric_state
+      entity_id: sensor.inversor_power
+      below: 1500
+      for:
+        hours: 2
+
+  condition:
+
+    - condition: state
+      entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+      state: "on"
+
+  action:
+
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+
+    - service: persistent_notification.create
+      data:
+        notification_id: ems_fin_emergencia_acs
+        title: "✅ Fin emergencia ACS"
+        message: >-
+          El consumo se ha mantenido por debajo de 2500 W
+          durante 2 horas.
+
+          Se elimina la marca de emergencia ACS.
+
+          Consumo actual:
+          {{ states('sensor.inversor_power') }} W
+
+  mode: single

@@ -1,0 +1,44 @@
+
+- id: aviso_acs_eco_24h
+
+  alias: EMS - ACS en Eco más de 24 horas
+
+  trigger:
+
+    - platform: state
+      entity_id: water_heater.instalaciones_dhw
+      attribute: operation_mode
+      to: "Eco"
+      for:
+        hours: 24
+
+  condition:
+
+    - condition: state
+      entity_id: water_heater.instalaciones_dhw
+      attribute: operation_mode
+      state: "Eco"
+
+  action:
+
+    - service: persistent_notification.create
+      data:
+        title: "⚠️ ACS en Eco más de 24 horas"
+        message: >-
+
+          Temperatura ACS:
+          {{ states('sensor.dhw_water_temperature') }}°C
+
+          El ACS continúa funcionando en modo Eco
+          desde hace más de 24 horas.
+
+          Revisar condiciones del EMS.
+
+    - service: script.notificar_con_mensaje_de_voz
+      data:
+        title: >
+          Atención. El ACS permanece en modo Eco
+          desde hace más de veinticuatro horas.
+        zona: surface cocina
+
+  mode: single

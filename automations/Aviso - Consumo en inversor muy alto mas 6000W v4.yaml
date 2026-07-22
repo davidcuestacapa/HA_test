@@ -7,11 +7,15 @@
 
     Consumo inversor > 6000 W
 
-    - Si DHW apoyo >300 W → DHW a Eco   DESACTIVADO TEMP por
     - Si el apoyo eléctrico del ACS consumía >300W
+    - Si DHW apoyo >300 W → DHW a Eco   
     - Si lavadora >400 W → switch.lavadora OFF
     - Si lavavajillas >700 W → switch.lavavajillas OFF
     - Si no basta → detener carga del coche
+
+    Objetivo:
+    eliminar primero las cargas de mayor potencia sin
+    interrumpir completamente la producción de ACS.
 
   trigger:
     - platform: numeric_state
@@ -28,7 +32,7 @@
         # CONFIGURACIÓN
         # ============================================================
 
-        #umbral_dhw_w: 300
+        umbral_dhw_w: 300
         umbral_dhw_apoyo_elec_w: 300
         umbral_lavadora_w: 400
         umbral_lavavajillas_w: 700
@@ -53,8 +57,8 @@
         # MEDIDAS REALES
         # ============================================================
 
-        #dhw_w: >
-        #  {{ states('sensor.aerotermia_apoyo_electrico_potencia') | float(0) }}
+        dhw_w: >
+          {{ states('sensor.aerotermia_apoyo_electrico_potencia') | float(0) }}
 
         dhw_apoyo_elec_w: >
           {{ states('sensor.m_aerotermia_apoyo_electrico_potencia') | float(0) }}
@@ -85,19 +89,21 @@
         # Se mantiene comentado por si en el futuro se vuelve
         # a utilizar junto con la desconexión de resistencias.
         # ============================================================
-        #cortar_dhw: >
-        #  {{
-        #    dhw_w > umbral_dhw_w
-        #    and state_attr(
-        #      'water_heater.instalaciones_dhw',
-        #      'operation_mode'
-        #    ) != 'Eco'
-        #  }}
 
         cortar_dhw_apoyo_elec: >
           {{
             dhw_apoyo_elec_w > umbral_dhw_apoyo_elec_w
             and is_state('switch.m_aerotermia_apoyo_electrico','on')
+          }}
+
+        cortar_dhw: >
+          {{
+            cortar_dhw_apoyo_elec
+            and dhw_w > umbral_dhw_w
+            and state_attr(
+              'water_heater.instalaciones_dhw',
+              'operation_mode'
+            ) != 'Eco'
           }}
 
         cortar_lavadora: >
@@ -112,39 +118,25 @@
             and is_state('switch.lavavajillas','on')
           }}
 
-        #cortar_coche: >
-        #  {{
-        #    coche_w > umbral_coche_w
-        #    and not cortar_dhw
-        #    and not cortar_lavadora
-        #    and not cortar_lavavajillas
-        #  }}
-
         cortar_coche: >
           {{
             coche_w > umbral_coche_w
             and not cortar_dhw_apoyo_elec
+            and not cortar_dhw
             and not cortar_lavadora
             and not cortar_lavavajillas
           }}
+
 
         # ============================================================
         # ESTIMACIÓN DE POTENCIA LIBERADA
         # ============================================================
 
-        #potencia_liberada: >
-        #  {{
-        #    (dhw_w if cortar_dhw else 0)
-        #    +
-        #    (lavadora_w if cortar_lavadora else 0)
-        #    +
-        #    (lavavajillas_w if cortar_lavavajillas else 0)
-        #    +
-        #    (coche_w if cortar_coche else 0)
-        #  }}
         potencia_liberada: >
           {{
             (dhw_apoyo_elec_w if cortar_dhw_apoyo_elec else 0)
+            +
+            (dhw_w if cortar_dhw else 0)
             +
             (lavadora_w if cortar_lavadora else 0)
             +
@@ -153,16 +145,16 @@
             (coche_w if cortar_coche else 0)
           }}
 
-        # METER EN acciones_realizadas
-        #  {% if cortar_dhw %}
-        #    {% set ns.txt = ns.txt + ['♨️ DHW → ECO (' ~ (dhw_w|round(0)) ~ 'W)'] %}
-        #  {% endif %}
         acciones_realizadas: >
 
           {% set ns = namespace(txt=[]) %}
 
           {% if cortar_dhw_apoyo_elec %}
             {% set ns.txt = ns.txt + ['🔥 Resistencia apoyo → OFF (' ~ (dhw_apoyo_elec_w|round(0)) ~ 'W)'] %}
+          {% endif %}
+
+          {% if cortar_dhw %}
+            {% set ns.txt = ns.txt + [ '♨️ DHW → ECO (' ~ (dhw_w|round(0)) ~ 'W)'] %}
           {% endif %}
 
           {% if cortar_lavadora %}
@@ -192,19 +184,23 @@
         tone: Alarm 5
 
     # ============================================================
-    # DHW
+    # DHW -> ECO
     # ============================================================
 
-    #- if:
-    #    - condition: template
-    #      value_template: "{{ cortar_dhw }}"
-    #  then:
-    #    - service: water_heater.set_operation_mode
-    #      target:
-    #        entity_id: water_heater.instalaciones_dhw
-    #      data:
-    #        operation_mode: Eco
-    #      continue_on_error: true
+    - if:
+        - condition: template
+          value_template: "{{ cortar_dhw }}"
+      then:
+        - service: water_heater.set_operation_mode
+          target:
+            entity_id: water_heater.instalaciones_dhw
+          data:
+            operation_mode: Eco
+          continue_on_error: true
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+          continue_on_error: true
 
     # ============================================================
     # RESISTENCIA APOYO ACS
@@ -218,7 +214,11 @@
           target:
             entity_id: switch.m_aerotermia_apoyo_electrico
           continue_on_error: true
-
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+          continue_on_error: true
+          
     # ============================================================
     # LAVADORA
     # ============================================================

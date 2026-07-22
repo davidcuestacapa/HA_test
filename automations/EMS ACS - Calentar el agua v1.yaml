@@ -1,0 +1,134 @@
+
+- id: ems_calentar_acs_v1
+
+  alias: >
+    EMS - Calentar ACS v1
+
+  description: |-
+    Busca una ventana energética favorable para
+    recuperar ACS.
+
+    Condiciones:
+
+    - No estamos de vacaciones.
+    - ACS por debajo de 42 ºC.
+    - Nivel energético Excelente
+      o energía restante superior a 10 kWh.
+    - El ACS no está en estado de emergencia.
+
+    Acciones:
+
+    - DHW -> Comfort
+    - Apoyo eléctrico -> ON
+
+  trigger:
+
+    - platform: state
+      entity_id: sensor.nivel_energetico
+      to: "Excelente"
+
+    - platform: numeric_state
+      entity_id: sensor.energy_production_today_remaining
+      above: 10
+
+    - platform: numeric_state
+      entity_id: sensor.dhw_water_temperature
+      below: 42
+
+  condition:
+
+    # ==========================================================
+    # NO ESTAMOS DE VACACIONES
+    # ==========================================================
+
+    - condition: state
+      entity_id: input_boolean.familia_de_vacaciones
+      state: "off"
+
+    # ==========================================================
+    # NO EXISTE ESTADO DE EMERGENCIA ACTIVO
+    # ==========================================================
+
+    - condition: state
+      entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+      state: "off"
+
+    # ==========================================================
+    # ACS NECESITA CALENTARSE
+    # ==========================================================
+
+    - condition: numeric_state
+      entity_id: sensor.dhw_water_temperature
+      below: 40
+
+    # ==========================================================
+    # EXISTE BUENA VENTANA ENERGÉTICA
+    # ==========================================================
+
+    - condition: or
+      conditions:
+
+        - condition: state
+          entity_id: sensor.nivel_energetico
+          state: "Excelente"
+
+        - condition: numeric_state
+          entity_id: sensor.energy_production_today_remaining
+          above: 10
+
+  action:
+
+    # ==========================================================
+    # DHW -> COMFORT
+    # ==========================================================
+
+    - service: water_heater.set_operation_mode
+      target:
+        entity_id: water_heater.instalaciones_dhw
+      data:
+        operation_mode: Comfort
+      continue_on_error: true
+
+    # ==========================================================
+    # HABILITAR APOYO ELÉCTRICO
+    # ==========================================================
+
+    - service: switch.turn_on
+      target:
+        entity_id: switch.m_aerotermia_apoyo_electrico
+      continue_on_error: true
+
+    # ==========================================================
+    # NOTIFICACIÓN
+    # ==========================================================
+
+    - service: persistent_notification.create
+      data:
+        notification_id: ems_calentar_acs
+        title: "♨️ EMS inicia calentamiento ACS"
+        message: >-
+
+          Temperatura ACS:
+          {{ states('sensor.dhw_water_temperature') }}°C
+
+          Nivel energético:
+          {{ states('sensor.nivel_energetico') }}
+
+          Energía restante:
+          {{ states('sensor.energy_production_today_remaining') }} kWh
+
+          Acciones:
+
+          ✅ DHW -> Comfort
+
+          ✅ Apoyo eléctrico -> ON
+
+    - service: script.notificar_con_mensaje_de_voz
+      data:
+        title: >
+          El gestor energético ha detectado un
+          momento favorable para producir agua
+          caliente sanitaria.
+        zona: surface cocina
+
+  mode: single
