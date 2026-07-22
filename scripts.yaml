@@ -436,3 +436,22 @@ coche_cambiar_corriente_carga_ac:
   - action: kia_uvo.force_update
   alias: 'Coche: Cambiar Corriente Carga AC'
   description: Cambia la corriente de carga (100, 90 o 60) y fuerza el refresco
+notificar_anadir_notificacion_david:
+  sequence:
+  - variables:
+      actual: '{{ states(''input_text.notificaciones_pendientes_david'') }}
+
+        '
+      siguiente_numero: "{% if actual == '' %}\n  1\n{% else %}\n  {{ actual.split('\\n')
+        | count + 1 }}\n{% endif %}\n"
+      nueva_linea: '{{ siguiente_numero }}|{{ mensaje }}
+
+        '
+  - target:
+      entity_id: input_text.notificaciones_pendientes_david
+    data:
+      value: "{% if actual == '' %}\n  {{ nueva_linea }}\n{% else %}\n  {{ actual
+        ~ '\\n' ~ nueva_linea }}\n{% endif %}\n"
+    action: input_text.set_value
+  alias: Notificar - Añadir notificación David
+  description: ''

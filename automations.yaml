@@ -2338,6 +2338,7 @@
         }}_{{ ts }}.jpg
       snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/media'',''/local'')
         }}'
+      ts: '{{ now().strftime(''%Y%m%d_%H%M%S'') }}'
   - delay: '{{ delay }}'
   - data:
       filename: '{{ snapshot_create_file_path }}'
@@ -2856,3 +2857,70 @@
               }} kWh"
           action: script.notificar_a_administradores
   mode: restart
+- id: '1784733048483'
+  alias: Aviso Notificaciones David - Reproducir notificaciones pendientes"
+  description: Lee las notificaciones acumuladas cuando David llega a casa
+  triggers:
+  - entity_id: binary_sensor.sensor_puerta_ppal_window
+    to: 'on'
+    id: puerta
+    trigger: state
+  - entity_id: person.cerceda
+    to: home
+    id: persona
+    trigger: state
+  conditions:
+  - condition: template
+    value_template: '{{ states(''input_text.notificaciones_pendientes_david'') | trim
+      != '''' }}
+
+      '
+  - condition: state
+    entity_id: input_boolean.notificaciones_david_leidas
+    state: 'off'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: puerta
+      sequence:
+      - wait_template: '{{ is_state(''person.cerceda'', ''home'') }}
+
+          '
+        timeout: 00:03:00
+        continue_on_timeout: true
+      - condition: state
+        entity_id: person.cerceda
+        state: home
+  - variables:
+      avisos: '{{ states(''input_text.notificaciones_pendientes_david'') }}
+
+        '
+      total: '{{ avisos.split(''\n'') | select(''ne'','''') | list | count }}
+
+        '
+      texto_avisos: "{% for linea in avisos.split('\\n') if linea|trim != '' %}\n
+        \ {% set partes = linea.split('|',1) %}\n  Aviso {{ loop.index }}.\n  {{ partes[1]
+        }}.\n{% endfor %}\n"
+  - action: script.notificar_con_mensaje_de_voz
+    data:
+      title: 'David, tienes {{ total }} {% if total == 1 %}
+
+        aviso pendiente.
+
+        {% else %}
+
+        avisos pendientes.
+
+        {% endif %}
+
+        {{ texto_avisos }}
+
+        '
+      zona: surface
+  - target:
+      entity_id: input_text.notificaciones_pendientes_david
+    data:
+      value: ''
+    action: input_text.set_value
+  mode: single
