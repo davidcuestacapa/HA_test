@@ -2338,6 +2338,7 @@
         }}_{{ ts }}.jpg
       snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/media'',''/local'')
         }}'
+      ts: '{{ now().strftime(''%Y%m%d_%H%M%S'') }}'
   - delay: '{{ delay }}'
   - data:
       filename: '{{ snapshot_create_file_path }}'
