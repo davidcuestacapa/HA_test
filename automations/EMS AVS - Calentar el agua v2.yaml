@@ -201,3 +201,95 @@
   
             - service: script.notificar_anadir_notificacion_david
               data:
+                mensaje: "El calentador aumento a 50 grados en un momento favorable a las {{ now().strftime('%H:%M') }}"
+                        
+        #####################################################################
+        # PARADA ACS
+        #####################################################################
+        
+        - conditions:
+        
+            - condition: template
+              value_template: >
+                {{
+                  is_state('water_heater.instalaciones_dhw', 'Comfort')
+                  or
+                  is_state('switch.m_aerotermia_apoyo_electrico', 'on')
+                }}
+        
+            - condition: or
+              conditions:
+        
+                #################################################################
+                # ACS ya caliente
+                #################################################################
+        
+                - condition: numeric_state
+                  entity_id: sensor.dhw_water_temperature
+                  above: 48
+        
+                #################################################################
+                # Emergencia o vacaciones
+                #################################################################
+        
+                - condition: state
+                  entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+                  state: "on"
+        
+                - condition: state
+                  entity_id: input_boolean.familia_de_vacaciones
+                  state: "on"
+        
+                #################################################################
+                # Ventana energética perdida
+                #################################################################
+        
+                - condition: template
+                  value_template: >
+                    {{
+                      states('sensor.nivel_energetico') != 'Excelente'
+                      and
+                      states('sensor.inversor_pv_power')|float(0) < 1500
+                      and
+                      states('sensor.energy_production_today_remaining')|float(0) < 8
+                    }}
+        
+          sequence:
+        
+            - service: switch.turn_off
+              target:
+                entity_id: switch.m_aerotermia_apoyo_electrico
+        
+            - service: water_heater.set_operation_mode
+              target:
+                entity_id: water_heater.instalaciones_dhw
+              data:
+                operation_mode: Eco
+        
+            - service: persistent_notification.create
+              data:
+                notification_id: ems_calentar_acs
+                title: "♨️ EMS finaliza calentamiento ACS"
+                message: >
+                  🕒 {{ now().strftime('%H:%M:%S') }}
+        
+                  Temperatura ACS:
+                  {{ states('sensor.dhw_water_temperature') }}°C
+        
+                  Nivel energético:
+                  {{ states('sensor.nivel_energetico') }}
+        
+                  Producción FV:
+                  {{ states('sensor.inversor_pv_power') }} W
+        
+                  Energía restante:
+                  {{ states('sensor.energy_production_today_remaining') }} kWh
+        
+                  ✅ DHW -> Eco
+                  ✅ Apoyo eléctrico -> OFF
+        
+            - service: script.notificar_anadir_notificacion_david
+              data:
+                mensaje: >
+                  El calentamiento del ACS ha finalizado a las
+                  {{ now().strftime('%H:%M') }}.
