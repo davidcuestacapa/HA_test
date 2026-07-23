@@ -83,7 +83,8 @@
         - condition: and
           conditions:
             - condition: numeric_state
-              entity_id: sensor.power_production_now
+     #         entity_id: sensor.power_production_now
+              entity_id: sensor.inversor_pv_power
               above: 2000
 
             - condition: numeric_state
