@@ -34,6 +34,21 @@
     - platform: numeric_state
       entity_id: sensor.dhw_water_temperature
       below: 42
+      
+    - trigger: numeric_state
+      entity_id: sensor.inversor_pv_power
+      above: 2000
+      for:
+        minutes: 5
+
+    # trigger de parada
+    
+    - trigger: numeric_state
+      entity_id: sensor.inversor_pv_power
+      below: 1500
+      for:
+        minutes: 5
+
 
   condition:
     # ==========================================================
@@ -151,4 +166,4 @@
       data:
         mensaje: "El calentador aumento a 50 grados en un momento favorable a las {{ now().strftime('%H:%M') }}"
 
-  mode: single
+  mode: restart
