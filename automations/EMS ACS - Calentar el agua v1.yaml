@@ -66,7 +66,7 @@
 
     - condition: numeric_state
       entity_id: sensor.dhw_water_temperature
-      below: 40
+      below: 42
 
     # ==========================================================
     # EXISTE BUENA VENTANA ENERGÉTICA
