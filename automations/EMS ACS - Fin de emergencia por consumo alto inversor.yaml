@@ -16,7 +16,7 @@
       entity_id: sensor.inversor_power
       below: 1500
       for:
-        hours: 2
+        hours: 1
 
   condition:
 
