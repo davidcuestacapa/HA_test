@@ -1,201 +1,203 @@
-alias: EMS AVS - Calentar ACS v2
 
-description: >
-  Gestor energético de ACS basado en control continuo.
-
-  Objetivo:
-  Aprovechar ventanas energéticas favorables para recuperar
-  Agua Caliente Sanitaria (ACS) minimizando el consumo de red.
-
-  Estrategia de arranque:
-  - ACS por debajo de 42°C.
-  - No estamos de vacaciones.
-  - No existe bloqueo de ACS por emergencia.
-  - Nivel energético Excelente
-    O
-    Producción FV > 2000W y previsión restante > 10kWh.
-
-  Estrategia de parada:
-  - ACS alcanza 48°C.
-  - Se activan vacaciones.
-  - Se activa bloqueo/emergencia.
-  - Se pierde la ventana energética:
-      Nivel energético distinto de Excelente
-      Y producción FV < 1500W
-      Y previsión restante < 8kWh.
-
-  Histéresis aplicada:
-  - Temperatura: 42°C arranque / 48°C parada.
-  - Producción FV: 2000W arranque / 1500W parada.
-  - Energía restante: 10kWh arranque / 8kWh parada.
-
-  Filosofía:
-  Es preferible realizar calentamientos parciales del ACS
-  con excedentes solares que esperar una ventana perfecta
-  y terminar calentando posteriormente con energía de red.
-
-mode: restart
-
-trigger:
-
-  # Revisión por cambios de nivel energético
-  - platform: state
-    entity_id: sensor.nivel_energetico
-
-  # Histéresis temperatura ACS
-  - platform: numeric_state
-    entity_id: sensor.dhw_water_temperature
-    below: 42
-
-  - platform: numeric_state
-    entity_id: sensor.dhw_water_temperature
-    above: 48
-
-  # Histéresis energía restante
-  - platform: numeric_state
-    entity_id: sensor.energy_production_today_remaining
-    above: 10
-
-  - platform: numeric_state
-    entity_id: sensor.energy_production_today_remaining
-    below: 8
-
-  # Histéresis producción FV
-  - platform: numeric_state
-    entity_id: sensor.inversor_pv_power
-    above: 2000
-    for:
-      minutes: 5
-
-  - platform: numeric_state
-    entity_id: sensor.inversor_pv_power
-    below: 1500
-    for:
-      minutes: 5
-
-  # Revisión por cambios de estados de control
-  - platform: state
-    entity_id:
-      - input_boolean.optimizacion_energetica
-      - input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
-      - input_boolean.familia_de_vacaciones
-
-  # Revisión periódica de seguridad
-  - platform: time_pattern
-    minutes: "/15"
-
-condition:
-  - condition: state
-    entity_id: input_boolean.optimizacion_energetica
-    state: "on"
-
-action:
-
-  - choose:
-
-      #####################################################################
-      # ARRANQUE ACS
-      #
-      # El ACS debe arrancar únicamente cuando:
-      # - Existe demanda térmica (<42°C)
-      # - No hay bloqueos
-      # - Existe una ventana energética favorable
-      #
-      # Umbrales de arranque:
-      #   FV > 2000W
-      #   Remaining > 10kWh
-      #
-      # Pensados para una instalación FV de 6kW y una
-      # demanda ACS aproximada de 4,5-5kW.
-      #####################################################################
-
-      - conditions:
-
-          - condition: state
-            entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
-            state: "off"
-
-          - condition: state
-            entity_id: input_boolean.familia_de_vacaciones
-            state: "off"
-
-          - condition: numeric_state
-            entity_id: sensor.dhw_water_temperature
-            below: 42
-
-          - condition: or
-            conditions:
-
-              - condition: state
-                entity_id: sensor.nivel_energetico
-                state: "Excelente"
-
-              - condition: and
-                conditions:
-
-                  # Evita falsos arranques debidos a
-                  # recalculados nocturnos de Remaining.
-
-                  - condition: sun
-                    after: sunrise
-
-                  - condition: numeric_state
-                    entity_id: sensor.inversor_pv_power
-                    above: 2000
-
-                  - condition: numeric_state
-                    entity_id: sensor.energy_production_today_remaining
-                    above: 10
-
-          - condition: template
-            value_template: >
-              {{ state_attr('water_heater.instalaciones_dhw',
-              'operation_mode') != 'Comfort' }}
-
-        sequence:
-
-          - service: water_heater.set_operation_mode
-            target:
-              entity_id: water_heater.instalaciones_dhw
-            data:
-              operation_mode: Comfort
-
-          - service: switch.turn_on
-            target:
-              entity_id: switch.m_aerotermia_apoyo_electrico
-
-          - service: persistent_notification.create
-            data:
-              notification_id: ems_calentar_acs
-              title: "♨️ EMS inicia calentamiento ACS"
-              message: >-
-                🕒 {{ now().strftime('%H:%M:%S') }}
-
-                Temperatura ACS:
-                {{ states('sensor.dhw_water_temperature') }}°C
-
-                Nivel energético:
-                {{ states('sensor.nivel_energetico') }}
-
-                Producción FV:
-                {{ states('sensor.inversor_pv_power') }} W
-
-                Energía restante:
-                {{ states('sensor.energy_production_today_remaining') }} kWh
-
-                Acciones:
-
-                ✅ DHW -> Comfort
-
-                ✅ Apoyo eléctrico -> ON
-
-          - service: script.notificar_con_mensaje_de_voz
-            data:
-              title: >
-                El gestor energético ha detectado un
-                momento favorable para producir agua
-                caliente sanitaria.
-              zona: surface cocina
-
-          - service: script.notificar_anadir_notificacion_david
-            data:
+- id: ems_calentar_acs_v2
+  alias: EMS AVS - Calentar ACS v2
+  
+  description: >
+    Gestor energético de ACS basado en control continuo.
+  
+    Objetivo:
+    Aprovechar ventanas energéticas favorables para recuperar
+    Agua Caliente Sanitaria (ACS) minimizando el consumo de red.
+  
+    Estrategia de arranque:
+    - ACS por debajo de 42°C.
+    - No estamos de vacaciones.
+    - No existe bloqueo de ACS por emergencia.
+    - Nivel energético Excelente
+      O
+      Producción FV > 2000W y previsión restante > 10kWh.
+  
+    Estrategia de parada:
+    - ACS alcanza 48°C.
+    - Se activan vacaciones.
+    - Se activa bloqueo/emergencia.
+    - Se pierde la ventana energética:
+        Nivel energético distinto de Excelente
+        Y producción FV < 1500W
+        Y previsión restante < 8kWh.
+  
+    Histéresis aplicada:
+    - Temperatura: 42°C arranque / 48°C parada.
+    - Producción FV: 2000W arranque / 1500W parada.
+    - Energía restante: 10kWh arranque / 8kWh parada.
+  
+    Filosofía:
+    Es preferible realizar calentamientos parciales del ACS
+    con excedentes solares que esperar una ventana perfecta
+    y terminar calentando posteriormente con energía de red.
+  
+  mode: restart
+  
+  trigger:
+  
+    # Revisión por cambios de nivel energético
+    - platform: state
+      entity_id: sensor.nivel_energetico
+  
+    # Histéresis temperatura ACS
+    - platform: numeric_state
+      entity_id: sensor.dhw_water_temperature
+      below: 42
+  
+    - platform: numeric_state
+      entity_id: sensor.dhw_water_temperature
+      above: 48
+  
+    # Histéresis energía restante
+    - platform: numeric_state
+      entity_id: sensor.energy_production_today_remaining
+      above: 10
+  
+    - platform: numeric_state
+      entity_id: sensor.energy_production_today_remaining
+      below: 8
+  
+    # Histéresis producción FV
+    - platform: numeric_state
+      entity_id: sensor.inversor_pv_power
+      above: 2000
+      for:
+        minutes: 5
+  
+    - platform: numeric_state
+      entity_id: sensor.inversor_pv_power
+      below: 1500
+      for:
+        minutes: 5
+  
+    # Revisión por cambios de estados de control
+    - platform: state
+      entity_id:
+        - input_boolean.optimizacion_energetica
+        - input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+        - input_boolean.familia_de_vacaciones
+  
+    # Revisión periódica de seguridad
+    - platform: time_pattern
+      minutes: "/15"
+  
+  condition:
+    - condition: state
+      entity_id: input_boolean.optimizacion_energetica
+      state: "on"
+  
+  action:
+  
+    - choose:
+  
+        #####################################################################
+        # ARRANQUE ACS
+        #
+        # El ACS debe arrancar únicamente cuando:
+        # - Existe demanda térmica (<42°C)
+        # - No hay bloqueos
+        # - Existe una ventana energética favorable
+        #
+        # Umbrales de arranque:
+        #   FV > 2000W
+        #   Remaining > 10kWh
+        #
+        # Pensados para una instalación FV de 6kW y una
+        # demanda ACS aproximada de 4,5-5kW.
+        #####################################################################
+  
+        - conditions:
+  
+            - condition: state
+              entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+              state: "off"
+  
+            - condition: state
+              entity_id: input_boolean.familia_de_vacaciones
+              state: "off"
+  
+            - condition: numeric_state
+              entity_id: sensor.dhw_water_temperature
+              below: 42
+  
+            - condition: or
+              conditions:
+  
+                - condition: state
+                  entity_id: sensor.nivel_energetico
+                  state: "Excelente"
+  
+                - condition: and
+                  conditions:
+  
+                    # Evita falsos arranques debidos a
+                    # recalculados nocturnos de Remaining.
+  
+                    - condition: sun
+                      after: sunrise
+  
+                    - condition: numeric_state
+                      entity_id: sensor.inversor_pv_power
+                      above: 2000
+  
+                    - condition: numeric_state
+                      entity_id: sensor.energy_production_today_remaining
+                      above: 10
+  
+            - condition: template
+              value_template: >
+                {{ state_attr('water_heater.instalaciones_dhw',
+                'operation_mode') != 'Comfort' }}
+  
+          sequence:
+  
+            - service: water_heater.set_operation_mode
+              target:
+                entity_id: water_heater.instalaciones_dhw
+              data:
+                operation_mode: Comfort
+  
+            - service: switch.turn_on
+              target:
+                entity_id: switch.m_aerotermia_apoyo_electrico
+  
+            - service: persistent_notification.create
+              data:
+                notification_id: ems_calentar_acs
+                title: "♨️ EMS inicia calentamiento ACS"
+                message: >-
+                  🕒 {{ now().strftime('%H:%M:%S') }}
+  
+                  Temperatura ACS:
+                  {{ states('sensor.dhw_water_temperature') }}°C
+  
+                  Nivel energético:
+                  {{ states('sensor.nivel_energetico') }}
+  
+                  Producción FV:
+                  {{ states('sensor.inversor_pv_power') }} W
+  
+                  Energía restante:
+                  {{ states('sensor.energy_production_today_remaining') }} kWh
+  
+                  Acciones:
+  
+                  ✅ DHW -> Comfort
+  
+                  ✅ Apoyo eléctrico -> ON
+  
+            - service: script.notificar_con_mensaje_de_voz
+              data:
+                title: >
+                  El gestor energético ha detectado un
+                  momento favorable para producir agua
+                  caliente sanitaria.
+                zona: surface cocina
+  
+            - service: script.notificar_anadir_notificacion_david
+              data:
