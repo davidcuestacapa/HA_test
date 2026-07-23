@@ -2,7 +2,7 @@
 - id: ems_calentar_acs_v1
 
   alias: >
-    EMS AVS - Calentar el agua v2
+    EMS AVS - Calentar el agua v1
 
   description: |-
     Busca una ventana energética favorable para
