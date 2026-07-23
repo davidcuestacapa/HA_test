@@ -201,7 +201,9 @@
   
             - service: script.notificar_anadir_notificacion_david
               data:
-                mensaje: "El calentador aumento a 50 grados en un momento favorable a las {{ now().strftime('%H:%M') }}"
+                mensaje: >
+                  Se Comenzó a producir agua caliente en un momento favorable a las {{ now().strftime('%H:%M') }}.
+                  Con temperatura inicial de {{ states('sensor.dhw_water_temperature') }} grados y limite de 48 grados
                         
         #####################################################################
         # PARADA ACS
@@ -291,5 +293,5 @@
             - service: script.notificar_anadir_notificacion_david
               data:
                 mensaje: >
-                  El calentamiento del ACS ha finalizado a las
-                  {{ now().strftime('%H:%M') }}.
+                  El calentamiento del ACS ha parado a las
+                  {{ now().strftime('%H:%M') }}. La temperatura alcanzó {{ states('sensor.dhw_water_temperature') }} grados
