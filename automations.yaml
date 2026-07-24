@@ -2331,11 +2331,11 @@
       notification_message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. {{ motion_sensor_name
         }} ha detectado movimiento!"
       delay: '3'
+      ts: '{{ now().strftime(''%Y%m%d_%H%M%S'') }}'
       snapshot_create_file_path: /config/media/seguridad/foto_{{ states[camera].object_id
         }}_{{ ts }}.jpg
       snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/media'',''/local'')
         }}'
-      ts: '{{ now().strftime(''%Y%m%d_%H%M%S'') }}'
   - delay: '{{ delay }}'
   - data:
       filename: '{{ snapshot_create_file_path }}'
