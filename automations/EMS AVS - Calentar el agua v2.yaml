@@ -178,6 +178,9 @@
   
                   Nivel energético:
                   {{ states('sensor.nivel_energetico') }}
+                  
+                  Consumo actual
+                  {{ states('sensor.inversor_power') }} W
   
                   Producción FV:
                   {{ states('sensor.inversor_pv_power') }} W
@@ -281,6 +284,9 @@
                   Nivel energético:
                   {{ states('sensor.nivel_energetico') }}
         
+                  Consumo actual
+                  {{ states('sensor.inversor_power') }} W
+  
                   Producción FV:
                   {{ states('sensor.inversor_pv_power') }} W
         
