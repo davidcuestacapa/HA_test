@@ -1332,7 +1332,7 @@
       device_id: c1c1d8fd99dc7682ada5148f63332768
   mode: single
 - id: '1761080580051'
-  alias: Alerta - Fuga de agua o manipulación en Cocina o Instalaciones
+  alias: Alerta - Fuga de agua / Inundación o manipulación en Cocina o Instalaciones
   description: Envía una alerta si se detecta agua o si el sensor ha sido manipulado
   triggers:
   - entity_id: binary_sensor.detector_agua_instalaciones_water_leak
@@ -1350,6 +1350,11 @@
     - binary_sensor.detector_agua_cocina_tamper
     to: 'on'
     trigger: state
+  - trigger: state
+    entity_id:
+    - binary_sensor.instalaciones_inundacion_flood
+    to:
+    - 'on'
   conditions: []
   actions:
   - data:
@@ -1358,19 +1363,8 @@
 
         trigger.to_state.attributes.friendly_name }} cambió a  {{ trigger.to_state.state
         }}{{ trigger.to_state.attributes.unit_of_measurement }}'
-      notification_id: temp_alta_cuarto
+      notification_id: Fuga de agua
     action: persistent_notification.create
-  - data:
-      deviceID:
-      - 413c6641-f214c141
-      title: ⚠️ Alerta de sensor de agua
-      message: 'Se ha detectado {{ trigger.to_state.name }}: {{ trigger.entity_id
-        }} está en estado ON.
-
-        '
-      duration: 100000
-      icon: mdi:thermometer-alert
-    action: browser_mod.notification
   - action: script.notificar_a_familia
     data:
       title: "\U0001F6A8HA-EMERGENCIA -\U0001F4A6 Alerta en sensores de agua"
