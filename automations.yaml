@@ -1335,26 +1335,29 @@
   alias: Alerta - Fuga de agua / Inundación o manipulación en Cocina o Instalaciones
   description: Envía una alerta si se detecta agua o si el sensor ha sido manipulado
   triggers:
-  - entity_id: binary_sensor.detector_agua_instalaciones_water_leak
-    to: 'on'
-    trigger: state
   - entity_id:
-    - binary_sensor.detector_agua_instalaciones_tamper
-    to: 'on'
+    - binary_sensor.detector_agua_lavavajillas_water_leak
+    to:
+    - 'on'
     trigger: state
   - entity_id:
     - binary_sensor.detector_agua_cocina_water_leak
     to: 'on'
     trigger: state
+  - trigger: state
+    entity_id:
+    - binary_sensor.instalaciones_detector_agua_flood
+    to:
+    - 'on'
   - entity_id:
     - binary_sensor.detector_agua_cocina_tamper
     to: 'on'
     trigger: state
-  - trigger: state
-    entity_id:
-    - binary_sensor.instalaciones_inundacion_flood
+  - entity_id:
+    - binary_sensor.detector_agua_lavavajillas_tamper
     to:
     - 'on'
+    trigger: state
   conditions: []
   actions:
   - data:

@@ -74,7 +74,7 @@ devices:
     humidity_precision: 0
     icon: device_icons/909ceb68f6716669b4822453a5aaede8.png
   '0xa4c138f7f30b609b':
-    friendly_name: Detector agua Instalaciones
+    friendly_name: Detector agua Lavavajillas
     icon: device_icons/eb4790996bc65bec3d65a8972d27e560.png
   '0xa4c138f06a4c3aa8':
     friendly_name: Detector agua Cocina
