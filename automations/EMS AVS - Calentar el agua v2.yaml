@@ -178,10 +178,7 @@
   
                   Nivel energético:
                   {{ states('sensor.nivel_energetico') }}
-                  
-                  Consumo actual
-                  {{ states('sensor.inversor_power') }} W
-  
+
                   Producción FV:
                   {{ states('sensor.inversor_pv_power') }} W
   
@@ -189,11 +186,12 @@
                   {{ states('sensor.energy_production_today_remaining') }} kWh
   
                   Acciones:
-  
                   ✅ DHW -> Comfort
-  
                   ✅ Apoyo eléctrico -> ON
-  
+                  
+                  Consumo actual
+                  {{ states('sensor.inversor_power') }} W
+
             - service: script.notificar_con_mensaje_de_voz
               data:
                 title: >
@@ -284,17 +282,21 @@
                   Nivel energético:
                   {{ states('sensor.nivel_energetico') }}
         
-                  Consumo actual
-                  {{ states('sensor.inversor_power') }} W
-  
                   Producción FV:
                   {{ states('sensor.inversor_pv_power') }} W
         
                   Energía restante:
                   {{ states('sensor.energy_production_today_remaining') }} kWh
         
+                  Acciones:
                   ✅ DHW -> Eco
                   ✅ Apoyo eléctrico -> OFF
+        
+                  Consumo actual
+                  {{ states('sensor.inversor_power') }} W
+        
+                  Consumo aerotermia
+                  {{ states('sensor.baxi_total_potencia') }} W
         
             - service: script.notificar_anadir_notificacion_david
               data:
