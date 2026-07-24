@@ -2356,6 +2356,14 @@
         }}{% else %}  Disparado por un evento sin estado{% endif %}'
       data:
         image: '{{ snapshot_access_file_path }}'
+  - action: script.notificar_a_administradores
+    metadata: {}
+    data:
+      title: "HA-Seguridad - \U0001F6AAAviso de apertura puerta principal"
+      message: "\U0001F552{{ now().strftime('%H:%M:%S') }}.\U0001F6AAABIERTA. Detectado
+        {{ trigger.to_state.name }} está en estadoestá en estado {{  trigger.to_state.state
+        }}{{ trigger.to_state.attributes.unit_of_measurement }}."
+      image: camera.salon_cam_284f_live_view
   - action: script.notificar_con_mensaje_de_voz
     data:
       title: 'Bienvenido;;;; Batería de casa al {{ states(''sensor.inversor_battery'')
@@ -2370,7 +2378,7 @@
         está enchufado. {% else %} El coche no está enchufado. {% endif %} Actualmente
         tiene un {{ states(''sensor.ioniq_ev_battery_level'') }} porciento de batería
         y una autonomía estimada de {{ states(''sensor.ioniq_total_driving_range'')
-        | float(0) }} kilometros;;
+        | round(0) }} kilometros;;
 
         '
       zona: surface
