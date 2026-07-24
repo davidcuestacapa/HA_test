@@ -2368,8 +2368,9 @@
 
         {% if is_state(''binary_sensor.ioniq_ev_battery_plug'', ''on'') %} El coche
         está enchufado. {% else %} El coche no está enchufado. {% endif %} Actualmente
-        tiene un {{ states(''sensor.ioniq_ev_battery_level'') }} % de batería y una
-        autonomía estimada de {{ states(''sensor.ioniq_total_driving_range'') }} km;;
+        tiene un {{ states(''sensor.ioniq_ev_battery_level'') }} porciento de batería
+        y una autonomía estimada de {{ states(''sensor.ioniq_total_driving_range'')
+        | float(0) }} kilometros;;
 
         '
       zona: surface
