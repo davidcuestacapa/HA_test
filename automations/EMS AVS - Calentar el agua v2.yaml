@@ -124,6 +124,11 @@
             - condition: numeric_state
               entity_id: sensor.dhw_water_temperature
               below: 42
+    
+            - condition: template
+              value_template: >
+                {{ state_attr('water_heater.instalaciones_dhw',
+                'operation_mode') != 'Comfort' }}
   
             - condition: or
               conditions:
@@ -148,12 +153,7 @@
                     - condition: numeric_state
                       entity_id: sensor.energy_production_today_remaining
                       above: 10
-  
-            - condition: template
-              value_template: >
-                {{ state_attr('water_heater.instalaciones_dhw',
-                'operation_mode') != 'Comfort' }}
-  
+
           sequence:
   
             - service: water_heater.set_operation_mode
