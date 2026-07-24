@@ -70,7 +70,7 @@
           {{ states('sensor.lavavajillas_consumo_actual') | float(0) }}
 
         coche_w: >
-          {{ states('sensor.m_ext_coche_potencia') | float(0) }}
+          {{ states('sensor.m_ext_coche_coche_consumo') | float(0) }}
 
         coche_charge_api: >
           {{ iif(is_state('binary_sensor.ioniq_ev_battery_charge','on'),'Cargando','No cargando') }}
