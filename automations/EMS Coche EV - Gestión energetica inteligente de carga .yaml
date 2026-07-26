@@ -105,7 +105,7 @@
 
         # Durante pruebas déjalo en true.
         # Cuando esté estable, ponlo en false para recibir sólo eventos relevantes.
-        debug: true
+        debug: false
 
         # Antigüedad máxima aceptada de datos Hyundai antes de forzar refresh.
         max_antiguedad_datos_min: 30
