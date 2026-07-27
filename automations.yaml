@@ -2347,7 +2347,7 @@
         por {{ trigger.to_state.attributes.friendly_name }} cambió a  {{ trigger.to_state.state
         }}{% else %}  Disparado por un evento sin estado{% endif %}'
       data:
-        image: '{{ snapshot_access_file_path }}'
+        entity_id: camera.salon_cam_284f_live_view
   - action: script.notificar_a_administradores
     metadata: {}
     data:
