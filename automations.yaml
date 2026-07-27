@@ -2876,10 +2876,10 @@
   - trigger: conversation
     command:
     - leer notificaciones
+    - lee mis notificaciones
+    - qué notificaciones tengo
+    - dime mis avisos
   conditions: []
   actions:
-  - action: persistent_notification.create
-    data:
-      title: Prueba Assist
-      message: La frase 'leer notificaciones' ha sido reconocida correctamente.
+  - action: automation.notificaciones_david_reproducir_notificaciones_pendientes
   mode: single
