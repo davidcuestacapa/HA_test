@@ -2340,10 +2340,6 @@
       seconds: 2
       milliseconds: 0
   - action: notify.mobile_app_david_x
-    data:
-      title: DEBUG
-      message: 'Ruta: {{ snapshot_access_file_path }}'
-  - action: notify.mobile_app_david_x
     metadata: {}
     data:
       title: '{{ notification_title }}'
