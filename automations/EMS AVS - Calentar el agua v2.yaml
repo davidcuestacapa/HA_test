@@ -67,13 +67,13 @@
       entity_id: sensor.inversor_pv_power
       above: 2000
       for:
-        minutes: 5
+        minutes: 45
   
     - platform: numeric_state
       entity_id: sensor.inversor_pv_power
       below: 1500
       for:
-        minutes: 5
+        minutes: 15
   
     # Revisión por cambios de estados de control
     - platform: state
