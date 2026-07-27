@@ -2353,8 +2353,8 @@
     data:
       title: "HA-Seguridad - \U0001F6AAAviso de apertura puerta principal"
       message: "\U0001F552{{ now().strftime('%H:%M:%S') }}.\U0001F6AAABIERTA. Detectado
-        {{ trigger.to_state.name }} está en estadoestá en estado {{  trigger.to_state.state
-        }}{{ trigger.to_state.attributes.unit_of_measurement }}."
+        {{ trigger.to_state.name }} en estado {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
+        | default('') }}."
       image: camera.salon_cam_284f_live_view
   - action: script.notificar_con_mensaje_de_voz
     data:
@@ -2393,6 +2393,7 @@
         message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. \U0001F6AACERRADA. Detectado
           {{ trigger.to_state.name }} en estado {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
           | default('') }}.\n"
+        image: camera.salon_cam_284f_live_view
     else:
     - action: script.notificar_con_mensaje_de_voz
       data:
@@ -2407,6 +2408,7 @@
           CIERRE;;;;Revisar;;;; \U0001F6AAPuerta {{ states('binary_sensor.sensor_puerta_ppal_window')
           }} {{ trigger.to_state.name }} está en estado {{ trigger.to_state.state
           }}{{ trigger.to_state.attributes.unit_of_measurement | default('') }}.\n"
+        image: camera.salon_cam_284f_live_view
   variables:
     motion_sensor: binary_sensor.movimiento_entrada_movimiento
     motion_sensor_name: '{{ states[motion_sensor].name }}'
