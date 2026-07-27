@@ -2398,6 +2398,12 @@
         data:
           title: Aviso. Lavadora ha terminado.
           zona: surface
+      - data:
+          mensaje: 'Lavadora ha terminado a las {{ now().strftime(''%H:%M'') }}. No
+            olvides sacar y tender la ropa
+
+            '
+        action: script.notificar_anadir_notificacion_david
       pre_actions: []
 - id: '1772905830353'
   alias: Alternar Boleano Despacho dormir
