@@ -2324,9 +2324,9 @@
         }} ha detectado movimiento!"
       delay: '3'
       ts: '{{ now().strftime(''%Y%m%d_%H%M%S'') }}'
-      snapshot_create_file_path: /config/media/seguridad/foto_{{ states[camera].object_id
+      snapshot_create_file_path: /config/www/seguridad/foto_{{ states[camera].object_id
         }}_{{ ts }}.jpg
-      snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/media'',''/local'')
+      snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/www'',''/local'')
         }}'
   - delay: '{{ delay }}'
   - data:
@@ -2340,6 +2340,10 @@
       seconds: 2
       milliseconds: 0
   - action: notify.mobile_app_david_x
+    data:
+      title: DEBUG
+      message: 'Ruta: {{ snapshot_access_file_path }}'
+  - action: notify.mobile_app_david_x
     metadata: {}
     data:
       title: '{{ notification_title }}'
@@ -2347,8 +2351,7 @@
         por {{ trigger.to_state.attributes.friendly_name }} cambió a  {{ trigger.to_state.state
         }}{% else %}  Disparado por un evento sin estado{% endif %}'
       data:
-        image:
-          '[object Object]':
+        image: '{{ snapshot_access_file_path }}'
   - action: script.notificar_a_administradores
     metadata: {}
     data:
