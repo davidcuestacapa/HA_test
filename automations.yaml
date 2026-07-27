@@ -2314,7 +2314,7 @@
     - 'on'
   actions:
   - variables:
-      motion_sensor: binary_sensor.salon_tapo_c125_284f_cell_motion_detection
+      motion_sensor: binary_sensor.sensor_puerta_ppal_window
       motion_sensor_name: '{{ states[motion_sensor].name }}'
       camera: camera.salon_cam_284f_live_view
       notify_device: 609b265bb757951f33e233cd1d0c49b4
