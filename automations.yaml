@@ -2051,7 +2051,7 @@
     domain: binary_sensor
   actions:
   - target:
-      entity_id: camera.camara_salon_sd_stream
+      entity_id: camera.salon_cam_284f_live_view
     data:
       filename: /config/media/seguridad/foto_puerta_{{ ts }}.jpg
     action: camera.snapshot
@@ -2060,10 +2060,8 @@
     metadata: {}
     data:
       title: "HA-Seguridad - \U0001F6AAAviso de apertura puerta principal"
-      message: "\U0001F552{{ now().strftime('%H:%M:%S') }}.\U0001F6AAABIERTA. Detectado
-        {{ trigger.to_state.name }} está en estadoestá en estado {{  trigger.to_state.state
-        }}{{ trigger.to_state.attributes.unit_of_measurement }}."
-      image: camera.camara_salon_sd_stream
+      message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. Prueba envio foto"
+      image: camera.salon_cam_284f_live_view
   - action: script.notificar_con_mensaje_de_voz
     data:
       title: 'Bienvenido. Bateria {{states(''sensor.inversor_battery'') }}%;;;;  Temperatura
