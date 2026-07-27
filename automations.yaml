@@ -2035,56 +2035,6 @@
         notification_icon: mdi:sparkles
       action: script.notificar_a_administradores
   mode: restart
-- id: '1765143744012'
-  alias: Aviso de puerta principal abierta
-  description: ''
-  triggers:
-  - trigger: state
-    entity_id:
-    - automation.enviar_una_captura_de_la_camara_cuando_se_detecte_movimiento
-    attribute: last_triggered
-  conditions:
-  - type: is_open
-    condition: device
-    device_id: ca615ed7f6c9431a48251a77ea4902a8
-    entity_id: bdee6468f9ba569f66f8c22a3f8770d6
-    domain: binary_sensor
-  actions:
-  - target:
-      entity_id: camera.salon_cam_284f_live_view
-    data:
-      filename: /config/media/seguridad/foto_puerta_{{ ts }}.jpg
-    action: camera.snapshot
-  - delay: 00:00:03
-  - action: script.notificar_a_administradores
-    metadata: {}
-    data:
-      title: "HA-Seguridad - \U0001F6AAAviso de apertura puerta principal"
-      message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. Prueba envio foto"
-      image: camera.salon_cam_284f_live_view
-  - action: script.notificar_con_mensaje_de_voz
-    data:
-      title: 'Bienvenido. Bateria {{states(''sensor.inversor_battery'') }}%;;;;  Temperatura
-        en casa a ({{ state_attr(''climate.zona1'',''current_temperature'') }}°);;;;
-        Termostado establecido a {{ state_attr(''climate.zona1'',''temperature'')
-        }}°. '
-      zona: surface
-  - wait_for_trigger:
-    - type: not_opened
-      device_id: ca615ed7f6c9431a48251a77ea4902a8
-      entity_id: bdee6468f9ba569f66f8c22a3f8770d6
-      domain: binary_sensor
-      trigger: device
-  - action: script.notificar_a_administradores
-    metadata: {}
-    data:
-      title: "HA-Seguridad - \U0001F6AAAviso de cierre puerta principal"
-      message: "\U0001F552{{ now().strftime('%H:%M:%S') }}.\U0001F6AACERRADA. Detectado
-        {{ trigger.to_state.name }} está en estado {{  trigger.to_state.state }}{{
-        trigger.to_state.attributes.unit_of_measurement }}.."
-  variables:
-    ts: '{{ now().strftime(''%Y%m%d_%H%M%S'') }}'
-  mode: single
 - id: '1765195609003'
   alias: 'Z_ejemplo hora despues anochecer y antes amanecer  '
   description: ''

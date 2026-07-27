@@ -84,8 +84,8 @@ notificar_a_administradores:
   - action: notify.mobile_app_david_x
     data:
       title: '{{ title }}'
-      message: "{{ message }}  DEBUG IMG={{ image }}\U0001F50BBateria {{ states('sensor.inversor_battery')
-        }}% ⚡Consumo {{   states('sensor.inversor_power') }}W ⚡Produciendo {{ states('sensor.inversor_pv_power')
+      message: "{{ message }} Bateria {{ states('sensor.inversor_battery') }}% ⚡Consumo
+        {{   states('sensor.inversor_power') }}W ⚡Produciendo {{ states('sensor.inversor_pv_power')
         }}W. Estim.  {{\n  states('sensor.power_production_now') }}W. \n  \U0001F4C8Est.
         hora {{ states('sensor.energy_current_hour') }}Kwh. Prox. hora {{\n  states('sensor.energy_next_hour')
         }}Kwh  \n  \U0001F4C5Producido real {{  states('sensor.inversor_today_production')
