@@ -96,8 +96,9 @@ notificar_a_administradores:
         {{  state_attr('weather.forecast_casa','cloud_coverage') }}%  \n  \U0001F321️Termostato
         a {{ state_attr('climate.zona1','temperature') }}°C. (Modo {{\n  states('binary_sensor.zona1_status')
         }}, Zona1:{{  states('climate.zona1') }},\n  Preset_mode:{{ state_attr('climate.zona1','preset_mode')
-        }}, Hvac_action:{{\n  state_attr('climate.zona1','hvac_action') }})\ndata:\n
-        \ Image: \"{{image}}\""
+        }}, Hvac_action:{{\n  state_attr('climate.zona1','hvac_action') }})"
+      data:
+        Image: '{{image}}'
     action: notify.mobile_app_david_x
   alias: Notificar a administradores
   fields:
