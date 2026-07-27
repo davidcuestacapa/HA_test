@@ -2355,8 +2355,7 @@
       message: "\U0001F552{{ now().strftime('%H:%M:%S') }}.\U0001F6AAABIERTA. Detectado
         {{ trigger.to_state.name }} en estado {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
         | default('') }}."
-      image:
-        '[object Object]':
+      image: '{{snapshot_access_file_path}}'
   - action: script.notificar_con_mensaje_de_voz
     data:
       title: 'Bienvenido;;;; Batería de casa al {{ states(''sensor.inversor_battery'')
