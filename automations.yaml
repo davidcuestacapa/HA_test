@@ -2869,3 +2869,17 @@
       value: ''
     action: input_text.set_value
   mode: single
+- id: '1785148027770'
+  alias: _test Prueba Assist - Leer notificaciones
+  description: Prueba de disparador por conversación
+  triggers:
+  - trigger: conversation
+    command:
+    - leer notificaciones
+  conditions: []
+  actions:
+  - action: persistent_notification.create
+    data:
+      title: Prueba Assist
+      message: La frase 'leer notificaciones' ha sido reconocida correctamente.
+  mode: single
