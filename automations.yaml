@@ -1539,14 +1539,6 @@
       message: "Detectado en cuarto de instalaciones humo o que {{ trigger.to_state.attributes.friendly_name
         }} alcanzó  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
         }} \U0001F50BBateria {{   states('sensor.inversor_battery') }}%"
-  - data:
-      deviceID:
-      - 413c6641-f214c141
-      title: ⚠️ Humo o temperatura elevada
-      message: Cuarto de instalaciones > 35 °C
-      duration: 100000
-      icon: mdi:thermometer-alert
-    action: browser_mod.notification
   - action: script.notificar_a_familia
     data:
       title: "\U0001F6A8HA-EMERGENCIA - \U0001F321️\U0001F53AAlerta de humo o temperatura
