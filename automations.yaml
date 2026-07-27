@@ -2883,3 +2883,43 @@
   actions:
   - action: automation.notificaciones_david_reproducir_notificaciones_pendientes
   mode: single
+- id: '1785148884928'
+  alias: Aviso David - Leer notificaciones por voz
+  triggers:
+  - trigger: conversation
+    command:
+    - leer notificaciones
+    - lee mis notificaciones
+    - qué notificaciones tengo
+    - dime mis avisos
+  conditions:
+  - condition: template
+    value_template: '{{ states(''input_text.notificaciones_pendientes_david'') | trim
+      != '''' }}
+
+      '
+  actions:
+  - variables:
+      avisos: '{{ states(''input_text.notificaciones_pendientes_david'') }}
+
+        '
+      total: '{{ avisos.split(''\n'') | select(''ne'','''') | list | count }}
+
+        '
+      texto_avisos: "{% for linea in avisos.split('\\n') if linea|trim != '' %}\n
+        \ {% set partes = linea.split('|',1) %}\n  Aviso {{ loop.index }}.\n  {{ partes[1]
+        }}.\n{% endfor %}\n"
+  - action: script.notificar_con_mensaje_de_voz
+    data:
+      title: 'Tienes {{ total }} avisos.
+
+        {{ texto_avisos }}
+
+        '
+      zona: surface
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.notificaciones_pendientes_david
+    data:
+      value: ''
+  mode: single
