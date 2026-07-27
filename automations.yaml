@@ -2276,6 +2276,15 @@
         }}_{{ ts }}.jpg
       snapshot_access_file_path: '{{ snapshot_create_file_path | replace(''/config/www'',''/local'')
         }}'
+      avisos: '{{ states(''input_text.notificaciones_pendientes_david'') }}
+
+        '
+      total: '{{ avisos.split(''\n'') | select(''ne'','''') | list | count }}
+
+        '
+      texto_avisos: "{% for linea in avisos.split('\\n') if linea|trim != '' %}\n
+        \ {% set partes = linea.split('|',1) %}\n  Aviso {{ loop.index }}.\n  {{ partes[1]
+        }}.\n{% endfor %}\n"
   - delay: '{{ delay }}'
   - data:
       filename: '{{ snapshot_create_file_path }}'
@@ -2306,21 +2315,9 @@
       image: '{{snapshot_access_file_path}}'
   - action: script.notificar_con_mensaje_de_voz
     data:
-      title: 'Bienvenido;;;; Batería de casa al {{ states(''sensor.inversor_battery'')
-        }}%. La temperatura en casa es de {{ state_attr(''climate.zona1'',''current_temperature'')
-        }}°. Termostato a {{ state_attr(''climate.zona1'',''temperature'') }}°.;;;;
-        Hoy se ha producido {{  states(''sensor.inversor_today_production'') }}Kilovatios
-        hora;; aunque  había estimado producir {{ states(''sensor.energy_production_today'')
-        }}Kilovatios hora;; Estimado mañana {{  states(''sensor.energy_production_tomorrow'')
-        }}Kilovatios hora;;
-
-        {% if is_state(''binary_sensor.ioniq_ev_battery_plug'', ''on'') %} El coche
-        está enchufado. {% else %} El coche no está enchufado. {% endif %} Actualmente
-        tiene un {{ states(''sensor.ioniq_ev_battery_level'') }} porciento de batería
-        y una autonomía estimada de {{ states(''sensor.ioniq_total_driving_range'')
-        | round(0) }} kilometros;;
-
-        '
+      title: "Bienvenido;;;; Batería de casa al {{ states('sensor.inversor_battery')
+        }}%. La temperatura en casa es de {{ state_attr('climate.zona1','current_temperature')
+        }}°. Termostato a {{ state_attr('climate.zona1','temperature') }}°.;;;; \n"
       zona: surface
   - action: script.notificar_con_mensaje_de_voz
     data:
@@ -2812,7 +2809,7 @@
           action: script.notificar_a_administradores
   mode: restart
 - id: '1784733048483'
-  alias: Aviso Notificaciones David - Reproducir notificaciones pendientes"
+  alias: Aviso TEMP Sacar cosas Notificaciones David - Reproducir notificaciones pendientes"
   description: Lee las notificaciones acumuladas cuando David llega a casa
   triggers:
   - entity_id: binary_sensor.sensor_puerta_ppal_window
