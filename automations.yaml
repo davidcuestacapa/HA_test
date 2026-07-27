@@ -2322,6 +2322,12 @@
 
         '
       zona: surface
+  - action: script.notificar_con_mensaje_de_voz
+    data:
+      title: "David, tienes {{ total }} {% if total == 1 %}\n  aviso pendiente.\n{%
+        else %}\n  avisos pendientes.\n{% endif %} Di \"leer notificaciones\" para
+        escucharlos.\n"
+      zona: surface
   - delay:
       hours: 0
       minutes: 1
@@ -2911,11 +2917,15 @@
         }}.\n{% endfor %}\n"
   - action: script.notificar_con_mensaje_de_voz
     data:
-      title: 'Tienes {{ total }} avisos.
-
-        {{ texto_avisos }}
-
-        '
+      title: "Tienes {{ total }} avisos.\n{{ texto_avisos }}\n\nHoy se ha producido\n{{
+        \ states('sensor.inversor_today_production') }}Kilovatios hora;;\naunque  había
+        estimado producir {{\nstates('sensor.energy_production_today') }}Kilovatios
+        hora;; Estimado\nmañana {{  states('sensor.energy_production_tomorrow') }}Kilovatios\nhora;;
+        \       \n\n{% if is_state('binary_sensor.ioniq_ev_battery_plug', 'on') %}
+        El coche\nestá enchufado. {% else %} El coche no está enchufado. {% endif
+        %}\nActualmente tiene un {{ states('sensor.ioniq_ev_battery_level') }}\nporciento
+        de batería y una autonomía estimada de {{\nstates('sensor.ioniq_total_driving_range')
+        | round(0) }} kilometros;;\n"
       zona: surface
   - action: input_text.set_value
     target:
