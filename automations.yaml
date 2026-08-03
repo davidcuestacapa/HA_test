@@ -2322,7 +2322,7 @@
   - delay:
       hours: 0
       minutes: 0
-      seconds: 10
+      seconds: 12
       milliseconds: 0
   - action: script.notificar_con_mensaje_de_voz
     data:
