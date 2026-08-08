@@ -1468,14 +1468,6 @@
         No es urgente pero revisa los equipos eléctricos y ventilación.'
       notification_id: temp_normal_cuarto
     action: persistent_notification.create
-  - data:
-      deviceID:
-      - 413c6641-f214c141
-      title: ✅ Temperatura normal
-      message: Cuarto de instalaciones < 34 °C
-      duration: 100000
-      icon: mdi:thermometer
-    action: browser_mod.notification
   - action: script.notificar_a_familia
     data:
       title: "⚠️HA-EMERGENCIA - \U0001F321️✅Aviso de temperatura normal en Cuarto
