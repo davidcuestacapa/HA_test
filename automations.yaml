@@ -2942,7 +2942,7 @@
       value: ''
   mode: single
 - id: '1786188787272'
-  alias: Zone Notification
+  alias: _Test prueba llegada David a Casa
   description: ''
   triggers:
   - trigger: state
