@@ -2941,3 +2941,25 @@
     data:
       value: ''
   mode: single
+- id: '1786188787272'
+  alias: Zone Notification
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id: person.cerceda
+  conditions:
+  - condition: template
+    value_template: '{{ zone_entity == ''zone.home'' and trigger.from_state.state
+      != ''home'' and trigger.to_state.state == ''home'' or trigger.from_state.state
+      != zone_state and trigger.to_state.state == zone_state }}'
+  actions:
+  - alias: Notify that a person has left the zone
+    domain: mobile_app
+    type: notify
+    device_id: 609b265bb757951f33e233cd1d0c49b4
+    message: '{{ person_name }} has left {{ zone_state }}'
+  variables:
+    zone_entity: zone.home
+    zone_state: '{{ states[zone_entity].name }}'
+    person_entity: person.cerceda
+    person_name: '{{ states[person_entity].name }}'
