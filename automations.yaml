@@ -1453,8 +1453,8 @@
     trigger: numeric_state
   conditions:
   - condition: template
-    value_template: '{{ (as_timestamp(now()) - as_timestamp(states(''sensor.uptime'')
-      | float(0))) > 300 }}
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(states(''sensor.uptime''),
+      0)) > 300 }}
 
       '
   actions:
