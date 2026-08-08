@@ -1482,63 +1482,109 @@
       color_name: GREEN
   mode: single
 - id: '1761470349141'
-  alias: Alerta - Temperatura alta o humo en cuarto de instalaciones
-  description: 'Notifica y alerta si la temperatura supera los 35 °C durante más de
-    3 minutos.
-
-    '
+  alias: Alerta y Gestión - Cuarto de Instalaciones (Temperatura y Humo)
+  description: Controla tanto las alertas de peligro (humo/temperatura alta) como
+    el aviso de restauración de temperatura normal.
   triggers:
-  - entity_id:
+  - trigger: numeric_state
+    entity_id:
     - sensor.temperatura_instalaciones_temperature
     above: 35
     for:
       hours: 0
       minutes: 0
       seconds: 5
-    trigger: numeric_state
+    id: alerta_temperatura_alta
   - trigger: state
     entity_id:
     - binary_sensor.detector_humo_instalaciones_humo
     to:
     - 'on'
+    id: alerta_humo
+  - trigger: numeric_state
+    entity_id:
+    - sensor.temperatura_instalaciones_temperature
+    below: 34
+    for:
+      minutes: 2
+    id: temperatura_normalizada
   conditions: []
   actions:
-  - note: 1 submarino 3 timbre-campana bomberos 4 pitidos 5 sirena
-    action: siren.turn_on
-    metadata: {}
-    target:
-      entity_id: siren.yelmo
-    data:
-      volume_level: 0.25
-      duration: '7'
-      tone: Alarm 5
-  - action: script.encender_luces_casa_parpadeantes_alertas
-    metadata: {}
-    data:
-      color_name: RED
-  - data:
-      title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53AHumo o temperatura elevada
-        en Cuarto instalaciones"
-      message: Detectado en cuarto de instalaciones que detecto humo o {{ trigger.to_state.attributes.friendly_name
-        }} alcanzó  {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
-        }}
-      notification_id: temp_alta_cuarto
-    action: persistent_notification.create
-  - action: script.notificar_con_mensaje_de_voz
-    metadata: {}
-    data:
-      title: Alerta de humo o temperatura elevada en el Cuarto de instalaciones
-      message: "Detectado en cuarto de instalaciones humo o que {{ trigger.to_state.attributes.friendly_name
-        }} alcanzó  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
-        }} \U0001F50BBateria {{   states('sensor.inversor_battery') }}%"
-  - action: script.notificar_a_familia
-    data:
-      title: "\U0001F6A8HA-EMERGENCIA - \U0001F321️\U0001F53AAlerta de humo o temperatura
-        \ elevada en Cuarto instalaciones"
-      message: "\U0001F552Hora: {{ now().strftime('%H:%M') }} \U0001F50B#Bateria {{
-        states('sensor.inversor_battery') }}%\nDetectado en cuarto de instalaciones
-        humo o que {{ trigger.to_state.attributes.friendly_name }} alcanzó  {{   trigger.to_state.state
-        }}{{ trigger.to_state.attributes.unit_of_measurement }}"
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - alerta_temperatura_alta
+        - alerta_humo
+      sequence:
+      - action: siren.turn_on
+        metadata: {}
+        target:
+          entity_id: siren.yelmo
+        data:
+          volume_level: 0.25
+          duration: '7'
+          tone: Alarm 5
+      - action: script.encender_luces_casa_parpadeantes_alertas
+        metadata: {}
+        data:
+          color_name: RED
+      - action: persistent_notification.create
+        data:
+          title: "\U0001F6A8 Alerta de \U0001F321️\U0001F53AHumo o temperatura elevada
+            en Cuarto instalaciones"
+          message: Detectado en cuarto de instalaciones que detecto humo o {{ trigger.to_state.attributes.friendly_name
+            }} alcanzó  {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
+            }}
+          notification_id: temp_alta_cuarto
+      - action: script.notificar_con_mensaje_de_voz
+        metadata: {}
+        data:
+          title: Alerta de humo o temperatura elevada en el Cuarto de instalaciones
+          message: "Detectado en cuarto de instalaciones humo o que {{ trigger.to_state.attributes.friendly_name
+            }} alcanzó  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
+            }} \U0001F50BBateria {{   states('sensor.inversor_battery') }}%"
+      - action: script.notificar_a_familia
+        data:
+          title: "\U0001F6A8HA-EMERGENCIA - \U0001F321️\U0001F53AAlerta de humo o
+            temperatura  elevada en Cuarto instalaciones"
+          message: "\U0001F552Hora: {{ now().strftime('%H:%M') }} \U0001F50B#Bateria
+            {{ states('sensor.inversor_battery') }}%\nDetectado en cuarto de instalaciones
+            humo o que {{ trigger.to_state.attributes.friendly_name }} alcanzó  {{
+            \  trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
+            }}"
+    - conditions:
+      - condition: trigger
+        id:
+        - temperatura_normalizada
+      - condition: template
+        value_template: '{{ (as_timestamp(now()) - as_timestamp(states(''sensor.uptime''),
+          0)) > 300 }}
+
+          '
+      sequence:
+      - action: persistent_notification.create
+        data:
+          title: "⚠️ Aviso de \U0001F321️✅ Temperatura normal en Cuarto instalaciones"
+          message: 'Detectado en cuarto de instalaciones que {{ trigger.to_state.attributes.friendly_name
+            }} descendió a  {{   trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
+            }}
+
+
+            No es urgente pero revisa los equipos eléctricos y ventilación.'
+          notification_id: temp_normal_cuarto
+      - action: script.notificar_a_familia
+        data:
+          title: "⚠️HA-EMERGENCIA - \U0001F321️✅Aviso de temperatura normal en Cuarto
+            instalaciones"
+          message: "\U0001F552Hora: {{ now().strftime('%H:%M') }} \U0001F50B#Bateria
+            {{ states('sensor.inversor_battery') }}% \nDetectado en cuarto de instalaciones
+            que {{ trigger.to_state.attributes.friendly_name }} descendió a  {{   trigger.to_state.state
+            }}{{ trigger.to_state.attributes.unit_of_measurement }}\nNo es urgente
+            pero revisa los equipos eléctricos y ventilación."
+      - action: script.encender_luces_casa_parpadeantes_alertas
+        data:
+          color_name: GREEN
   mode: single
 - id: '1762779646441'
   alias: Aerotermia subir y bajar cale si hay buena producción solar.
