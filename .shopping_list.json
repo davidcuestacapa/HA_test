@@ -2,7 +2,7 @@
   {
     "name": "Mostaza",
     "id": "5b508e26a0304d5c9d88f532cbbd96c6",
-    "complete": false
+    "complete": true
   },
   {
     "name": "Aceite, en Aldi suave a 3.89 intenso 4.15 Lidl a €",
@@ -17,16 +17,16 @@
   {
     "name": "Judías verdes",
     "id": "e7752ce180bb416ebb285c6cc769977f",
-    "complete": false
+    "complete": true
   },
   {
     "name": "Verduras y setas congeladas",
     "id": "cfe8c64f8d9d47f58e7edece1429482f",
-    "complete": false
+    "complete": true
   },
   {
     "name": "Palitos y pan pita",
     "id": "b07a58015ad2444b86dc0a47ccab3e8e",
-    "complete": false
+    "complete": true
   }
 ]
