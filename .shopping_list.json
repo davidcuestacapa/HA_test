@@ -28,5 +28,10 @@
     "name": "Palitos y pan pita",
     "id": "b07a58015ad2444b86dc0a47ccab3e8e",
     "complete": true
+  },
+  {
+    "name": "Cerveza",
+    "id": "a8499a9526e64632b8d269ef1a4c8f8e",
+    "complete": false
   }
 ]
