@@ -33,5 +33,10 @@
     "name": "Cerveza",
     "id": "a8499a9526e64632b8d269ef1a4c8f8e",
     "complete": false
+  },
+  {
+    "name": "Pañales y toallitas",
+    "id": "8ae61f390f014ea8bd1a2b3801c85b51",
+    "complete": false
   }
 ]
