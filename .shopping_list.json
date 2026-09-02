@@ -32,16 +32,21 @@
   {
     "name": "Cerveza",
     "id": "a8499a9526e64632b8d269ef1a4c8f8e",
-    "complete": false
+    "complete": true
   },
   {
     "name": "Pañales y toallitas",
     "id": "8ae61f390f014ea8bd1a2b3801c85b51",
-    "complete": false
+    "complete": true
   },
   {
     "name": "Pañales 3 a 0,17 - 50 unid a 8,25",
     "id": "b675c0100a0b434cb50f08d6410c8080",
+    "complete": false
+  },
+  {
+    "name": "Llave de tubo 10 y11 para carraca mediana",
+    "id": "b6354529c5e14094a287790aa7d97d26",
     "complete": false
   }
 ]
