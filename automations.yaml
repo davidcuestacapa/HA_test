@@ -784,8 +784,7 @@
     attribute: cloud_coverage
     below: 30
   - condition: numeric_state
-    entity_id: sun.sun
-    attribute: azimuth
+    entity_id: sensor.sun_solar_azimuth
     above: 0
     below: 115
   - condition: state
