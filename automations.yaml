@@ -1262,12 +1262,29 @@
     entity_id: c8e0e4ae211e59f54965e2cfa634095e
     domain: binary_sensor
     trigger: device
+    enabled: false
+  - trigger: state
+    entity_id:
+    - binary_sensor.presencia_dani_presence
+    to:
+    - 'on'
+    alias: Presencia Dani Estado cambió a Detectado
   - entity_id:
     - binary_sensor.presencia_dani_presence
     to: 'off'
     for:
       minutes: 1
     trigger: state
+    alias: Presencia Dani Estado cambió a No detectado durante 1 min
+  - trigger: occupancy.cleared
+    target:
+      entity_id: binary_sensor.presencia_dani_presence
+    options:
+      behavior: each
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
   conditions:
   - condition: state
     state:
