@@ -1177,8 +1177,8 @@
   conditions:
   - condition: state
     state:
-    - 'on'
-    entity_id: input_boolean.dani_activo_lamparita_auto_2
+    - 'off'
+    entity_id: input_boolean.dani_dormir
   actions:
   - choose:
     - conditions:
