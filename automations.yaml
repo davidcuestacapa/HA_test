@@ -409,6 +409,7 @@
           - action: cover.stop_cover
             target:
               entity_id: cover.persiana_dani_cover_0
+            data: {}
         - conditions:
           - condition: template
             value_template: '{{ estado in [''open'',''closed'',''stopped''] }}
@@ -422,12 +423,101 @@
       - condition: trigger
         id:
         - b4_press
+        note: Dani despertar o dormir
       sequence:
       - action: input_boolean.toggle
         metadata: {}
         target:
           entity_id: input_boolean.dani_dormir
         data: {}
+        enabled: false
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: input_boolean.dani_dormir
+            state:
+            - 'off'
+          sequence:
+          - action: script.notificar_con_mensaje_de_voz
+            data:
+              title: "{{ 'activado' if is_state('input_boolean.dani_dormir', 'on')
+                else 'desactivado' }} el modo descanso en HABITACION de DANI;;;;\n
+                \ Luces y persianas pasan a modo  {{ 'manual' if\nis_state('input_boolean.dani_dormir',
+                'on') else 'dinámico' }}."
+              zona: surface
+          - action: light.turn_on
+            metadata: {}
+            target:
+              entity_id:
+              - light.luz_dani
+            data:
+              color_temp_kelvin: 6500
+              brightness_pct: 100
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 3
+              milliseconds: 0
+          - action: light.turn_off
+            metadata: {}
+            target:
+              entity_id:
+              - light.luz_dani
+            data: {}
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 3
+              milliseconds: 0
+          - action: scene.turn_on
+            metadata: {}
+            target:
+              entity_id:
+              - scene.modo_dia_dani
+            data: {}
+        - conditions:
+          - condition: state
+            entity_id: input_boolean.dani_dormir
+            state:
+            - 'on'
+          sequence:
+          - action: script.notificar_con_mensaje_de_voz
+            data:
+              title: "{{ 'activado' if is_state('input_boolean.dani_dormir', 'on')
+                else 'desactivado' }} el modo descanso en HABITACION de DANI;;;;\n
+                \ Luces y persianas pasan a modo  {{ 'manual' if\nis_state('input_boolean.dani_dormir',
+                'on') else 'dinámico' }}."
+              zona: surface
+          - action: light.turn_on
+            metadata: {}
+            target:
+              entity_id:
+              - light.luz_dani
+            data:
+              color_temp_kelvin: 2000
+              brightness_pct: 100
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 3
+              milliseconds: 0
+          - action: light.turn_off
+            metadata: {}
+            target:
+              entity_id:
+              - light.luz_dani
+            data: {}
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 3
+              milliseconds: 0
+          - action: scene.turn_on
+            metadata: {}
+            target:
+              entity_id:
+              - scene.modo_noche_dani
+            data: {}
   mode: single
 - id: '1759343630370'
   alias: Mando Dani botón 2 Sube/Para persiana y abre pta
