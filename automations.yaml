@@ -1526,46 +1526,6 @@
     data:
       message: asfdasdfasdf
   mode: single
-- id: '1761431064058'
-  alias: WallPanel tablet encender/apagar
-  description: ''
-  triggers:
-  - type: motion
-    device_id: 331eda9a83213b16d8fb2fb264ae1a97
-    entity_id: aacc7848efaa3f18ef344a67463794e6
-    domain: binary_sensor
-    trigger: device
-  - type: no_motion
-    device_id: 331eda9a83213b16d8fb2fb264ae1a97
-    entity_id: aacc7848efaa3f18ef344a67463794e6
-    domain: binary_sensor
-    trigger: device
-  conditions: []
-  actions:
-  - choose:
-    - conditions:
-      - type: is_motion
-        condition: device
-        device_id: 331eda9a83213b16d8fb2fb264ae1a97
-        entity_id: aacc7848efaa3f18ef344a67463794e6
-        domain: binary_sensor
-      sequence:
-      - type: turn_on
-        device_id: 331eda9a83213b16d8fb2fb264ae1a97
-        entity_id: 5cf55754e5f2f48d00c645919460394b
-        domain: light
-    - conditions:
-      - type: is_no_motion
-        condition: device
-        device_id: 331eda9a83213b16d8fb2fb264ae1a97
-        entity_id: aacc7848efaa3f18ef344a67463794e6
-        domain: binary_sensor
-      sequence:
-      - type: turn_off
-        device_id: 331eda9a83213b16d8fb2fb264ae1a97
-        entity_id: 5cf55754e5f2f48d00c645919460394b
-        domain: light
-  mode: single
 - id: '1761470277842'
   alias: Alerta - Restauración de temperatura normal en cuarto de instalaciones
   description: ''
