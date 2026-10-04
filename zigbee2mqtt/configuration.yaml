@@ -8,7 +8,7 @@ serial:
   adapter: ember
   baudrate: 115200
   rtscts: false
-  port: dev/serial/by-id/usb-Nabu_Casa_Home_Assistant_Connect_ZBT-1_8e9e7ab13511f01192cc63ed763d9da9-if00-port0
+  port: /dev/serial/by-id/usb-Nabu_Casa_Home_Assistant_Connect_ZBT-1_8e9e7ab13511f01192cc63ed763d9da9-if00-port0
 advanced:
   log_level: warning
   channel: 11
