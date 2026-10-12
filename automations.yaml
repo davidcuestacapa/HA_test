@@ -3094,6 +3094,9 @@
   conditions: []
   actions:
   - delay: 00:10:00
+  - condition: template
+    value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
+      }}'
   - data:
       addon: 45df7312_zigbee2mqtt
     action: hassio.addon_start
