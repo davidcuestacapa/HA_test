@@ -3092,5 +3092,9 @@
   - trigger: homeassistant
     event: start
   conditions: []
-  actions: []
+  actions:
+  - delay: 00:10:00
+  - data:
+      addon: 45df7312_zigbee2mqtt
+    action: hassio.addon_start
   mode: single
