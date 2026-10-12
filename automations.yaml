@@ -3085,3 +3085,12 @@
     zone_state: '{{ states[zone_entity].name }}'
     person_entity: person.cerceda
     person_name: '{{ states[person_entity].name }}'
+- id: '1791827584842'
+  alias: 'Sistema: Iniciar Zigbee2MQTT tras arranque o backup'
+  description: Espera 10 minutos para asegurar que los puertos USB están listos
+  triggers:
+  - trigger: homeassistant
+    event: start
+  conditions: []
+  actions: []
+  mode: single
