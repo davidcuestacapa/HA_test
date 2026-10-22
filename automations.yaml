@@ -845,14 +845,14 @@
         entity_id: sensor.sun_solar_azimuth
         below: 160
       sequence:
-      - alias: Verifica si sol directo >2900lx, ejecuta subir persiana y espera >160
+      - alias: Verifica si sol directo >2890lx, ejecuta subir persiana y espera >160
         choose:
         - conditions:
           - condition: or
             conditions:
             - condition: numeric_state
               entity_id: sensor.presencia_ext_este_illuminance
-              above: 2900
+              above: 2890
           sequence:
           - target:
               entity_id: scene.persianas_laterales_abrir_cuando_hay_sol
@@ -877,6 +877,11 @@
           - sensor.sun_solar_azimuth
           above: 160
         alias: Sino, espera 2 disparadores
+        timeout:
+          hours: 5
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
   - choose:
     - conditions:
       - condition: state
