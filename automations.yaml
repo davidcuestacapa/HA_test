@@ -836,7 +836,7 @@
   - trigger: numeric_state
     entity_id:
     - sensor.presencia_ext_este_illuminance
-    above: 2900
+    above: 2890
   conditions: []
   actions:
   - repeat:
@@ -871,7 +871,7 @@
             hours: 0
             minutes: 3
             seconds: 0
-          above: 2900
+          above: 2890
         - trigger: numeric_state
           entity_id:
           - sensor.sun_solar_azimuth
