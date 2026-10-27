@@ -21,7 +21,7 @@
 #   device_tracker.ioniq_location
 #   sensor.ioniq_last_updated_at
 #   sensor.ioniq_estimated_charge_duration
-#   sensor.m_ext_coche_consumo
+#   sensor.m_ext_coche_coche_consumo
 #   sensor.m_ext_coche_coche_consumido
 #   switch.ioniq_ev_charging
 #   number.ioniq_ac_charging_limit
@@ -75,7 +75,7 @@
 
     # Potencia real medida en el enchufe/medidor del coche
     - platform: state
-      entity_id: sensor.m_ext_coche_consumo
+      entity_id: sensor.m_ext_coche_coche_consumo
       id: ev_potencia
 
     # Evaluación periódica por seguridad
@@ -170,13 +170,13 @@
             ['on', 'Encendido', 'encendido', 'On', 'on']
           }}
 
-        ev_potencia_w: "{{ states('sensor.m_ext_coche_consumo') | float(0) }}"
+        ev_potencia_w: "{{ states('sensor.m_ext_coche_coche_consumo') | float(0) }}"
 
         ev_cargando_real: >-
           {{
             states('binary_sensor.ioniq_ev_battery_charge') in
             ['on', 'Cargando', 'cargando', 'Charging', 'charging']
-            or states('sensor.m_ext_coche_consumo') | float(0) > potencia_carga_activa_w
+            or states('sensor.m_ext_coche_coche_consumo') | float(0) > potencia_carga_activa_w
           }}
 
         ev_consumido_kwh: "{{ states('sensor.m_ext_coche_coche_consumido') | float(0) }}"
