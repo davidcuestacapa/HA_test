@@ -3019,7 +3019,11 @@
     event: start
   conditions: []
   actions:
-  - delay: 00:10:00
+  - delay:
+      hours: 0
+      minutes: 15
+      seconds: 0
+      milliseconds: 0
   - condition: template
     value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
       }}'
