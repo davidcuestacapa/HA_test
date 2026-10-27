@@ -21,7 +21,7 @@
 #   device_tracker.ioniq_location
 #   sensor.ioniq_last_updated_at
 #   sensor.ioniq_estimated_charge_duration
-#   sensor.m_ext_coche_potencia
+#   sensor.m_ext_coche_consumo
 #   sensor.m_ext_coche_coche_consumido
 #   switch.ioniq_ev_charging
 #   number.ioniq_ac_charging_limit
@@ -29,7 +29,7 @@
 #   script.notificar_a_administradores
 # ============================================================
 
-- alias: EMS EV - Gestión energética inteligente Ioniq v2
+- alias: EMS EV - Gestión energética inteligente Ioniq v3
   id: ems_ev_gestion_energetica_inteligente_ioniq
   description: >
     Control inteligente de carga del coche eléctrico según nivel energético,
@@ -75,7 +75,7 @@
 
     # Potencia real medida en el enchufe/medidor del coche
     - platform: state
-      entity_id: sensor.m_ext_coche_potencia
+      entity_id: sensor.m_ext_coche_consumo
       id: ev_potencia
 
     # Evaluación periódica por seguridad
@@ -105,7 +105,7 @@
 
         # Durante pruebas déjalo en true.
         # Cuando esté estable, ponlo en false para recibir sólo eventos relevantes.
-        debug: false
+        debug: true
 
         # Antigüedad máxima aceptada de datos Hyundai antes de forzar refresh.
         max_antiguedad_datos_min: 30
@@ -170,13 +170,13 @@
             ['on', 'Encendido', 'encendido', 'On', 'on']
           }}
 
-        ev_potencia_w: "{{ states('sensor.m_ext_coche_potencia') | float(0) }}"
+        ev_potencia_w: "{{ states('sensor.m_ext_coche_consumo') | float(0) }}"
 
         ev_cargando_real: >-
           {{
             states('binary_sensor.ioniq_ev_battery_charge') in
             ['on', 'Cargando', 'cargando', 'Charging', 'charging']
-            or states('sensor.m_ext_coche_potencia') | float(0) > potencia_carga_activa_w
+            or states('sensor.m_ext_coche_consumo') | float(0) > potencia_carga_activa_w
           }}
 
         ev_consumido_kwh: "{{ states('sensor.m_ext_coche_coche_consumido') | float(0) }}"
