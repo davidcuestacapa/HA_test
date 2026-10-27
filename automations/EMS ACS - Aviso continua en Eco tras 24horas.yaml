@@ -1,7 +1,7 @@
 
-- id: aviso_acs_eco_24h
+- id: aviso_acs_eco_48h
 
-  alias: EMS ACS - Aviso continua en Eco más de 24 horas
+  alias: EMS ACS - Aviso continua en Eco más de 48 horas
 
   trigger:
 
@@ -23,7 +23,7 @@
 
     - service: persistent_notification.create
       data:
-        title: "⚠️ ACS en Eco más de 24 horas"
+        title: "⚠️ ACS en Eco más de 48 horas"
         message: >-
           🕒 {{ now().strftime('%H:%M:%S') }}
 
@@ -31,7 +31,7 @@
           {{ states('sensor.dhw_water_temperature') }}°C
 
           El ACS continúa funcionando en modo Eco
-          desde hace más de 24 horas.
+          desde hace más de 48 horas.
 
           Revisar condiciones del EMS.
 
@@ -39,7 +39,7 @@
       data:
         title: >
           Atención. El ACS permanece en modo Eco
-          desde hace más de veinticuatro horas.
+          desde hace más de cuarenta y ocho horas.
         zona: surface cocina
 
     - service: script.notificar_anadir_notificacion_david
