@@ -3336,11 +3336,11 @@
       nueva_consigna: "{% set nivel = states('sensor.nivel_energetico') %} {% set
         modo = modo_objetivo | trim %} {% set pv_manana = states('sensor.energy_production_tomorrow')
         | float(20) %}\n{% if modo == 'heat' %}\n  {% set bonus_inercia = 1 if pv_manana
-        < 15 and nivel in ['alto', 'excedente'] else 0 %}\n  \n  {% if nivel == 'bajo'
+        < 15 and nivel in ['alto', 'excedente'] else 0 %}\n  {% if nivel == 'bajo'
         %}\n    {{ 18 - bonus_inercia }}\n  {% elif nivel == 'normal' %}\n    {{ 20
         }}\n  {% elif nivel == 'alto' %}\n    {{ 21 + bonus_inercia }}\n  {% elif
         nivel == 'excedente' %}\n    {{ 23 + bonus_inercia }}\n  {% else %}\n    none\n
-        \ {% endif %}\n\n{% elif modo == 'cool' %}\n  {% if nivel == 'bajo' %}\n    25\n
+        \ {% endif %}\n{% elif modo == 'cool' %}\n  {% if nivel == 'bajo' %}\n    25\n
         \ {% elif nivel == 'normal' %}\n    23\n  {% elif nivel == 'alto' %}\n    22\n
         \ {% elif nivel == 'excedente' %}\n    21\n  {% else %}\n    none\n  {% endif
         %}\n{% else %}\n  none\n{% endif %}\n"
