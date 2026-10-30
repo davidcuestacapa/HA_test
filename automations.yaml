@@ -3329,30 +3329,22 @@
         }}'
       modo_objetivo: "{% set ems = states('input_select.ems_modo_climatizacion') |
         lower %} {% set exterior = states('sensor.cerce_outdoor_temperature') | float(0)
-        %} {% set actual = states('climate.zona1') %} # Lógica de Modo Objetivo con
-        Zona Neutra e histéresis {% if ems == 'verano' %}\n  cool\n{% elif ems ==
-        'auto' %}\n  {% if exterior < 17 %}\n    heat\n  {% elif exterior > 25 %}\n
-        \   cool\n  {% else %}\n    {{ actual }}\n  {% endif %}\n{% else %}\n  {{
-        actual }}\n{% endif %}\n"
+        %} {% set actual = states('climate.zona1') %}\n{% if ems == 'verano' %}\n
+        \ cool\n{% elif ems == 'auto' %}\n  {% if exterior < 17 %}\n    heat\n  {%
+        elif exterior > 25 %}\n    cool\n  {% else %}\n    {{ actual }}\n  {% endif
+        %}\n{% else %}\n  {{ actual }}\n{% endif %}\n"
       nueva_consigna: "{% set nivel = states('sensor.nivel_energetico') %} {% set
         modo = modo_objetivo | trim %} {% set pv_manana = states('sensor.energy_production_tomorrow')
-        | float(20) %} # Consigna dinámica inteligente (Considerando excedentes y
-        previsión FV para mañana) {% if modo == 'heat' %}\n  # Si mañana la previsión
-        solar es muy baja (<15kWh), forzamos un plus de inercia hoy si hay nivel\n
-        \ {% set bonus_inercia = 1 if pv_manana < 15 and nivel in ['alto', 'excedente']
-        else 0 %}\n  \n  {% if nivel == 'bajo' %}\n    {{ 18 - bonus_inercia }}\n
-        \ {% elif nivel == 'normal' %}\n    {{ 20 }}\n  {% elif nivel == 'alto' %}\n
-        \   {{ 21 + bonus_inercia }}\n  {% elif nivel == 'excedente' %}\n    {{ 23
-        + bonus_inercia }}\n  {% else %}\n    none\n  {% endif %}\n\n{% elif modo
-        == 'cool' %}\n  {% if nivel == 'bajo' %}\n    25\n  {% elif nivel == 'normal'
-        %}\n    23\n  {% elif nivel == 'alto' %}\n    22\n  {% elif nivel == 'excedente'
-        %}\n    21\n  {% else %}\n    none\n  {% endif %}\n{% else %}\n  none\n{%
-        endif %}\n"
-    alias: 'Variables y       # Modo_objetivo con Lógica de Zona Neutra e histéresis        #
-      Nueva_consigna dinámica inteligente (Sobrecalentar si Nivel Alto de excedentes
-      y previsión FV para mañana) '
-    note: '# Si mañana la previsión solar es muy baja (<15kWh), forzamos un plus de
-      inercia hoy si hay nivel alto'
+        | float(20) %}\n{% if modo == 'heat' %}\n  # Si mañana la previsión solar
+        es muy baja (<15kWh), forzamos un plus de inercia hoy si hay nivel\n  {% set
+        bonus_inercia = 1 if pv_manana < 15 and nivel in ['alto', 'excedente'] else
+        0 %}\n  \n  {% if nivel == 'bajo' %}\n    {{ 18 - bonus_inercia }}\n  {% elif
+        nivel == 'normal' %}\n    {{ 20 }}\n  {% elif nivel == 'alto' %}\n    {{ 21
+        + bonus_inercia }}\n  {% elif nivel == 'excedente' %}\n    {{ 23 + bonus_inercia
+        }}\n  {% else %}\n    none\n  {% endif %}\n\n{% elif modo == 'cool' %}\n  {%
+        if nivel == 'bajo' %}\n    25\n  {% elif nivel == 'normal' %}\n    23\n  {%
+        elif nivel == 'alto' %}\n    22\n  {% elif nivel == 'excedente' %}\n    21\n
+        \ {% else %}\n    none\n  {% endif %}\n{% else %}\n  none\n{% endif %}\n"
   - choose:
     - conditions:
       - condition: state
@@ -3364,8 +3356,7 @@
           entity_id: climate.zona1
         action: climate.turn_off
         note: Apagado de seguridad de la climatización por nivel crítico
-      - delay:
-          seconds: 5
+      - delay: 00:00:05
       - action: persistent_notification.create
         data:
           title: ⚠️ Aerotermia - Apagada por nivel energético crítico
@@ -3375,12 +3366,14 @@
         note: Creación de aviso persistente de nivel crítico
     - conditions:
       - condition: template
-        value_template: '{{ modo_objetivo | trim | lower in [''heat'', ''cool''] }}'
-        note: Verifica que el modo objetivo sea válido (heat o cool)
+        value_template: '{{ modo_objetivo | string | trim | lower in [''heat'', ''cool'']
+          }}'
+        note: Verifica que el modo objetivo sea válido de forma estricta
       sequence:
       - if:
         - condition: template
-          value_template: '{{ modo_actual != (modo_objetivo | trim) }}'
+          value_template: '{{ modo_actual | string | trim != modo_objetivo | string
+            | trim }}'
           note: Comprueba si hay que cambiar el modo HVAC de la máquina
         then:
         - if:
@@ -3392,21 +3385,20 @@
           - target:
               entity_id: climate.zona1
             action: climate.turn_on
-          - delay:
-              seconds: 5
+          - delay: 00:00:05
         - target:
             entity_id: climate.zona1
           data:
-            hvac_mode: '{{ modo_objetivo | trim }}'
+            hvac_mode: '{{ modo_objetivo | string | trim }}'
           action: climate.set_hvac_mode
-        - delay:
-            seconds: 10
+        - delay: 00:00:10
       - if:
         - condition: template
-          value_template: '{{ nueva_consigna | trim != ''none'' }}'
+          value_template: '{{ nueva_consigna | string | trim != ''none'' }}'
           note: Verifica que la nueva consigna calculada sea válida
         - condition: template
-          value_template: '{{ temp_objetivo_actual != (nueva_consigna | float) }}'
+          value_template: '{{ temp_objetivo_actual | float(0) != nueva_consigna |
+            float(0) }}'
           note: Evita relanzar órdenes si la consigna actual ya es exactamente la
             calculada
         then:
@@ -3415,8 +3407,7 @@
           data:
             temperature: '{{ nueva_consigna | float }}'
           action: climate.set_temperature
-        - delay:
-            seconds: 5
+        - delay: 00:00:05
         - action: persistent_notification.create
           data:
             title: "\U0001F321️ Aerotermia - Ajuste inteligente de consigna"
@@ -3425,4 +3416,10 @@
               {{ nueva_consigna | trim }} ºC Nivel Energético: {{ nivel }} | FV Mañana:
               {{ produccion_manana }} kWh\n"
           note: Notificación de ajuste de consigna aplicada
+    default:
+    - action: system_log.write
+      data:
+        level: debug
+        message: 'EMS Aerotermia: Sin acciones requeridas (zona neutra o modo no modificable).'
+      note: Salida por defecto para evitar que el script se quede bloqueado sin evaluar
   mode: restart
