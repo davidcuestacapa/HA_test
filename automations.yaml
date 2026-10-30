@@ -3274,10 +3274,10 @@
     action: script.notificar_anadir_notificacion_david
   mode: single
 - id: '1793362652425'
-  alias: EMS Aerotermia - Gestión energética inteligente V2
+  alias: EMS Aerotermia - Gestión energética inteligente V3
   description: 'Control inteligente de aerotermia basado en EMS, nivel energético,
-    temperatura  exterior y previsión fotovoltaica. Optimizado para evitar bucles
-    y ráfagas de ejecución.
+    temperatura exterior. V2 Añadido previsión fotovoltaica.  V3 Optimizado para evitar
+    bucles y ráfagas de ejecución.
 
     '
   triggers:
