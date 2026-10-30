@@ -3124,83 +3124,84 @@
     action: hassio.addon_start
   mode: single
 - id: '1792670330154'
-  alias: EMS Clima - Gestión de persianas laterales por sol y Lux (Fachada este)
-  description: Controla la protección solar y apertura dinámicas de persianas laterales
-    según azimut, iluminancia exterior (lux), elevación solar, temperatura exterior
-    y estado EMS.
+  alias: EMS Clima - Gestión de persianas laterales por ganancia térmica (Fachada
+    este/sur) v4
+  description: 'Abre las persianas laterales para ganancia térmica matutina/mediodía
+    según azimut, lux,  temperatura exterior fresca (< 22°C) y EMS en modo Auto. Las
+    cierra al finalizar la ventana solar." Antes: Enfoque Controlando la protección
+    solar y apertura dinámicas de persianas laterales según azimut, iluminancia exterior
+    (lux), elevación solar, temperatura exterior y estado EMS.'
   triggers:
   - trigger: numeric_state
     entity_id: sensor.sun_solar_azimuth
     above: 140
     below: 160
-    id: ventana_solar_activa
-    note: 'Trigger: Azimut en rango de ventana solar (140° a 160°)'
+    id: ventana_lateral_inicio
+    note: 'Trigger: Azimut entra en rango lateral este/sur (140° - 160°)'
   - trigger: numeric_state
     entity_id: sensor.sun_solar_azimuth
     above: 160
-    id: fin_ventana_solar
-    note: 'Trigger: Azimut supera los 160° (Fin de ventana solar)'
+    id: fin_ventana_lateral
+    note: 'Trigger: Azimut supera los 160° (Fin de ventana de ganancia)'
   - trigger: numeric_state
     entity_id: sensor.presencia_ext_este_illuminance
     above: 2890
     for:
       minutes: 3
-    id: luz_alta
-    note: 'Trigger: Illuminancia alta (sol directo) durante más de 3 minutos'
+    id: luz_alta_este
+    note: 'Trigger: Illuminancia alta en sensor este/sur (> 2890 lux)'
   - trigger: numeric_state
     entity_id: sensor.presencia_ext_este_illuminance
     below: 2500
     for:
       minutes: 5
-    id: luz_baja
-    note: 'Trigger: Caída de luz sostenida (sombra/nube) durante más de 5 minutos'
+    id: luz_baja_este
+    note: 'Trigger: Caída de luz sostenida en sensor este/sur (< 2500 lux)'
   conditions:
   - condition: numeric_state
     entity_id: sensor.sun_solar_elevation
     above: 16
-    note: '# 1. Elevación solar: Mínimo 16° para asegurar radiación efectiva'
+    note: '# 1. Elevación solar mínima: Asegura radiación efectiva (> 16°)'
   - condition: state
     entity_id: input_select.ems_modo_climatizacion
     state:
     - Auto
-    - Verano
-    note: '# 2. Estado EMS: Auto y Verano, porque por la tarde, tanto en periodos
-      de transición (si hace calor) como en pleno verano, necesitamos que el sistema
-      despliegue la protección solar para frenar el exceso de radiación.'
-  - condition: numeric_state
-    entity_id: sensor.cerce_outdoor_temperature
-    above: 18
-    note: '# 3. Validación térmica exterior: Temperatura superior a 18°C (garantiza
-      que la protección actúa cuando hay una carga térmica real que disipar)'
+    note: '# 2. Estado EMS: Autoriza ganancia térmica exclusivamente en modo Auto
+      (transición/invierno)'
   actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
-        - ventana_solar_activa
-        - luz_alta
-        note: Disparado por inicio de ventana solar o subida de iluminancia
+        - ventana_lateral_inicio
+        - luz_alta_este
+        note: Disparado por inicio de ventana lateral o subida de iluminancia
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 140
         below: 160
-        note: Azimut confirmado dentro de la ventana de sol (140° - 160°)
+        note: Azimut confirmado en rango (140° - 160°)
       - condition: numeric_state
         entity_id: sensor.presencia_ext_este_illuminance
         above: 2890
-        note: Illuminancia actual confirmada en nivel alto (> 2890 lx)
+        note: Iluminancia este/sur confirma sol directo
+      - condition: numeric_state
+        entity_id: sensor.cerce_outdoor_temperature
+        below: 22
+        note: '# 3. Validación térmica exterior: Temperatura inferior a 22°C (garantiza
+          día fresco apto para ganancia solar)'
       sequence:
       - action: scene.turn_on
         target:
           entity_id: scene.persianas_laterales_abrir_cuando_hay_sol
-        note: 'Activar escena: Apertura de persianas laterales por presencia de sol'
-      alias: '# 1. Abrir cuando entramos en ventana solar y hay luz suficiente'
+        note: 'Activar escena: Apertura de persianas laterales para ganancia solar'
+      alias: '# 1. Apertura lateral por ganancia térmica y frío exterior'
     - conditions:
       - condition: trigger
         id:
-        - fin_ventana_solar
-        - luz_baja
-        note: Disparado por fin de ventana solar o por caída prolongada de lux
+        - fin_ventana_lateral
+        - luz_baja_este
+        note: Disparado por fin de ventana solar o pérdida de iluminancia
       sequence:
       - choose:
         - conditions:
@@ -3219,7 +3220,8 @@
           target:
             entity_id: scene.segun_sol_persianas_laterales_cerrar_todas
           note: 'Activar escena: Cierre total de seguridad (Casa vacía)'
-      alias: '# 2. Fin de ventana solar O caída de iluminancia (Cerrar según presencia)'
+      alias: '# 2. Cierre por fin de ventana solar o caída de luz'
+  initial_state: false
   mode: single
 - id: '1793348302346'
   alias: 'EMS Clima - Aviso para cambio de modo estacional Auto a Forzar verano '
