@@ -770,14 +770,20 @@
     domain: light
   mode: single
 - id: '1759517418429'
-  alias: Persianas sol Subir Despacho y Dani cuando amanece según azimut y pocas nubes
-  description: 'Azimut: El 11Dic desde 155º (Ago) se baja a 115º por sol detras de
-    casa Ruben. Vigilar durante año azimut borde casa.'
+  alias: EMS Sol - Apertura matutina Despacho y Dani
+  description: 'Sube las persianas del despacho y Dani al amanecer si hay buen tiempo
+    y el clima exterior es favorable para ganancia solar. Azimut: desde 155º (Ago)
+    a 115º 11Dic  (en verano sol más alto y entra + sol al superar casa Ruben.  Vigilar
+    durante año azimut borde casa.'
   triggers:
-  - entity_id:
-    - sun.sun
-    trigger: state
+  - entity_id: sun.sun
     to: above_horizon
+    trigger: state
+  - entity_id: sensor.sun_solar_azimuth
+    above: 0
+    below: 60
+    id: azimut_matutino
+    trigger: numeric_state
   conditions:
   - condition: numeric_state
     entity_id: weather.forecast_casa
@@ -791,35 +797,23 @@
     entity_id: input_select.ems_modo_climatizacion
     state:
     - Auto
-  - condition: climate.is_target_temperature
-    target:
-      entity_id: climate.zona1
-    options:
-      threshold:
-        type: below
-        value:
-          active_choice: entity
-          entity: sensor.cerce_outdoor_temperature
-      behavior: any
-      for:
-        hours: 0
-        minutes: 30
-        seconds: 0
+    - Verano
+  - condition: numeric_state
+    entity_id: sensor.cerce_outdoor_temperature
+    below: 20
   actions:
-  - target:
+  - action: cover.open_cover
+    target:
       entity_id: cover.persiana_despacho_dcha_cover_0
-    action: cover.open_cover
-    data: {}
   - choose:
     - conditions:
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         below: 70
       sequence:
-      - device_id: a643ee1e17df68368f582e5870d28402
-        domain: cover
-        entity_id: ce0673a2aeea65411ddfb6614a03e632
-        type: open
+      - action: cover.open_cover
+        target:
+          entity_id: cover.persiana_dani_cover_0
   mode: single
 - id: '1759523455522'
   alias: Persiana Cocina Subir/bajar con llavero
