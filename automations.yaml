@@ -3126,7 +3126,8 @@
 - id: '1792670330154'
   alias: EMS Clima - Gestión de persianas laterales por sol y Lux (Fachada este)
   description: Controla la protección solar y apertura dinámicas de persianas laterales
-    según azimut, iluminancia exterior (lux), elevación solar y estado EMS.
+    según azimut, iluminancia exterior (lux), elevación solar, temperatura exterior
+    y estado EMS.
   triggers:
   - trigger: numeric_state
     entity_id: sensor.sun_solar_azimuth
@@ -3166,6 +3167,11 @@
     note: '# 2. Estado EMS: Auto y Verano, porque por la tarde, tanto en periodos
       de transición (si hace calor) como en pleno verano, necesitamos que el sistema
       despliegue la protección solar para frenar el exceso de radiación.'
+  - condition: numeric_state
+    entity_id: sensor.cerce_outdoor_temperature
+    above: 18
+    note: '# 3. Validación térmica exterior: Temperatura superior a 18°C (garantiza
+      que la protección actúa cuando hay una carga térmica real que disipar)'
   actions:
   - choose:
     - conditions:
