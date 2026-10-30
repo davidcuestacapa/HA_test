@@ -3365,14 +3365,14 @@
         note: Creación de aviso persistente de nivel crítico
     - conditions:
       - condition: template
-        value_template: '{{ modo_objetivo | string | trim | lower in [''heat'', ''cool'']
-          }}'
+        value_template: '{{ modo_objetivo is defined and modo_objetivo | string |
+          trim | lower in [''heat'', ''cool''] }}'
         note: Verifica que el modo objetivo sea válido de forma estricta
       sequence:
       - if:
         - condition: template
-          value_template: '{{ modo_actual | string | trim != modo_objetivo | string
-            | trim }}'
+          value_template: '{{ modo_actual is defined and modo_objetivo is defined
+            and (modo_actual | string | trim) != (modo_objetivo | string | trim) }}'
           note: Comprueba si hay que cambiar el modo HVAC de la máquina
         then:
         - if:
@@ -3393,18 +3393,19 @@
         - delay: 00:00:10
       - if:
         - condition: template
-          value_template: '{{ nueva_consigna | string | trim != ''none'' }}'
+          value_template: '{{ nueva_consigna is defined and (nueva_consigna | string
+            | trim) != ''none'' }}'
           note: Verifica que la nueva consigna calculada sea válida
         - condition: template
-          value_template: '{{ temp_objetivo_actual | float(0) != nueva_consigna |
-            float(0) }}'
+          value_template: '{{ temp_objetivo_actual is defined and (temp_objetivo_actual
+            | float(0)) != (nueva_consigna | float(0)) }}'
           note: Evita relanzar órdenes si la consigna actual ya es exactamente la
             calculada
         then:
         - target:
             entity_id: climate.zona1
           data:
-            temperature: '{{ nueva_consigna | float }}'
+            temperature: '{{ nueva_consigna | float(20) }}'
           action: climate.set_temperature
         - delay: 00:00:05
         - action: persistent_notification.create
