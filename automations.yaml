@@ -3273,3 +3273,148 @@
         climatización.
     action: script.notificar_anadir_notificacion_david
   mode: single
+- id: '1793362652425'
+  alias: EMS Aerotermia - Gestión energética inteligente V2
+  description: 'Control inteligente de aerotermia basado en EMS, nivel energético,
+    temperatura  exterior y previsión fotovoltaica. Optimizado para evitar bucles
+    y ráfagas de ejecución.
+
+    '
+  triggers:
+  - trigger: state
+    entity_id: sensor.nivel_energetico
+    id: cambio_nivel
+    note: 'Trigger: Cambio en el nivel energético del sistema'
+  - trigger: state
+    entity_id: input_select.ems_modo_climatizacion
+    id: cambio_ems
+    note: 'Trigger: Cambio de modo de climatización EMS'
+  - trigger: numeric_state
+    entity_id: sensor.cerce_outdoor_temperature
+    above: 25
+    id: calor_exterior_alto
+    note: 'Trigger: Temperatura exterior supera los 25°C'
+  - trigger: numeric_state
+    entity_id: sensor.cerce_outdoor_temperature
+    below: 17
+    id: frio_exterior_bajo
+    note: 'Trigger: Temperatura exterior baja de 17°C'
+  - trigger: state
+    entity_id: input_boolean.optimizacion_energetica
+    to: 'on'
+    id: optimizacion_activada
+    note: 'Trigger: Activación del boolean de optimización energética'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.optimizacion_energetica
+    state: 'on'
+    note: 'Condición global: Optimización energética obligatoriamente activa'
+  - condition: template
+    value_template: '{{ states(''climate.zona1'') not in [''unavailable'', ''unknown'']
+      }}'
+    note: 'Condición de seguridad: El termostato de zona 1 debe estar disponible'
+  actions:
+  - variables:
+      debug: false
+      nivel: '{{ states(''sensor.nivel_energetico'') }}'
+      modo_ems: '{{ states(''input_select.ems_modo_climatizacion'') }}'
+      temp_exterior: '{{ states(''sensor.cerce_outdoor_temperature'') | float(0) }}'
+      modo_actual: '{{ states(''climate.zona1'') }}'
+      temp_actual: '{{ state_attr(''climate.zona1'', ''current_temperature'') | float(0)
+        }}'
+      temp_objetivo_actual: '{{ state_attr(''climate.zona1'', ''temperature'') | float(0)
+        }}'
+      hvac_action: '{{ state_attr(''climate.zona1'', ''hvac_action'') }}'
+      produccion_manana: '{{ states(''sensor.energy_production_tomorrow'') | float(20)
+        }}'
+      modo_objetivo: "{% set ems = states('input_select.ems_modo_climatizacion') |
+        lower %} {% set exterior = states('sensor.cerce_outdoor_temperature') | float(0)
+        %} {% set actual = states('climate.zona1') %}\n{% if ems == 'verano' %}\n
+        \ cool\n{% elif ems == 'auto' %}\n  {% if exterior < 17 %}\n    heat\n  {%
+        elif exterior > 25 %}\n    cool\n  {% else %}\n    {{ actual }}\n  {% endif
+        %}\n{% else %}\n  {{ actual }}\n{% endif %}\n"
+      nueva_consigna: "{% set nivel = states('sensor.nivel_energetico') %} {% set
+        modo = modo_objetivo | trim %} {% set pv_manana = states('sensor.energy_production_tomorrow')
+        | float(20) %}\n{% if modo == 'heat' %}\n  # Si mañana la previsión solar
+        es muy baja (<15kWh), forzamos un plus de inercia hoy si hay nivel\n  {% set
+        bonus_inercia = 1 if pv_manana < 15 and nivel in ['alto', 'excedente'] else
+        0 %}\n  \n  {% if nivel == 'bajo' %}\n    {{ 18 - bonus_inercia }}\n  {% elif
+        nivel == 'normal' %}\n    {{ 20 }}\n  {% elif nivel == 'alto' %}\n    {{ 21
+        + bonus_inercia }}\n  {% elif nivel == 'excedente' %}\n    {{ 23 + bonus_inercia
+        }}\n  {% else %}\n    none\n  {% endif %}\n\n{% elif modo == 'cool' %}\n  {%
+        if nivel == 'bajo' %}\n    25\n  {% elif nivel == 'normal' %}\n    23\n  {%
+        elif nivel == 'alto' %}\n    22\n  {% elif nivel == 'excedente' %}\n    21\n
+        \ {% else %}\n    none\n  {% endif %}\n{% else %}\n  none\n{% endif %}\n"
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: sensor.nivel_energetico
+        state: critico
+        note: Nivel energético crítico detectado
+      sequence:
+      - target:
+          entity_id: climate.zona1
+        action: climate.turn_off
+        note: Apagado de seguridad de la climatización por nivel crítico
+      - delay:
+          seconds: 5
+      - action: persistent_notification.create
+        data:
+          title: ⚠️ Aerotermia - Apagada por nivel energético crítico
+          message: "\U0001F552 Hora: {{ now().strftime('%H:%M') }} Nivel energético:
+            {{ nivel }} Exterior: {{ temp_exterior }} ºC Batería: {{ states('sensor.inversor_battery')
+            }}%\n"
+        note: Creación de aviso persistente de nivel crítico
+    - conditions:
+      - condition: template
+        value_template: '{{ modo_objetivo | trim | lower in [''heat'', ''cool''] }}'
+        note: Verifica que el modo objetivo sea válido (heat o cool)
+      sequence:
+      - if:
+        - condition: template
+          value_template: '{{ modo_actual != (modo_objetivo | trim) }}'
+          note: Comprueba si hay que cambiar el modo HVAC de la máquina
+        then:
+        - if:
+          - condition: state
+            entity_id: climate.zona1
+            state: 'off'
+            note: Si la máquina está apagada, se enciende previamente
+          then:
+          - target:
+              entity_id: climate.zona1
+            action: climate.turn_on
+          - delay:
+              seconds: 5
+        - target:
+            entity_id: climate.zona1
+          data:
+            hvac_mode: '{{ modo_objetivo | trim }}'
+          action: climate.set_hvac_mode
+        - delay:
+            seconds: 10
+      - if:
+        - condition: template
+          value_template: '{{ nueva_consigna | trim != ''none'' }}'
+          note: Verifica que la nueva consigna calculada sea válida
+        - condition: template
+          value_template: '{{ temp_objetivo_actual != (nueva_consigna | float) }}'
+          note: Evita relanzar órdenes si la consigna actual ya es exactamente la
+            calculada
+        then:
+        - target:
+            entity_id: climate.zona1
+          data:
+            temperature: '{{ nueva_consigna | float }}'
+          action: climate.set_temperature
+        - delay:
+            seconds: 5
+        - action: persistent_notification.create
+          data:
+            title: "\U0001F321️ Aerotermia - Ajuste inteligente de consigna"
+            message: "\U0001F552 Hora: {{ now().strftime('%H:%M') }} Modo: {{ modo_objetivo
+              | trim }} Consigna anterior: {{ temp_objetivo_actual }} ºC ➔ Nueva:
+              {{ nueva_consigna | trim }} ºC Nivel Energético: {{ nivel }} | FV Mañana:
+              {{ produccion_manana }} kWh\n"
+          note: Notificación de ajuste de consigna aplicada
+  mode: restart
