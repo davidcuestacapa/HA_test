@@ -770,7 +770,7 @@
     domain: light
   mode: single
 - id: '1759517418429'
-  alias: EMS Sol - Apertura matutina Despacho y Dani
+  alias: EMS Clima - Apertura matutina Despacho y Dani
   description: 'Sube las persianas del despacho y Dani al amanecer si hay buen tiempo
     y el clima exterior es favorable para ganancia solar. Azimut: desde 155º (Ago)
     a 115º 11Dic  (en verano sol más alto y entra + sol al superar casa Ruben.  Vigilar
@@ -3105,4 +3105,46 @@
           target:
             entity_id: scene.segun_sol_persianas_laterales_cerrar_todas
       alias: '# 2 Fin de ventana solar O caida prolongada de luz (Cerrar según presencia)'
+  mode: single
+- id: '1793348302346'
+  alias: EMS Clima - Aviso cambio de modo estacional
+  description: Avisa mediante notificación persistente, aviso de voz y registro si
+    el EMS sigue en modo Auto y se requiere el modo Verano por temperatura.
+  triggers:
+  - at: 08:00:00
+    trigger: time
+  conditions:
+  - condition: state
+    entity_id: input_select.ems_modo_climatizacion
+    state:
+    - Auto
+  - condition: numeric_state
+    entity_id: sensor.cerce_outdoor_temperature
+    above: 18
+  - condition: template
+    value_template: "{% set forecast = state_attr('weather.forecast_casa', 'forecast')
+      %} {% if forecast is iterable and forecast | length > 0 %}\n  {{ forecast[0].temperature
+      | default(25) | float >= 24 }}\n{% else %}\n  false\n{% endif %}\n"
+    alias: '# Doble validación: comprobando que la previsión del día apunta a calor
+      (máxima >= 24°C)'
+  actions:
+  - data:
+      title: '☀️ EMS Sol: Aviso cambio de modo estacional'
+      message: "\U0001F552 {{ now().strftime('%H:%M:%S') }}\nTemperatura exterior:
+        {{ states('sensor.cerce_outdoor_temperature') }}°C\nEl EMS continúa en modo
+        'Auto' a pesar de detectarse un inicio de día cálido con previsión de verano.\nSe
+        recomienda cambiar el selector a modo 'Verano' para ajustar la apertura de
+        las persianas matutinas."
+    action: persistent_notification.create
+  - data:
+      title: 'Atención. El EMS de persianas continúa en modo Auto con previsión de
+        verano. Se recomienda actualizar el modo de climatización.
+
+        '
+      zona: surface cocina
+    action: script.notificar_con_mensaje_de_voz
+  - data:
+      mensaje: EMS Sol en modo Auto con temperatura de verano. Revisar selector de
+        climatización.
+    action: script.notificar_anadir_notificacion_david
   mode: single
