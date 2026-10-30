@@ -3135,7 +3135,7 @@
       alias: '# 2. Fin de ventana solar O caída de iluminancia (Cerrar según presencia)'
   mode: single
 - id: '1793348302346'
-  alias: EMS Clima - Aviso cambio de modo estacional
+  alias: 'EMS Clima - Aviso para cambio de modo estacional Auto a Forzar verano '
   description: Avisa mediante notificación persistente, aviso de voz y registro si
     el EMS sigue en modo Auto y se requiere el modo Verano por temperatura.
   triggers:
