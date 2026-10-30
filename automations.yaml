@@ -3163,7 +3163,9 @@
     state:
     - Auto
     - Verano
-    note: '# 2. Estado EMS: Sistema de climatización activo en Auto o Verano'
+    note: '# 2. Estado EMS: Auto y Verano, porque por la tarde, tanto en periodos
+      de transición (si hace calor) como en pleno verano, necesitamos que el sistema
+      despliegue la protección solar para frenar el exceso de radiación.'
   actions:
   - choose:
     - conditions:
