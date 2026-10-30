@@ -3124,7 +3124,7 @@
     action: hassio.addon_start
   mode: single
 - id: '1792670330154'
-  alias: EMS Clima - Gestión de persianas laterales por sol y Lux en este
+  alias: EMS Clima - Gestión de persianas laterales por sol y Lux (Fachada este)
   description: Controla la protección solar y apertura dinámicas de persianas laterales
     según azimut, iluminancia exterior (lux), elevación solar y estado EMS.
   triggers:
