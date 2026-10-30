@@ -801,6 +801,17 @@
   - condition: numeric_state
     entity_id: sensor.cerce_outdoor_temperature
     below: 20
+    note: '# 4. Validación A (Mañana): Que la temperatura actual exterior no sea ya
+      alta'
+  - condition: template
+    value_template: "{% set forecast = state_attr('weather.forecast_casa', 'forecast')
+      %} {% if forecast is iterable and forecast | length > 0 %}\n  {{ forecast[0].temperature
+      | default(25) | float < 24 }}\n{% else %}\n  true\n{% endif %}\n"
+    note: '# 5. Evita abrir si la temperatura máxima prevista para hoy supera los
+      24°C (día caluroso en potencia)
+
+      '
+    alias: '# 5. Validación B (Doble validación / Previsión del día):'
   actions:
   - action: cover.open_cover
     target:
