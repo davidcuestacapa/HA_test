@@ -778,61 +778,69 @@
   alias: EMS Sol - Apertura matutina Despacho y Dani
   description: 'Sube las persianas del despacho y Dani al amanecer si hay buen tiempo
     y el clima exterior es favorable para ganancia solar. Azimut: desde 155º (Ago)
-    a 115º 11Dic  (en verano sol más alto y entra + sol al superar casa Ruben.  Vigilar
-    durante año azimut borde casa.'
+    a 115º 11Dic (en verano sol más alto y entra + sol al superar casa Ruben).'
   triggers:
-  - entity_id: sun.sun
-    to: above_horizon
-    trigger: state
-  - entity_id: sensor.sun_solar_azimuth
+  - trigger: numeric_state
+    entity_id: sensor.sun_solar_azimuth
     above: 0
     below: 60
     id: azimut_matutino
-    trigger: numeric_state
+    note: 'Trigger: Azimut matutino en rango inicial (0° - 60°)'
+  - trigger: state
+    entity_id: sun.sun
+    to: above_horizon
+    id: amanecer
+    note: 'Trigger: El sol cruza el horizonte'
   conditions:
+  - condition: numeric_state
+    entity_id: sensor.sun_solar_elevation
+    above: 0
+    note: '# 1. Elevación solar: Sol por encima del horizonte'
   - condition: numeric_state
     entity_id: weather.forecast_casa
     attribute: cloud_coverage
     below: 30
+    note: '# 2. Cobertura nubosa: Cielo despejado o con menos de 30% de nubes'
   - condition: numeric_state
     entity_id: sensor.sun_solar_azimuth
     above: 0
     below: 115
+    note: '# 3. Rango de azimut operativo matutino (hasta 115°)'
   - condition: state
     entity_id: input_select.ems_modo_climatizacion
     state:
     - Auto
-    note: "en modo Verano, no queremos bajo ningún concepto que las persianas se abran
-      por la mañana para \"ganar calor\". \nAunque por la noche refresque en la sierra,
-      en cuanto amanece el sol incide con muchísima fuerza; si abrimos, metemos una
-      carga térmica gratuita que luego la aerotermia/climatización tendrá que combatir."
+    note: '# 4. Estado EMS: Exclusivamente en modo Auto. En modo Verano no queremos  ganar
+      calor por la mañana para evitar sobrecargar la climatización.'
   - condition: numeric_state
     entity_id: sensor.cerce_outdoor_temperature
     below: 20
-    note: '# 4. Validación A (Mañana): Que la temperatura actual exterior no sea ya
-      alta'
+    note: '# 5. Validación A (Temperatura actual): Exterior inferior a 20°C (garantiza
+      mañana fresca)'
   - condition: template
     value_template: "{% set forecast = state_attr('weather.forecast_casa', 'forecast')
       %} {% if forecast is iterable and forecast | length > 0 %}\n  {{ forecast[0].temperature
       | default(25) | float < 24 }}\n{% else %}\n  true\n{% endif %}\n"
-    note: '# 5. Evita abrir si la temperatura máxima prevista para hoy supera los
-      24°C (día caluroso en potencia)
-
-      '
-    alias: '# 5. Validación B (Doble validación / Previsión del día):'
+    note: '# 6. Validación B (Previsión diaria): La temperatura máxima prevista no
+      supera los 24°C'
   actions:
   - action: cover.open_cover
     target:
       entity_id: cover.persiana_despacho_dcha_cover_0
+    note: Apertura de la persiana del despacho para ganancia matutina
   - choose:
     - conditions:
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         below: 70
+        note: Azimut inferior a 70° para apertura escalonada de Dani
       sequence:
       - action: cover.open_cover
         target:
           entity_id: cover.persiana_dani_cover_0
+        note: Apertura escalonada de la persiana de Dani
+      alias: 'Subpaso: Abrir persiana de Dani según progresión del sol'
+  initial_state: true
   mode: single
 - id: '1759523455522'
   alias: Persiana Cocina Subir/bajar con llavero
