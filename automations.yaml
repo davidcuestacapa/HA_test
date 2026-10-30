@@ -3045,35 +3045,46 @@
     action: hassio.addon_start
   mode: single
 - id: '1792670330154'
-  alias: Persianas sol - Subir y gestionar laterales por sol y nubes
-  description: Controla las persianas laterales según la posición del sol y la luminosidad
-    exterior.
+  alias: EMS Clima - Gestión de persianas laterales por sol y Lux en este
+  description: Controla la protección solar y apertura dinámicas de persianas laterales
+    según azimut, iluminancia exterior (lux), elevación solar y estado EMS.
   triggers:
-  - entity_id: sensor.sun_solar_azimuth
+  - trigger: numeric_state
+    entity_id: sensor.sun_solar_azimuth
     above: 140
     below: 160
     id: ventana_solar_activa
-    trigger: numeric_state
-  - entity_id: sensor.sun_solar_azimuth
+    note: 'Trigger: Azimut en rango de ventana solar (140° a 160°)'
+  - trigger: numeric_state
+    entity_id: sensor.sun_solar_azimuth
     above: 160
     id: fin_ventana_solar
-    trigger: numeric_state
-  - entity_id: sensor.presencia_ext_este_illuminance
+    note: 'Trigger: Azimut supera los 160° (Fin de ventana solar)'
+  - trigger: numeric_state
+    entity_id: sensor.presencia_ext_este_illuminance
     above: 2890
     for:
       minutes: 3
     id: luz_alta
-    trigger: numeric_state
-  - entity_id: sensor.presencia_ext_este_illuminance
+    note: 'Trigger: Illuminancia alta (sol directo) durante más de 3 minutos'
+  - trigger: numeric_state
+    entity_id: sensor.presencia_ext_este_illuminance
     below: 2500
     for:
       minutes: 5
     id: luz_baja
-    trigger: numeric_state
+    note: 'Trigger: Caída de luz sostenida (sombra/nube) durante más de 5 minutos'
   conditions:
   - condition: numeric_state
     entity_id: sensor.sun_solar_elevation
     above: 16
+    note: '# 1. Elevación solar: Mínimo 16° para asegurar radiación efectiva'
+  - condition: state
+    entity_id: input_select.ems_modo_climatizacion
+    state:
+    - Auto
+    - Verano
+    note: '# 2. Estado EMS: Sistema de climatización activo en Auto o Verano'
   actions:
   - choose:
     - conditions:
@@ -3081,38 +3092,47 @@
         id:
         - ventana_solar_activa
         - luz_alta
+        note: Disparado por inicio de ventana solar o subida de iluminancia
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 140
         below: 160
+        note: Azimut confirmado dentro de la ventana de sol (140° - 160°)
       - condition: numeric_state
         entity_id: sensor.presencia_ext_este_illuminance
         above: 2890
+        note: Illuminancia actual confirmada en nivel alto (> 2890 lx)
       sequence:
       - action: scene.turn_on
         target:
           entity_id: scene.persianas_laterales_abrir_cuando_hay_sol
-      alias: '      # 1. Cuando entramos en la ventana solar y hay luz suficiente'
+        note: 'Activar escena: Apertura de persianas laterales por presencia de sol'
+      alias: '# 1. Abrir cuando entramos en ventana solar y hay luz suficiente'
     - conditions:
       - condition: trigger
         id:
         - fin_ventana_solar
         - luz_baja
+        note: Disparado por fin de ventana solar o por caída prolongada de lux
       sequence:
       - choose:
         - conditions:
           - condition: state
             entity_id: input_boolean.familia_en_casa
             state: 'on'
+            note: Familia presente en la vivienda
           sequence:
           - action: scene.turn_on
             target:
               entity_id: scene.segun_sol_persianas_laterales_cerrar_parcial_todas
+            note: 'Activar escena: Cierre parcial de confort (Familia en casa)'
+          alias: 'Subpaso A: Cierre parcial por confort'
         default:
         - action: scene.turn_on
           target:
             entity_id: scene.segun_sol_persianas_laterales_cerrar_todas
-      alias: '# 2 Fin de ventana solar O caida prolongada de luz (Cerrar según presencia)'
+          note: 'Activar escena: Cierre total de seguridad (Casa vacía)'
+      alias: '# 2. Fin de ventana solar O caída de iluminancia (Cerrar según presencia)'
   mode: single
 - id: '1793348302346'
   alias: EMS Clima - Aviso cambio de modo estacional
