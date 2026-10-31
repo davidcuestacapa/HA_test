@@ -936,7 +936,8 @@
     y Salón en la fachada de la pérgola según el azimut solar, el sensor de lux del
     parking, la temperatura exterior y el estado del EMS.
 
-    v2 se añade persiana salón cuando sol bajo pérgola '
+    v2 se añade persiana salón cuando sol bajo pérgola. Verificar azimut y quitar
+    aviso voz'
   triggers:
   - trigger: numeric_state
     entity_id:
