@@ -939,6 +939,13 @@
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_azimuth
+    above: 140
+    below: 144
+    id: ventana_cocina_pergola
+    note: 'Trigger: Azimut alcanza los 1xx° (Sol temprano en salon derecha bajo pérgola)'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.sun_solar_azimuth
     above: 145
     below: 199
     id: ventana_cocina_pergola
@@ -986,6 +993,31 @@
       - condition: trigger
         id:
         - ventana_cocina_pergola
+        note: Disparado por el umbral de apertura de cocina (150°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_azimuth
+        above: 140
+        below: 144
+        note: Azimut confirmado en franja de cocina (150° - 200°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_elevation
+        below: 25
+      - condition: numeric_state
+        entity_id: sensor.cerce_outdoor_temperature
+        below: 22
+        note: Temperatura exterior fresca (< 22°C) idónea para aporte térmico
+      sequence:
+      - action: cover.set_cover_position
+        metadata: {}
+        target:
+          entity_id: cover.persiana_salon_del_dcha_cover_0
+        data:
+          position: 31
+      alias: '# 0. Apertura anticipada de Salón derecha (Azimut 140°)'
+    - conditions:
+      - condition: trigger
+        id:
+        - ventana_cocina_pergola
         - luz_alta_parking
         note: Disparado por el umbral de apertura de cocina (150°)
       - condition: numeric_state
@@ -1008,11 +1040,6 @@
           - cover.persiana_cocina_cover_0
         note: Apertura de la persiana de la cocina (afectada antes por la pérgola)
         data: {}
-      - if:
-        - condition: numeric_state
-          entity_id: sensor.sun_solar_elevation
-          below: 25
-        then: []
       alias: '# 1. Apertura anticipada de Cocina (Azimut 145°)'
     - conditions:
       - condition: trigger
@@ -1057,7 +1084,6 @@
         note: Cierre de protección de las persianas de salón y cocina al concluir
           la tarde
       alias: '# 3. Cierre general de la fachada de la pérgola'
-  initial_state: false
   mode: single
 - id: '1760106877865'
   alias: Bajar persianas con ocaso modo noche o en invierno modo invierno
