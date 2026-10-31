@@ -4326,6 +4326,7 @@
         id:
         - luz_alta_parking
         - ventana_salondcha_pergola
+        - generated-PbNQ
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 190
@@ -4351,6 +4352,7 @@
         id:
         - luz_alta_parking
         - gventana_salonizq_pergola
+        - generated-PbNQ
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 220
@@ -4377,6 +4379,7 @@
         - fin_ventana_pergola
         - sol_bajo
         - luz_baja_parking
+        - generated-PbNQ
         note: Disparado por fin de azimut, caída de sol o pérdida de lux
       sequence:
       - action: cover.close_cover
