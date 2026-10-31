@@ -932,12 +932,15 @@
 - id: '1760105229743'
   alias: EMS Clima - Gestión de persianas frontales Cocina y Salón (Fachada Sur /
     Oeste) v2
-  description: 'Controla la apertura y cierre escalonado de las persianas de Cocina
-    y Salón en la fachada de la pérgola según el azimut solar, el sensor de lux del
-    parking, la temperatura exterior y el estado del EMS.
+  description: 'Sol es otra fuernte termica = aerotermia pero con Coste 0 + consumo
+    elec 0 Controla la apertura y cierre escalonado de las persianas de Cocina y Salón
+    en la fachada de la pérgola según el azimut solar, el sensor de lux del parking,
+    la temperatura exterior y el estado del EMS.
 
     v2 se añade persiana salón cuando sol bajo pérgola. Verificar azimut y quitar
-    aviso voz'
+    aviso voz
+
+    PTE Cambiar tª <22º fija a ¿Necesita calor la vivienda? con un binary_sensor.ems_demanda_calor '
   triggers:
   - trigger: numeric_state
     entity_id:
