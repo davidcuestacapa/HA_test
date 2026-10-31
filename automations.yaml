@@ -4236,7 +4236,7 @@
     - sensor.sun_solar_elevation
     below: 8
     id: sol_bajo
-    note: 'Trigger: Elevación solar cae a 10° o menos'
+    note: 'Trigger: Elevación solar ya cae mucho'
   - trigger: numeric_state
     entity_id: sensor.presencia_ext_parking_illuminance
     above: 2890
@@ -4248,7 +4248,7 @@
     entity_id: sensor.presencia_ext_parking_illuminance
     below: 2500
     for:
-      minutes: 5
+      minutes: 10
     id: luz_baja_parking
     note: 'Trigger: Caída de luz sostenida en parking (< 2500 lux)'
   - trigger: numeric_state
@@ -4257,13 +4257,11 @@
     below: 22
     note: Bajada brusca sin cambio otros trigger
     id: temperatura_baja
-  conditions:
-  - condition: state
-    entity_id: input_select.ems_modo_climatizacion
-    state:
-    - Auto
-    note: '# 1. Estado EMS: Autoriza ganancia térmica de tarde exclusivamente en modo
-      Auto'
+  - trigger: state
+    entity_id:
+    - input_select.ems_modo_climatizacion
+    id: cambio_modo_ems
+  conditions: []
   actions:
   - choose:
     - conditions:
@@ -4271,10 +4269,17 @@
         id:
         - ventana_salon_bajo_pergola
         - temperatura_baja
+      - condition: state
+        entity_id: input_select.ems_modo_climatizacion
+        state:
+        - Auto
+        note: '# 1. Estado EMS: Autoriza ganancia térmica de tarde exclusivamente
+          en modo Auto. No como condición general para que cambio de estado no deje
+          sin hacer cierre final   '
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 120
-        below: 144
+        below: 145
       - condition: numeric_state
         entity_id: sensor.sun_solar_elevation
         below: 28
@@ -4305,6 +4310,13 @@
         - luz_alta_parking
         - ventana_cocina_pergola
         - temperatura_baja
+      - condition: state
+        entity_id: input_select.ems_modo_climatizacion
+        state:
+        - Auto
+        note: '# 1. Estado EMS: Autoriza ganancia térmica de tarde exclusivamente
+          en modo Auto. No como condición general para que cambio de estado no deje
+          sin hacer cierre final   '
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 145
@@ -4331,6 +4343,13 @@
         - luz_alta_parking
         - ventana_salondcha_pergola
         - temperatura_baja
+      - condition: state
+        entity_id: input_select.ems_modo_climatizacion
+        state:
+        - Auto
+        note: '# 1. Estado EMS: Autoriza ganancia térmica de tarde exclusivamente
+          en modo Auto. No como condición general para que cambio de estado no deje
+          sin hacer cierre final   '
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 190
@@ -4357,6 +4376,13 @@
         - luz_alta_parking
         - gventana_salonizq_pergola
         - temperatura_baja
+      - condition: state
+        entity_id: input_select.ems_modo_climatizacion
+        state:
+        - Auto
+        note: '# 1. Estado EMS: Autoriza ganancia térmica de tarde exclusivamente
+          en modo Auto. No como condición general para que cambio de estado no deje
+          sin hacer cierre final   '
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 220
