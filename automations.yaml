@@ -3283,37 +3283,66 @@
         message: 'EMS Aerotermia: Sin acciones requeridas (zona neutra o modo no modificable).'
   mode: restart
 - id: ems_ev_carga_ioniq_simple
-  alias: EMS EV - Carga Ioniq v4 Claude v1
-  description: Carga el Ioniq a potencia fija según el nivel energético de la casa.
+  alias: EMS EV - Carga inteligente Ioniq v4 Claude con alias    NO SE PUEDE GUARDAR
+    EN HA SE QUEDA COLGADO
+  description: 'EMS EV v2.3 – Carga el Ioniq a potencia fija (~3 kW) según sensor.nivel_energetico
+    (Crítico / Bajo / Normal / Alto / Excelente).
+
+    HELPERS: input_number.ems_ev_energia_inicio_carga (0–100000, paso 0.01) e input_number.ems_ev_soc_inicio_carga
+    (0–100, paso 0.1). El objetivo de sesión se guarda en el límite AC del coche.
+
+    INTEGRACIÓN HYUNDAI: escaneo 30 min. Esta automatización no usa force_refresh
+    para no gastar la batería de 12 V; mientras carga, el SOC se estima con el medidor
+    (SOC inicio + kWh × eficiencia / capacidad).
+
+    CONFIGURACIÓN (bloque "Configuración"): margen = % por debajo del objetivo para
+    arrancar · capacidad_kwh = 38.3 Ioniq 2020+, 28 Ioniq 2016-19 · eficiencia = pérdidas
+    AC enchufe→batería · objetivos = SOC por nivel; Bajo es sólo emergencia (carga
+    si SOC < 19 %) · bat_casa_arranque = % batería casa mínimo para EMPEZAR · bat_casa_corte
+    = % batería casa mínimo para SEGUIR. La emergencia ignora los umbrales de la casa;
+    sólo Crítico la corta.
+
+    SESIÓN: el objetivo se congela al empezar y sólo sube, nunca baja, para que la
+    propia carga (Alto → Normal) no la corte. La memoria es el límite AC (60/80/90/100);
+    el 50 se ignora porque es el valor técnico de la emergencia. Hyundai sólo admite
+    límites 50–100 en pasos de 10.'
   triggers:
-  - entity_id: sensor.nivel_energetico
+  - alias: Cambio de nivel energético estable 5 min (evita arranca/para)
+    entity_id: sensor.nivel_energetico
     for: 00:05:00
     trigger: state
-  - entity_id: sensor.nivel_energetico
+  - alias: Nivel Crítico (inmediato)
+    entity_id: sensor.nivel_energetico
     to: Crítico
     trigger: state
-  - entity_id:
+  - alias: Cambios del coche y del medidor de energía (SOC estimado)
+    entity_id:
     - sensor.ioniq_ev_battery_level
     - binary_sensor.ioniq_ev_battery_plug
     - binary_sensor.ioniq_engine
     - device_tracker.ioniq_location
     - sensor.m_ext_coche_coche_consumido
     trigger: state
-  - entity_id: device_tracker.ioniq_location
+  - alias: Llega a casa (10 min) – para aviso sin enchufar
+    entity_id: device_tracker.ioniq_location
     to: En Casa
     for: 00:10:00
     id: llegada_casa
     trigger: state
-  - minutes: /15
+  - alias: Evaluación periódica cada 15 min
+    minutes: /15
     trigger: time_pattern
-  - event: start
+  - alias: Inicio de Home Assistant
+    event: start
     trigger: homeassistant
   conditions:
-  - condition: state
+  - alias: Optimización energética activada
+    condition: state
     entity_id: input_boolean.optimizacion_energetica
     state: 'on'
   actions:
-  - variables:
+  - alias: Configuración
+    variables:
       debug: false
       margen: 3
       capacidad_kwh: 38.3
@@ -3326,10 +3355,14 @@
         excelente: 90
       bat_casa_arranque: 50
       bat_casa_corte: 40
+  - alias: Estado casa (nivel normalizado sin tilde)
+    variables:
       nivel: "{{ states('sensor.nivel_energetico') | lower | trim\n   | replace('í',
         'i') }}"
       bat_casa: '{{ states(''sensor.inversor_battery'') | float(0) }}'
       objetivo_nivel: '{{ objetivos.get(nivel, 0) | int }}'
+  - alias: Estado coche
+    variables:
       soc_nube: '{{ states(''sensor.ioniq_ev_battery_level'') | float(-1) }}'
       autonomia: '{{ states(''sensor.ioniq_total_driving_range'') | float(0) }}'
       en_casa: '{{ states(''device_tracker.ioniq_location'') in [''home'', ''En Casa'']
@@ -3339,8 +3372,10 @@
       disponible: '{{ en_casa and enchufado and not motor }}'
       cargando: "{{ is_state('switch.ioniq_ev_charging', 'on')\n   or states('sensor.m_ext_coche_coche_consumo')
         | float(0) > 500 }}"
-      objetivo_sesion: '{% set l = states(''number.ioniq_ac_charging_limit'') | int(0)
-        %} {{ l if l > 50 else 0 }}'
+  - alias: Sesión (objetivo congelado en el límite AC) y SOC estimado con medidor
+    variables:
+      limite_ac_actual: '{{ states(''number.ioniq_ac_charging_limit'') | int(0) }}'
+      objetivo_sesion: '{{ limite_ac_actual if limite_ac_actual > 50 else 0 }}'
       objetivo: '{{ [objetivo_nivel, objetivo_sesion] | max if cargando else objetivo_nivel
         }}'
       emergencia: '{{ 0 < objetivo | int <= objetivos.bajo }}'
@@ -3353,6 +3388,8 @@
         * 100 %} {% if cargando and soc_inicio > 0 and 0 <= energia_cargada <= capacidad_kwh
         %}\n  {{ [soc_nube, est] | max | round(1) }}\n{% else %}\n  {{ soc_nube }}\n{%
         endif %}"
+  - alias: Decisión (iniciar / seguir / parar / nada) y límites AC
+    variables:
       motivo_parar: '{% if not cargando %} {% elif nivel == ''critico'' %}nivel crítico
         {% elif motor %}motor encendido {% elif not en_casa %}fuera de casa {% elif
         not enchufado %}desenchufado {% elif objetivo | int == 0 %}sin objetivo en
@@ -3367,42 +3404,52 @@
       limite_ac: '{{ [50, [100, ((objetivo | int + 9) // 10) * 10] | min] | max }}'
       limite_ac_inicio: '{{ [50, [100, ((objetivo_nivel | int + 9) // 10) * 10] |
         min] | max }}'
-      limite_ac_actual: '{{ states(''number.ioniq_ac_charging_limit'') | int(0) }}'
-  - if:
-    - condition: template
+  - alias: 1. Parar carga
+    if:
+    - alias: Acción = parar
+      condition: template
       value_template: '{{ accion == ''parar'' }}'
     then:
-    - action: switch.turn_off
+    - alias: Apagar carga del Ioniq
+      action: switch.turn_off
       target:
         entity_id: switch.ioniq_ev_charging
-    - action: script.notificar_a_administradores
+    - alias: Notificar parada
+      action: script.notificar_a_administradores
       data:
         title: "{{ 'HA-EMS EV - ✅ Objetivo alcanzado' if 'alcanzado' in motivo_parar\n
           \  else 'HA-EMS EV - ⏹️ Carga detenida' }}"
         message: 'Motivo: {{ motivo_parar | trim }} SOC: {{ soc_inicio | int }} %
           → ~{{ soc | int }} % Energía: {{ energia_cargada }} kWh Casa: {{ bat_casa
           | int }} % · Nivel: {{ nivel }}'
-    - action: input_number.set_value
+    - alias: Desactivar estimación de SOC hasta la próxima carga del EMS
+      action: input_number.set_value
       target:
         entity_id: input_number.ems_ev_soc_inicio_carga
       data:
         value: 0
     - stop: Carga detenida
-  - if:
-    - condition: template
+  - alias: '2. Iniciar carga (sin force_refresh: aparcado, el SOC de la nube es válido)'
+    if:
+    - alias: Acción = iniciar
+      condition: template
       value_template: '{{ accion == ''iniciar'' }}'
     then:
-    - action: input_number.set_value
+    - alias: Guardar contador de energía al inicio
+      action: input_number.set_value
       target:
         entity_id: input_number.ems_ev_energia_inicio_carga
       data:
         value: '{{ states(''sensor.m_ext_coche_coche_consumido'') | float(0) }}'
-    - action: input_number.set_value
+    - alias: Guardar SOC al inicio
+      action: input_number.set_value
       target:
         entity_id: input_number.ems_ev_soc_inicio_carga
       data:
         value: '{{ soc_nube }}'
-    - if:
+    - alias: Fijar límite AC al objetivo del nivel actual (puede bajar respecto a
+        la sesión anterior)
+      if:
       - condition: template
         value_template: '{{ limite_ac_actual != limite_ac_inicio | int }}'
       then:
@@ -3412,10 +3459,12 @@
         data:
           value: '{{ limite_ac_inicio }}'
       - delay: 3
-    - action: switch.turn_on
+    - alias: Encender carga del Ioniq
+      action: switch.turn_on
       target:
         entity_id: switch.ioniq_ev_charging
-    - action: script.notificar_a_administradores
+    - alias: Notificar inicio
+      action: script.notificar_a_administradores
       data:
         title: "{{ 'HA-EMS EV - \U0001F198 Carga de emergencia' if emergencia\n   else
           'HA-EMS EV - \U0001F7E2 Carga iniciada' }}"
@@ -3423,7 +3472,8 @@
           | int }} % → {{ objetivo_nivel }} % (~{{ ((objetivo_nivel - soc_nube) *
           capacidad_kwh / 100 / eficiencia / 3) | round(1) }} h a 3 kW)'
     - stop: Carga iniciada
-  - if:
+  - alias: '3. Sigue cargando y el nivel ha subido: subir límite AC (sólo sube)'
+    if:
     - condition: template
       value_template: '{{ accion == ''seguir'' and limite_ac | int > limite_ac_actual
         }}'
@@ -3433,7 +3483,8 @@
         entity_id: number.ioniq_ac_charging_limit
       data:
         value: '{{ limite_ac }}'
-  - if:
+  - alias: '4. Aviso: llegó a casa con batería baja y sin enchufar'
+    if:
     - condition: template
       value_template: "{{ trigger.id == 'llegada_casa' and not enchufado\n   and soc_nube
         | float < 30 and autonomia | float < 150 }}"
@@ -3443,7 +3494,8 @@
         title: "HA-EMS EV - \U0001F697 Ioniq sin enchufar"
         message: SOC {{ soc_nube | int }} % · {{ autonomia | int }} km · Nivel {{
           nivel }}
-  - if:
+  - alias: '5. Debug (notificación persistente si debug: true)'
+    if:
     - condition: template
       value_template: '{{ debug }}'
     then:
