@@ -805,7 +805,7 @@
   - condition: numeric_state
     entity_id: sensor.sun_solar_azimuth
     above: 0
-    below: 115
+    below: 60
     note: '# 3. Rango de azimut operativo matutino (hasta 115°)'
   - condition: state
     entity_id: input_select.ems_modo_climatizacion
@@ -824,6 +824,7 @@
       | default(25) | float < 24 }}\n{% else %}\n  true\n{% endif %}\n"
     note: '# 6. Validación B (Previsión diaria): La temperatura máxima prevista no
       supera los 24°C'
+    alias: La temperatura máxima prevista no supera los 24°C
   actions:
   - action: cover.open_cover
     target:
@@ -936,17 +937,18 @@
     parking, la temperatura exterior y el estado del EMS.
   triggers:
   - trigger: numeric_state
-    entity_id: sensor.sun_solar_azimuth
-    above: 150
+    entity_id:
+    - sensor.sun_solar_azimuth
+    above: 145
     below: 199
     id: ventana_cocina_pergola
-    note: 'Trigger: Azimut alcanza los 150° (Sol temprano en cocina por pérgola)'
+    note: 'Trigger: Azimut alcanza los 150° (Sol temprano en cocina libra pérgola)'
   - trigger: numeric_state
     entity_id: sensor.sun_solar_azimuth
     above: 200
     below: 250
     id: ventana_salon_pergola
-    note: 'Trigger: Azimut alcanza los 200° (Sol llega al salón en fachada oeste)'
+    note: 'Trigger: Azimut alcanza los 200° (Sol llega al salón al librar pergola)'
   - trigger: numeric_state
     entity_id: sensor.sun_solar_azimuth
     above: 250
