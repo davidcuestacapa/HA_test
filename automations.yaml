@@ -3417,7 +3417,6 @@
       - condition: template
         value_template: '{{ modo_objetivo is defined and modo_objetivo | string |
           trim | lower in [''heat'', ''cool''] }}'
-        note: Verifica que el modo objetivo sea válido de forma estricta
       sequence:
       - if:
         - condition: template
