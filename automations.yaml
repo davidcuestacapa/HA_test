@@ -958,12 +958,29 @@
             - thu
             - sun
             before: '18:30:00'
-            note: si antes de las 18:30 es porque es ya muy invierno y mejor cerrar
-              completo
           sequence:
           - target:
               entity_id: scene.modo_noche_invierno_cerrar_persianas_todas
             action: scene.turn_on
+          - if:
+            - condition: state
+              entity_id: input_boolean.familia_en_casa
+              state:
+              - 'off'
+            - condition: state
+              entity_id: binary_sensor.persiana_cocina_input_0_input
+              state:
+              - 'off'
+            then:
+            - action: cover.close_cover
+              target:
+                entity_id:
+                - cover.persiana_cocina_cover_0
+              note: Cierre de protección de las persianas de cocina al concluir la
+                tarde
+              data: {}
+          note: si antes de las 18:30 es porque es ya muy invierno y mejor cerrar
+            completo
         default:
         - target:
             entity_id:
@@ -4418,22 +4435,6 @@
           - cover.persiana_salon_del_izda_cover_0
         note: Cierre de protección de las persianas de salón al concluir la tarde
         data: {}
-      - if:
-        - condition: state
-          entity_id: input_boolean.familia_en_casa
-          state:
-          - 'off'
-        - condition: state
-          entity_id: binary_sensor.persiana_cocina_input_0_input
-          state:
-          - 'off'
-        then:
-        - action: cover.close_cover
-          target:
-            entity_id:
-            - cover.persiana_cocina_cover_0
-          note: Cierre de protección de las persianas de cocina al concluir la tarde
-          data: {}
       alias: '# 3. Cierre general de la fachada de la pérgola'
   mode: single
 - id: ems_ev_carga_ioniq_simple
