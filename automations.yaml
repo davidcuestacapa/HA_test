@@ -3388,11 +3388,11 @@
         }}\n  {%- endif -%}\n{%- else -%}\n  {{ actual }}\n{%- endif -%}\n"
       nueva_consigna: "{%- set nivel = states('sensor.nivel_energetico') -%} {%- set
         modo = modo_objetivo | string | trim -%} {%- set pv_manana = states('sensor.energy_production_tomorrow')
-        | float(20) -%} {%- if modo == 'heat' -%}\n  {%- set bonus_inercia = 1 if
-        pv_manana < 45 and nivel in ['Alto', 'Excelente'] else 0 -%}\n  {%- if nivel
-        == 'Bajo' -%}\n    {{ 18 - bonus_inercia }}\n  {%- elif nivel == 'Normal'
-        -%}\n    20\n  {%- elif nivel == 'Alto' -%}\n    {{ 21 + bonus_inercia }}\n
-        \ {%- elif nivel == 'Excelente' -%}\n    {{ 23 + bonus_inercia }}\n  {%- else
+        | float(20) -%} {%- if modo == 'heat' -%}\n  {%- set bonus_precarga_termica
+        = 1 if pv_manana < 15 else 0 -%}\n  {%- if nivel == 'Bajo' -%}\n    {{ 18
+        - bonus_precarga_termica }}\n  {%- elif nivel == 'Normal' -%}\n    20\n  {%-
+        elif nivel == 'Alto' -%}\n    {{ 22 + bonus_precarga_termica }}\n  {%- elif
+        nivel == 'Excelente' -%}\n    {{ 24 + bonus_precarga_termica }}\n  {%- else
         -%}\n    none\n  {%- endif -%}\n{%- elif modo == 'cool' -%}\n  {%- if nivel
         == 'Bajo' -%}\n    25\n  {%- elif nivel == 'Normal' -%}\n    23\n  {%- elif
         nivel == 'Alto' -%}\n    22\n  {%- elif nivel == 'Excelente' -%}\n    21\n
