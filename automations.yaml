@@ -4198,7 +4198,7 @@
     entity_id:
     - sensor.sun_solar_azimuth
     above: 120
-    below: 144
+    below: 145
     id: ventana_salon_bajo_pergola
     note: 'Trigger: Azimut alcanza los 1xx° (Sol temprano en salon derecha bajo pérgola)'
   - trigger: numeric_state
@@ -4254,7 +4254,7 @@
     - sensor.cerce_outdoor_temperature
     below: 22
     note: Bajada brusca sin cambio otros trigger
-    id: generated-PbNQ
+    id: temperatura_baja
   conditions:
   - condition: state
     entity_id: input_select.ems_modo_climatizacion
@@ -4268,7 +4268,7 @@
       - condition: trigger
         id:
         - ventana_salon_bajo_pergola
-        - generated-PbNQ
+        - temperatura_baja
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 120
@@ -4300,7 +4300,7 @@
         id:
         - luz_alta_parking
         - ventana_cocina_pergola
-        - generated-PbNQ
+        - temperatura_baja
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 145
@@ -4326,11 +4326,11 @@
         id:
         - luz_alta_parking
         - ventana_salondcha_pergola
-        - generated-PbNQ
+        - temperatura_baja
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 190
-        below: 250
+        below: 220
       - condition: numeric_state
         entity_id: sensor.presencia_ext_parking_illuminance
         above: 2890
@@ -4352,7 +4352,7 @@
         id:
         - luz_alta_parking
         - gventana_salonizq_pergola
-        - generated-PbNQ
+        - temperatura_baja
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 220
@@ -4379,7 +4379,7 @@
         - fin_ventana_pergola
         - sol_bajo
         - luz_baja_parking
-        - generated-PbNQ
+        - temperatura_baja
         note: Disparado por fin de azimut, caída de sol o pérdida de lux
       sequence:
       - action: cover.close_cover
