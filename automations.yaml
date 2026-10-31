@@ -1015,14 +1015,6 @@
           entity_id: cover.persiana_salon_del_dcha_cover_0
         data:
           position: 31
-      - action: notify.surface
-        metadata: {}
-        data: {}
-      - action: script.turn_on
-        metadata: {}
-        target:
-          entity_id: script.notificar_con_mensaje_de_voz
-        data: {}
       - action: script.notificar_con_mensaje_de_voz
         metadata: {}
         data:
