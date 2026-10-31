@@ -2998,17 +2998,15 @@
       minutes: 5
     id: luz_baja_este
     note: 'Trigger: Caída de luz sostenida en sensor este/sur (< 2500 lux)'
+  - trigger: state
+    entity_id:
+    - input_select.ems_modo_climatizacion
+    id: cambio_modo_ems
   conditions:
   - condition: numeric_state
     entity_id: sensor.sun_solar_elevation
     above: 16
     note: '# 1. Elevación solar mínima: Asegura radiación efectiva (> 16°)'
-  - condition: state
-    entity_id: input_select.ems_modo_climatizacion
-    state:
-    - Auto
-    note: '# 2. Estado EMS: Autoriza ganancia térmica exclusivamente en modo Auto
-      (transición/invierno)'
   - condition: numeric_state
     entity_id: weather.forecast_casa
     attribute: cloud_coverage
@@ -3022,6 +3020,12 @@
         - ventana_lateral_inicio
         - luz_alta_este
         note: Disparado por inicio de ventana lateral o subida de iluminancia
+      - condition: state
+        entity_id: input_select.ems_modo_climatizacion
+        state:
+        - Auto
+        note: '# 2. Estado EMS: Autoriza ganancia térmica exclusivamente en modo Auto
+          (transición/invierno)'
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 130
