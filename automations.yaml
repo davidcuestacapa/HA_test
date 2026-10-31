@@ -3283,9 +3283,10 @@
       alias: '# 2. Cierre por fin de ventana solar o caída de luz'
   mode: single
 - id: '1793348302346'
-  alias: 'EMS Clima - Aviso para cambio de modo estacional Auto a Forzar verano '
+  alias: EMS Clima - Aviso para cambio de modo estacional Auto a Forzar verano . PTE
+    aviso inverso
   description: Avisa mediante notificación persistente, aviso de voz y registro si
-    el EMS sigue en modo Auto y se requiere el modo Verano por temperatura.
+    el EMS sigue en modo Auto y se recomienda cambio al modo Verano por temperatura.
   triggers:
   - at: 08:00:00
     trigger: time
