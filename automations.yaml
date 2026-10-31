@@ -985,6 +985,11 @@
       minutes: 5
     id: luz_baja_parking
     note: 'Trigger: Caída de luz sostenida en parking (< 2500 lux)'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.cerce_outdoor_temperature
+    below: 22
+    note: Bajada brusca sin cambio otros trigger
   conditions:
   - condition: state
     entity_id: input_select.ems_modo_climatizacion
