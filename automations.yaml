@@ -988,6 +988,8 @@
             - scene.modo_ocaso_salon
           action: scene.turn_on
           data: {}
+        alias: Elige entre hora de Invierno (antes 18:30) y resto
+      note: Noche ya oscura
     - conditions:
       - condition: trigger
         id:
