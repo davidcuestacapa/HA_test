@@ -3135,11 +3135,11 @@
 - id: '1792670330154'
   alias: EMS Clima - Gestión de persianas laterales por ganancia térmica (Fachada
     este/sur) v4
-  description: 'Abre las persianas laterales para ganancia térmica matutina/mediodía
-    según azimut, lux,  temperatura exterior fresca (< 22°C) y EMS en modo Auto. Las
-    cierra al finalizar la ventana solar." Antes: Enfoque Controlando la protección
+  description: "Abre las persianas laterales para ganancia térmica matutina/mediodía
+    según azimut, lux,  temperatura exterior fresca (< 22°C) y EMS en modo Auto.\nCierra
+    al finalizar la ventana solar.\" \n\nAntes: Enfoque Controlando la protección
     solar y apertura dinámicas de persianas laterales según azimut, iluminancia exterior
-    (lux), elevación solar, temperatura exterior y estado EMS.'
+    (lux), elevación solar, temperatura exterior y estado EMS."
   triggers:
   - trigger: numeric_state
     entity_id:
