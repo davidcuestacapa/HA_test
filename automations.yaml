@@ -1003,7 +1003,7 @@
         note: Azimut confirmado en franja de cocina (150° - 200°)
       - condition: numeric_state
         entity_id: sensor.sun_solar_elevation
-        below: 25
+        below: 28
       - condition: numeric_state
         entity_id: sensor.cerce_outdoor_temperature
         below: 22
