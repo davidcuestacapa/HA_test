@@ -1008,6 +1008,11 @@
           - cover.persiana_cocina_cover_0
         note: Apertura de la persiana de la cocina (afectada antes por la pérgola)
         data: {}
+      - if:
+        - condition: numeric_state
+          entity_id: sensor.sun_solar_elevation
+          below: 25
+        then: []
       alias: '# 1. Apertura anticipada de Cocina (Azimut 145°)'
     - conditions:
       - condition: trigger
