@@ -941,16 +941,16 @@
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_azimuth
-    above: 140
+    above: 120
     below: 144
-    id: ventana_cocina_pergola
+    id: generated-cmoE
     note: 'Trigger: Azimut alcanza los 1xx° (Sol temprano en salon derecha bajo pérgola)'
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_azimuth
     above: 145
     below: 199
-    id: ventana_cocina_pergola
+    id: generated-nJs1
     note: 'Trigger: Azimut alcanza los 150° (Sol temprano en cocina libra pérgola)'
   - trigger: numeric_state
     entity_id: sensor.sun_solar_azimuth
@@ -994,16 +994,17 @@
     - conditions:
       - condition: trigger
         id:
-        - ventana_cocina_pergola
+        - generated-cmoE
         note: Disparado por el umbral de apertura de cocina (150°)
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
-        above: 140
+        above: 120
         below: 144
         note: Azimut confirmado en franja de cocina (150° - 200°)
       - condition: numeric_state
         entity_id: sensor.sun_solar_elevation
         below: 28
+        above: 0
       - condition: numeric_state
         entity_id: sensor.cerce_outdoor_temperature
         below: 22
@@ -1025,7 +1026,8 @@
     - conditions:
       - condition: trigger
         id:
-        - ventana_cocina_pergola
+        - generated-cmoE
+        - generated-nJs1
         - luz_alta_parking
         note: Disparado por el umbral de apertura de cocina (150°)
       - condition: numeric_state
