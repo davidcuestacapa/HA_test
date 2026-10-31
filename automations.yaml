@@ -3141,8 +3141,9 @@
     (lux), elevación solar, temperatura exterior y estado EMS.'
   triggers:
   - trigger: numeric_state
-    entity_id: sensor.sun_solar_azimuth
-    above: 140
+    entity_id:
+    - sensor.sun_solar_azimuth
+    above: 130
     below: 160
     id: ventana_lateral_inicio
     note: 'Trigger: Azimut entra en rango lateral este/sur (140° - 160°)'
