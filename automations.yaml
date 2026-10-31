@@ -4408,3 +4408,207 @@
   conditions: []
   actions: []
   mode: single
+- id: '1793468826844'
+  alias: EMS Clima - Gestión de persianas frontales Cocina y Salón (Fachada Sur /
+    Oeste) v2
+  description: 'Controla la apertura y cierre escalonado de las persianas de Cocina
+    y Salón en la fachada de la pérgola según el azimut solar, el sensor de lux del
+    parking, la temperatura exterior y el estado del EMS.
+
+    v2 se añade persiana salón cuando sol bajo pérgola. Verificar azimut y quitar
+    aviso voz'
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.sun_solar_azimuth
+    above: 120
+    below: 144
+    id: generated-cmoE
+    note: 'Trigger: Azimut alcanza los 1xx° (Sol temprano en salon derecha bajo pérgola)'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.sun_solar_azimuth
+    above: 145
+    below: 190
+    id: generated-nJs1
+    note: 'Trigger: Azimut alcanza los 150° (Sol temprano en cocina libra pérgola)'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.sun_solar_azimuth
+    above: 190
+    below: 220
+    id: generated-FdLI
+    note: 'Trigger: Azimut alcanza los 190° (Sol comienza a llegar al salón al librar
+      la pérgola)'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.sun_solar_azimuth
+    above: 220
+    below: 250
+    id: generated-HNrx
+    note: 'Trigger: Azimut alcanza los 220° (Sol comienza a entrar al fondo del salón
+      al librar la pérgola)'
+  - trigger: numeric_state
+    entity_id: sensor.sun_solar_azimuth
+    above: 250
+    id: fin_ventana_pergola
+    note: 'Trigger: El sol supera los 250° (Fin de radiación en fachada pérgola)'
+  - trigger: numeric_state
+    entity_id:
+    - sensor.sun_solar_elevation
+    below: 8
+    id: sol_bajo
+    note: 'Trigger: Elevación solar cae a 10° o menos'
+  - trigger: numeric_state
+    entity_id: sensor.presencia_ext_parking_illuminance
+    above: 2890
+    for:
+      minutes: 3
+    id: luz_alta_parking
+    note: 'Trigger: Sol directo confirmado en zona parking (> 2890 lux)'
+  - trigger: numeric_state
+    entity_id: sensor.presencia_ext_parking_illuminance
+    below: 2500
+    for:
+      minutes: 5
+    id: luz_baja_parking
+    note: 'Trigger: Caída de luz sostenida en parking (< 2500 lux)'
+  conditions:
+  - condition: state
+    entity_id: input_select.ems_modo_climatizacion
+    state:
+    - Auto
+    note: '# 1. Estado EMS: Autoriza ganancia térmica de tarde exclusivamente en modo
+      Auto'
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - generated-cmoE
+        note: Disparado por el umbral de apertura de cocina (150°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_azimuth
+        above: 120
+        below: 144
+        note: Azimut confirmado en franja de cocina (150° - 200°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_elevation
+        below: 28
+        above: 0
+      - condition: numeric_state
+        entity_id: sensor.cerce_outdoor_temperature
+        below: 22
+        note: Temperatura exterior fresca (< 22°C) idónea para aporte térmico
+      sequence:
+      - action: cover.set_cover_position
+        metadata: {}
+        target:
+          entity_id: cover.persiana_salon_del_dcha_cover_0
+        data:
+          position: 31
+      - action: script.notificar_con_mensaje_de_voz
+        metadata: {}
+        data:
+          title: "Notificación para David, recuerda comprobar la elevación y azimut
+            del sol contra la persiana del salon para ajustar su script \n"
+          zona: surface cocina
+      alias: '# 0. Apertura anticipada de Salón derecha (Azimut 140°)'
+    - conditions:
+      - condition: trigger
+        id:
+        - generated-nJs1
+        - luz_alta_parking
+        note: Disparado por el umbral de apertura de cocina (150°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_azimuth
+        above: 145
+        below: 190
+        note: Azimut confirmado en franja de cocina (150° - 200°)
+      - condition: numeric_state
+        entity_id: sensor.presencia_ext_parking_illuminance
+        above: 2890
+        note: Iluminancia del parking confirma sol directo
+      - condition: numeric_state
+        entity_id: sensor.cerce_outdoor_temperature
+        below: 22
+        note: Temperatura exterior fresca (< 22°C) idónea para aporte térmico
+      sequence:
+      - action: cover.open_cover
+        target:
+          entity_id:
+          - cover.persiana_cocina_cover_0
+        note: Apertura de la persiana de la cocina (afectada antes por la pérgola)
+        data: {}
+      alias: '# 1. Apertura anticipada de Cocina (Azimut 145°)'
+    - conditions:
+      - condition: trigger
+        id:
+        - generated-FdLI
+        - luz_alta_parking
+        note: Disparado por el umbral de apertura de salón (200°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_azimuth
+        above: 190
+        below: 250
+        note: Azimut confirmado en franja de salón (200° - 250°)
+      - condition: numeric_state
+        entity_id: sensor.presencia_ext_parking_illuminance
+        above: 2890
+        note: Iluminancia del parking confirma sol directo en fachada oeste
+      - condition: numeric_state
+        entity_id: sensor.cerce_outdoor_temperature
+        below: 22
+        note: Temperatura exterior fresca (< 22°C) idónea para aporte térmico
+      sequence:
+      - action: cover.open_cover
+        target:
+          entity_id:
+          - cover.persiana_salon_del_dcha_cover_0
+        note: Apertura de la persiana del salón por llegada del sol de poniente
+      alias: '# 2. Apertura posterior de Salón (Azimut 190°)'
+    - conditions:
+      - condition: trigger
+        id:
+        - generated-FdLI
+        - generated-HNrx
+        - luz_alta_parking
+        note: Disparado por el umbral de apertura de salón (200°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_azimuth
+        above: 190
+        below: 250
+        note: Azimut confirmado en franja de salón (200° - 250°)
+      - condition: numeric_state
+        entity_id: sensor.presencia_ext_parking_illuminance
+        above: 2890
+        note: Iluminancia del parking confirma sol directo en fachada oeste
+      - condition: numeric_state
+        entity_id: sensor.cerce_outdoor_temperature
+        below: 22
+        note: Temperatura exterior fresca (< 22°C) idónea para aporte térmico
+      sequence:
+      - action: cover.open_cover
+        target:
+          entity_id:
+          - cover.persiana_salon_del_dcha_cover_0
+        note: Apertura de la persiana del salón por llegada del sol de poniente
+      alias: '# 2. Apertura final de Salón (Azimut 220°)'
+    - conditions:
+      - condition: trigger
+        id:
+        - fin_ventana_pergola
+        - sol_bajo
+        - luz_baja_parking
+        note: Disparado por fin de azimut, caída de sol o pérdida de lux
+      sequence:
+      - action: cover.close_cover
+        target:
+          entity_id:
+          - cover.persiana_salon_del_dcha_cover_0
+          - cover.persiana_salon_del_izda_cover_0
+          - cover.persiana_cocina_cover_0
+        note: Cierre de protección de las persianas de salón y cocina al concluir
+          la tarde
+      alias: '# 3. Cierre general de la fachada de la pérgola'
+  mode: single
