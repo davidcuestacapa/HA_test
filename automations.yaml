@@ -3149,12 +3149,13 @@
     entity_id:
     - sensor.sun_solar_azimuth
     above: 130
-    below: 160
+    below: 150
     id: ventana_lateral_inicio
     note: 'Trigger: Azimut entra en rango lateral este/sur (140° - 160°)'
   - trigger: numeric_state
-    entity_id: sensor.sun_solar_azimuth
-    above: 160
+    entity_id:
+    - sensor.sun_solar_azimuth
+    above: 150
     id: fin_ventana_lateral
     note: 'Trigger: Azimut supera los 160° (Fin de ventana de ganancia)'
   - trigger: numeric_state
