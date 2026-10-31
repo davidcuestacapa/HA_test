@@ -1090,6 +1090,32 @@
     - conditions:
       - condition: trigger
         id:
+        - ventana_salon_pergola
+        - luz_alta_parking
+        note: Disparado por el umbral de apertura de salón (200°)
+      - condition: numeric_state
+        entity_id: sensor.sun_solar_azimuth
+        above: 220
+        below: 250
+        note: Azimut confirmado en franja de salón (200° - 250°)
+      - condition: numeric_state
+        entity_id: sensor.presencia_ext_parking_illuminance
+        above: 2890
+        note: Iluminancia del parking confirma sol directo en fachada oeste
+      - condition: numeric_state
+        entity_id: sensor.cerce_outdoor_temperature
+        below: 22
+        note: Temperatura exterior fresca (< 22°C) idónea para aporte térmico
+      sequence:
+      - action: cover.open_cover
+        target:
+          entity_id:
+          - cover.persiana_salon_del_dcha_cover_0
+        note: Apertura de la persiana del salón por llegada del sol de poniente
+      alias: '# 2. Apertura posterior de Salón Izq (Azimut 230°)'
+    - conditions:
+      - condition: trigger
+        id:
         - fin_ventana_pergola
         - sol_bajo
         - luz_baja_parking
