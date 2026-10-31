@@ -958,6 +958,8 @@
             - thu
             - sun
             before: '18:30:00'
+            note: si antes de las 18:30 es porque es ya muy invierno y mejor cerrar
+              completo
           sequence:
           - target:
               entity_id: scene.modo_noche_invierno_cerrar_persianas_todas
