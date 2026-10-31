@@ -3187,7 +3187,7 @@
         note: Disparado por inicio de ventana lateral o subida de iluminancia
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
-        above: 140
+        above: 130
         below: 160
         note: Azimut confirmado en rango (140° - 160°)
       - condition: numeric_state
@@ -3230,7 +3230,6 @@
             entity_id: scene.segun_sol_persianas_laterales_cerrar_todas
           note: 'Activar escena: Cierre total de seguridad (Casa vacía)'
       alias: '# 2. Cierre por fin de ventana solar o caída de luz'
-  initial_state: false
   mode: single
 - id: '1793348302346'
   alias: 'EMS Clima - Aviso para cambio de modo estacional Auto a Forzar verano '
