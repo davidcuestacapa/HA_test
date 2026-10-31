@@ -4199,21 +4199,21 @@
     - sensor.sun_solar_azimuth
     above: 120
     below: 144
-    id: generated-cmoE
+    id: ventana_salon_bajo_pergola
     note: 'Trigger: Azimut alcanza los 1xx° (Sol temprano en salon derecha bajo pérgola)'
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_azimuth
     above: 145
     below: 190
-    id: generated-nJs1
+    id: ventana_cocina_pergola
     note: 'Trigger: Azimut alcanza los 150° (Sol temprano en cocina libra pérgola)'
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_azimuth
     above: 190
     below: 220
-    id: generated-FdLI
+    id: ventana_salondcha_pergola
     note: 'Trigger: Azimut alcanza los 190° (Sol comienza a llegar al salón al librar
       la pérgola)'
   - trigger: numeric_state
@@ -4221,7 +4221,7 @@
     - sensor.sun_solar_azimuth
     above: 220
     below: 250
-    id: generated-HNrx
+    id: gventana_salonizq_pergola
     note: 'Trigger: Azimut alcanza los 220° (Sol comienza a entrar al fondo del salón
       al librar la pérgola)'
   - trigger: numeric_state
@@ -4254,6 +4254,7 @@
     - sensor.cerce_outdoor_temperature
     below: 22
     note: Bajada brusca sin cambio otros trigger
+    id: generated-PbNQ
   conditions:
   - condition: state
     entity_id: input_select.ems_modo_climatizacion
@@ -4266,13 +4267,12 @@
     - conditions:
       - condition: trigger
         id:
-        - generated-cmoE
-        note: Disparado por el umbral de apertura de cocina (150°)
+        - ventana_salon_bajo_pergola
+        - generated-PbNQ
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 120
         below: 144
-        note: Azimut confirmado en franja de cocina (150° - 200°)
       - condition: numeric_state
         entity_id: sensor.sun_solar_elevation
         below: 28
@@ -4294,18 +4294,17 @@
           title: "Notificación para David, recuerda comprobar la elevación y azimut
             del sol contra la persiana del salon para ajustar su script \n"
           zona: surface cocina
-      alias: '# 0. Apertura anticipada de Salón derecha (Azimut 140°)'
+      alias: '# 1. Apertura anticipada de Salón bajo pergola (Azimut 120°)'
     - conditions:
       - condition: trigger
         id:
-        - generated-nJs1
         - luz_alta_parking
-        note: Disparado por el umbral de apertura de cocina (150°)
+        - ventana_cocina_pergola
+        - generated-PbNQ
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 145
         below: 190
-        note: Azimut confirmado en franja de cocina (150° - 200°)
       - condition: numeric_state
         entity_id: sensor.presencia_ext_parking_illuminance
         above: 2890
@@ -4321,18 +4320,16 @@
           - cover.persiana_cocina_cover_0
         note: Apertura de la persiana de la cocina (afectada antes por la pérgola)
         data: {}
-      alias: '# 1. Apertura anticipada de Cocina (Azimut 145°)'
+      alias: '# 2. Apertura anticipada de Cocina (Azimut 145°)'
     - conditions:
       - condition: trigger
         id:
-        - generated-FdLI
         - luz_alta_parking
-        note: Disparado por el umbral de apertura de salón (200°)
+        - ventana_salondcha_pergola
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
         above: 190
         below: 250
-        note: Azimut confirmado en franja de salón (200° - 250°)
       - condition: numeric_state
         entity_id: sensor.presencia_ext_parking_illuminance
         above: 2890
@@ -4348,18 +4345,16 @@
           - cover.persiana_salon_del_dcha_cover_0
         note: Apertura de la persiana derecha del salón por llegada del sol de poniente
         data: {}
-      alias: '# 2. Apertura posterior de Salón (Azimut 190°)'
+      alias: '# 3. Apertura posterior de Salón (Azimut 190°)'
     - conditions:
       - condition: trigger
         id:
-        - generated-HNrx
         - luz_alta_parking
-        note: Disparado por el umbral de apertura de salón (200°)
+        - gventana_salonizq_pergola
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
-        above: 190
+        above: 220
         below: 250
-        note: Azimut confirmado en franja de salón (200° - 250°)
       - condition: numeric_state
         entity_id: sensor.presencia_ext_parking_illuminance
         above: 2890
@@ -4375,7 +4370,7 @@
           - cover.persiana_salon_del_izda_cover_0
         note: Apertura de la persiana izq del salón por llegada del sol de poniente
         data: {}
-      alias: '# 2. Apertura final de Salón (Azimut 220°)'
+      alias: '# 4. Apertura final de Salón (Azimut 220°)'
     - conditions:
       - condition: trigger
         id:
