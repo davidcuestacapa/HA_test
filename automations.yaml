@@ -986,11 +986,12 @@
       - condition: trigger
         id:
         - ventana_cocina_pergola
+        - luz_alta_parking
         note: Disparado por el umbral de apertura de cocina (150°)
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
-        above: 150
-        below: 200
+        above: 145
+        below: 199
         note: Azimut confirmado en franja de cocina (150° - 200°)
       - condition: numeric_state
         entity_id: sensor.presencia_ext_parking_illuminance
@@ -1007,11 +1008,12 @@
           - cover.persiana_cocina_cover_0
         note: Apertura de la persiana de la cocina (afectada antes por la pérgola)
         data: {}
-      alias: '# 1. Apertura anticipada de Cocina (Azimut 150°)'
+      alias: '# 1. Apertura anticipada de Cocina (Azimut 145°)'
     - conditions:
       - condition: trigger
         id:
         - ventana_salon_pergola
+        - luz_alta_parking
         note: Disparado por el umbral de apertura de salón (200°)
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
