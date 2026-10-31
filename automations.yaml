@@ -932,15 +932,14 @@
 - id: '1760105229743'
   alias: EMS Clima - Gestión de persianas frontales Cocina y Salón (Fachada Sur /
     Oeste) v2
-  description: 'Sol es otra fuernte termica = aerotermia pero con Coste 0 + consumo
+  description: "Sol es otra fuernte termica = aerotermia pero con Coste 0 + consumo
     elec 0 Controla la apertura y cierre escalonado de las persianas de Cocina y Salón
     en la fachada de la pérgola según el azimut solar, el sensor de lux del parking,
-    la temperatura exterior y el estado del EMS.
-
-    v2 se añade persiana salón cuando sol bajo pérgola. Verificar azimut y quitar
-    aviso voz
-
-    PTE Cambiar tª <22º fija a ¿Necesita calor la vivienda? con un binary_sensor.ems_demanda_calor '
+    la temperatura exterior y el estado del EMS.\nv2 se añade persiana salón cuando
+    sol bajo pérgola. Verificar azimut y quitar aviso voz\nPTE Cambiar tª <22º fija
+    a ¿Necesita calor la vivienda? con un binary_sensor.ems_demanda_calor \ny parecido
+    con geometria solar binary_sensor.sol_fachada_lateral ON/OFF considerando  azimut,
+    época del año, obstáculos casa Rubén, elevación solar.\n- Añadir gestión pta izq"
   triggers:
   - trigger: numeric_state
     entity_id:
@@ -970,8 +969,9 @@
     id: fin_ventana_pergola
     note: 'Trigger: El sol supera los 250° (Fin de radiación en fachada pérgola)'
   - trigger: numeric_state
-    entity_id: sensor.sun_solar_elevation
-    below: 10
+    entity_id:
+    - sensor.sun_solar_elevation
+    below: 9
     id: sol_bajo
     note: 'Trigger: Elevación solar cae a 10° o menos'
   - trigger: numeric_state
@@ -1086,7 +1086,7 @@
           entity_id:
           - cover.persiana_salon_del_dcha_cover_0
         note: Apertura de la persiana del salón por llegada del sol de poniente
-      alias: '# 2. Apertura posterior de Salón (Azimut 200°)'
+      alias: '# 2. Apertura posterior de Salón dcha (Azimut 200°)'
     - conditions:
       - condition: trigger
         id:
