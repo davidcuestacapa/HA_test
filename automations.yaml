@@ -1,25 +1,3 @@
-- id: '1757539465158'
-  alias: prueba luz cocina
-  description: ''
-  triggers:
-  - trigger: sun
-    event: sunset
-    offset: 0
-  - device_id: 7563f17b1e0e4cf648178659c16c4462
-    domain: hue
-    type: repeat
-    subtype: 1
-    unique_id: b2485c1e-bd91-4113-b185-b2b8d9cb327d
-    trigger: device
-  conditions: []
-  actions:
-  - type: turn_on
-    device_id: c1c1d8fd99dc7682ada5148f63332768
-    entity_id: 49aeaa85e988fbd0ee3a74d550b3bfc2
-    domain: light
-    flash: long
-    brightness_pct: 50
-  mode: single
 - id: '1757571561771'
   alias: Aviso - Solar hay producción FW establa >1000W
   description: ''
@@ -2149,15 +2127,6 @@
     data: {}
   mode: restart
   max_exceeded: silent
-- id: '1765217690316'
-  alias: _test pruebas lamparita
-  description: ''
-  triggers: []
-  conditions: []
-  actions:
-  - action: script.test_prueba_lamparita
-    data: {}
-  mode: single
 - id: '1766695292546'
   alias: Lamparita Despacho - Encender/apagar por presencia y poca luz
   description: ''
