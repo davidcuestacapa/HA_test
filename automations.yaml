@@ -776,9 +776,10 @@
   mode: single
 - id: '1759517418429'
   alias: EMS Sol - Apertura matutina Despacho y Dani v3
-  description: 'Sube las persianas del despacho y Dani al amanecer si hay buen tiempo
-    y el clima exterior es favorable para ganancia solar. Azimut: desde 155º (Ago)
-    a 115º 11Dic (en verano sol más alto y entra + sol al superar casa Ruben).'
+  description: "Sube las persianas del despacho y Dani al amanecer si hay buen tiempo
+    y el clima exterior es favorable para ganancia solar. \nAzimut:  -Superar por
+    arriba casa Ruben (en verano sol más alto y entra + sol) desde 155º 11Dic  - Ago
+    115º\n-Amanecer librando lateral Ruben 11 mar 7:30 es 97º y elev 3º"
   triggers:
   - trigger: numeric_state
     entity_id: sensor.sun_solar_azimuth
