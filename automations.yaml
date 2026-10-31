@@ -971,7 +971,7 @@
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_elevation
-    below: 9
+    below: 8
     id: sol_bajo
     note: 'Trigger: Elevación solar cae a 10° o menos'
   - trigger: numeric_state
