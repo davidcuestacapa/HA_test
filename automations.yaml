@@ -931,10 +931,12 @@
   mode: single
 - id: '1760105229743'
   alias: EMS Clima - Gestión de persianas frontales Cocina y Salón (Fachada Sur /
-    Oeste)
-  description: Controla la apertura y cierre escalonado de las persianas de Cocina
+    Oeste) v2
+  description: 'Controla la apertura y cierre escalonado de las persianas de Cocina
     y Salón en la fachada de la pérgola según el azimut solar, el sensor de lux del
     parking, la temperatura exterior y el estado del EMS.
+
+    v2 se añade persiana salón cuando sol bajo pérgola '
   triggers:
   - trigger: numeric_state
     entity_id:
