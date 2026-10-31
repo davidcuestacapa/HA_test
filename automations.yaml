@@ -930,7 +930,8 @@
           entity_id: lock.pta_cerceda
   mode: single
 - id: '1760106877865'
-  alias: EMS Clima - Bajar persianas con ocaso a modo ocaso o modo invierno
+  alias: 'EMS Clima - Bajar persianas con ocaso a Modo noche habitaciones y Ocaso
+    salón o Modo invierno '
   description: ''
   triggers:
   - event: sunset
@@ -999,23 +1000,6 @@
       - target:
           entity_id: scene.modo_noche_invierno_cerrar_persianas_todas
         action: scene.turn_on
-      - if:
-        - condition: state
-          entity_id: input_boolean.familia_en_casa
-          state:
-          - 'off'
-        - condition: state
-          entity_id: binary_sensor.persiana_cocina_input_0_input
-          state:
-          - 'off'
-        then:
-        - action: cover.close_cover
-          target:
-            entity_id:
-            - cover.persiana_cocina_cover_0
-          note: Cierre de protección de las persianas de cocina al concluir la tarde
-          data: {}
-        alias: Comprobar si cerrar cocina
   mode: single
 - id: '1760167872044'
   alias: 'Mando dormitorio ppal - Luz y Persiana  '
@@ -4207,19 +4191,6 @@
   mode: queued
   max: 2
   max_exceeded: silent
-- id: '1793468737053'
-  alias: EMS PRUEBA
-  description: ''
-  triggers:
-  - trigger: battery.level_changed
-    target:
-      area_id: cocina
-    options:
-      threshold:
-        type: any
-  conditions: []
-  actions: []
-  mode: single
 - id: '1793468826844'
   alias: EMS Clima - Gestión de persianas frontales Cocina y Salón (Fachada Sur /
     Oeste) v3
