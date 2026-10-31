@@ -3391,10 +3391,10 @@
         pv_manana < 15 and nivel in ['alto', 'excedente'] else 0 -%}\n  {%- if nivel
         == 'bajo' -%}\n    {{ 18 - bonus_inercia }}\n  {%- elif nivel == 'normal'
         -%}\n    20\n  {%- elif nivel == 'alto' -%}\n    {{ 21 + bonus_inercia }}\n
-        \ {%- elif nivel == 'excedente' -%}\n    {{ 23 + bonus_inercia }}\n  {%- else
+        \ {%- elif nivel == 'excelente' -%}\n    {{ 23 + bonus_inercia }}\n  {%- else
         -%}\n    none\n  {%- endif -%}\n{%- elif modo == 'cool' -%}\n  {%- if nivel
         == 'bajo' -%}\n    25\n  {%- elif nivel == 'normal' -%}\n    23\n  {%- elif
-        nivel == 'alto' -%}\n    22\n  {%- elif nivel == 'excedente' -%}\n    21\n
+        nivel == 'alto' -%}\n    22\n  {%- elif nivel == 'excelente' -%}\n    21\n
         \ {%- else -%}\n    none\n  {%- endif -%}\n{%- else -%}\n  none\n{%- endif
         -%}\n"
   - alias: Selección de acción según nivel energético y modo
