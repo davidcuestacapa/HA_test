@@ -3381,7 +3381,7 @@
         }}'
       modo_objetivo: "{%- set ems = states('input_select.ems_modo_climatizacion')
         | lower -%} {%- set exterior = states('sensor.cerce_outdoor_temperature')
-        | float(0) -%} {%- set actual = states('climate.zona1') -%} {%- if 'verano'
+        | float(0) -%} {%- set actual = states('climate.zona1') -%}  {%- if 'verano'
         in ems -%}\n  cool\n{%- elif ems == 'auto' -%}\n  {%- if exterior < 17 -%}\n
         \   heat\n  {%- elif exterior > 25 -%}\n    cool\n  {%- else -%}\n    {{ actual
         }}\n  {%- endif -%}\n{%- else -%}\n  {{ actual }}\n{%- endif -%}\n"
