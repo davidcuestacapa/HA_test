@@ -3009,6 +3009,11 @@
     - Auto
     note: '# 2. Estado EMS: Autoriza ganancia térmica exclusivamente en modo Auto
       (transición/invierno)'
+  - condition: numeric_state
+    entity_id: weather.forecast_casa
+    attribute: cloud_coverage
+    below: 30
+    note: '# 2. Cobertura nubosa: Cielo despejado o con menos de 30% de nubes'
   actions:
   - choose:
     - conditions:
@@ -3273,8 +3278,7 @@
         level: debug
         message: 'EMS Aerotermia: Sin acciones requeridas (zona neutra o modo no modificable).'
   mode: restart
-- &id001
-  id: ems_ev_carga_ioniq_simple
+- id: ems_ev_carga_ioniq_simple
   alias: EMS EV - Carga Ioniq v4 Claude v1
   description: Carga el Ioniq a potencia fija según el nivel energético de la casa.
   triggers:
@@ -3450,9 +3454,6 @@
   mode: queued
   max: 2
   max_exceeded: silent
-- *id001
-- *id001
-- *id001
 - id: '1793468826844'
   alias: EMS Clima - Gestión de persianas frontales Cocina y Salón (Fachada Sur /
     Oeste) v3
@@ -3531,7 +3532,12 @@
     entity_id:
     - input_select.ems_modo_climatizacion
     id: cambio_modo_ems
-  conditions: []
+  conditions:
+  - condition: numeric_state
+    entity_id: weather.forecast_casa
+    attribute: cloud_coverage
+    below: 30
+    note: '# 2. Cobertura nubosa: Cielo despejado o con menos de 30% de nubes'
   actions:
   - choose:
     - conditions:
@@ -3688,4 +3694,3 @@
         data: {}
       alias: '# 3. Cierre con escena Ocaso todo el salón'
   mode: single
-- *id001
