@@ -3639,7 +3639,7 @@
           sin hacer cierre final   '
       - condition: numeric_state
         entity_id: sensor.sun_solar_azimuth
-        above: 115
+        above: 120
         below: 145
       - condition: numeric_state
         entity_id: sensor.sun_solar_elevation
@@ -3667,7 +3667,7 @@
         - trigger: numeric_state
           entity_id:
           - sensor.sun_solar_azimuth
-          above: 130
+          above: 137
         alias: Espera a azimut para abrir Persiana salón del. izq
       - action: cover.set_cover_position
         metadata: {}
@@ -3680,7 +3680,7 @@
         - trigger: numeric_state
           entity_id:
           - sensor.sun_solar_azimuth
-          above: 135
+          above: 140
         alias: Espera a azimut para confirmar su alcance en ventanas salon
       - action: script.notificar_con_mensaje_de_voz
         metadata: {}
@@ -3691,7 +3691,7 @@
 
             '
           zona: surface cocina
-      alias: '# 1. Apertura anticipada de Salón bajo pergola (Azimut 120°)'
+      alias: '# 1. Apertura anticipada de Cocina y Salón bajo pergola (Azimut 120°)'
     - conditions:
       - condition: trigger
         id:
