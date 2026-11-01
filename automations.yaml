@@ -3555,10 +3555,10 @@
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_azimuth
-    above: 125
+    above: 120
     below: 145
     id: ventana_salon_bajo_pergola
-    note: 'Trigger: Azimut alcanza los 1xx° (Sol temprano en salon derecha bajo pérgola)'
+    note: 'Trigger: Azimut alcanza los 1xx° (Sol temprano bajo pérgola)'
   - trigger: numeric_state
     entity_id:
     - sensor.sun_solar_azimuth
@@ -3656,7 +3656,7 @@
           entity_id:
           - cover.persiana_cocina_cover_0
         data:
-          position: 31
+          position: 65
       - action: script.notificar_con_mensaje_de_voz
         metadata: {}
         data:
@@ -3667,7 +3667,14 @@
         - trigger: numeric_state
           entity_id:
           - sensor.sun_solar_azimuth
-          above: 135
+          above: 130
+      - action: cover.set_cover_position
+        metadata: {}
+        target:
+          entity_id:
+          - cover.persiana_salon_del_dcha_cover_0
+        data:
+          position: 40
       - wait_for_trigger:
         - trigger: numeric_state
           entity_id:
@@ -3677,7 +3684,7 @@
         metadata: {}
         target:
           entity_id:
-          - cover.persiana_salon_del_dcha_cover_0
+          - cover.persiana_salon_del_izda_cover_0
         data:
           position: 40
       alias: '# 1. Apertura anticipada de Salón bajo pergola (Azimut 120°)'
