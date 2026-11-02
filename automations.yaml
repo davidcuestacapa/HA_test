@@ -2946,11 +2946,16 @@
   triggers:
   - trigger: homeassistant
     event: start
+  - trigger: state
+    entity_id:
+    - binary_sensor.zigbee2mqtt_bridge_connection_state
+    to:
+    - 'off'
   conditions: []
   actions:
   - delay:
       hours: 0
-      minutes: 15
+      minutes: 5
       seconds: 0
       milliseconds: 0
   - condition: template
