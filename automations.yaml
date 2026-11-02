@@ -187,7 +187,7 @@
       zone_entity: zone.home
       notify_device: 609b265bb757951f33e233cd1d0c49b4
 - id: '1758548758093'
-  alias: Familia en casa Desactivada y Limpieza Programada
+  alias: Familia en casa Desactivada y Limpieza Aspirador Programada
   description: Desactiva Familia en casa al no detectar movimiento (y desact privacidad
     cámaras) y arranca aspirador si es L-M-V o >47h desde última limpieza
   triggers:
@@ -241,7 +241,7 @@
       sequence:
       - action: vacuum.start
         target:
-          device_id: d5e1741fefd51fe965bce588b26d537d
+          device_id: bba83919452f245c575645dd457a9d32
         data: {}
   mode: single
 - id: '1759337640890'
