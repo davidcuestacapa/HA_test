@@ -3322,10 +3322,23 @@
     to:
     for: 00:05:00
     trigger: state
-  - alias: Nivel Crítico (inmediato)
+  - alias: Nivel Bajo (inmediato)
     entity_id: sensor.nivel_energetico
-    to: Crítico
+    to: Bajo
     trigger: state
+  - alias: Batería casa supera umbral de arranque (60 %)
+    trigger: numeric_state
+    entity_id: sensor.inversor_battery
+    above: 60
+    for: 00:05:00
+  - alias: Batería casa baja del umbral de corte (50 %)
+    trigger: numeric_state
+    entity_id: sensor.inversor_battery
+    below: 50
+  - alias: Optimización energética activada
+    trigger: state
+    entity_id: input_boolean.optimizacion_energetica
+    to: 'on'
   - alias: Cambio de estado del coche (ignora atributos y vuelta de no disponible)
     entity_id:
     - sensor.ioniq_ev_battery_level
@@ -3367,11 +3380,10 @@
     condition: state
     entity_id: input_boolean.optimizacion_energetica
     state: 'on'
-  - alias: Seguimiento cada 5 min sólo mientras carga; si no, cada 15 min
+  - alias: Seguimiento cada 5 min sólo mientras carga
     condition: template
-    value_template: "{{ trigger.id != 'seguimiento'\n   or now().minute % 15 == 0\n
-      \  or is_state('switch.ioniq_ev_charging', 'on')\n   or states('sensor.m_ext_coche_coche_consumo')
-      | float(0) > 1000 }}"
+    value_template: "{{ trigger.id != 'seguimiento'\n   or is_state('switch.ioniq_ev_charging',
+      'on')\n   or states('sensor.m_ext_coche_coche_consumo') | float(0) > 1000 }}"
   actions:
   - alias: Configuración
     variables:
@@ -3383,10 +3395,10 @@
         critico: 0
         bajo: 22
         normal: 60
-        alto: 80
-        excelente: 90
-      bat_casa_arranque: 50
-      bat_casa_corte: 40
+        alto: 70
+        excelente: 80
+      bat_casa_arranque: 60
+      bat_casa_corte: 50
   - alias: Estado casa (nivel normalizado sin tilde)
     variables:
       nivel: "{{ states('sensor.nivel_energetico') | lower | trim\n   | replace('í',
