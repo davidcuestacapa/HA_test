@@ -3488,7 +3488,8 @@
       target:
         entity_id: input_number.ems_ev_energia_inicio_carga
       data:
-        value: '{{ states(''sensor.m_ext_coche_coche_consumido'') | float(0) }}'
+        value: '{{ states(''sensor.m_ext_coche_coche_consumido'') | float(0) | round(2)
+          }}'
     - alias: Guardar SOC al inicio
       action: input_number.set_value
       target:
