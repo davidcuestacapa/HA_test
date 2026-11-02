@@ -2966,8 +2966,8 @@
     action: hassio.addon_start
   mode: single
 - id: '1792670330154'
-  alias: EMS Clima - Gestión de todas persianas laterales por ganancia térmica (Fachada
-    este/sur) v4
+  alias: EMS Clima - Apertura de todas persianas laterales por ganancia térmica (Fachada
+    sureste) v4
   description: "Abre las persianas laterales para ganancia térmica matutina/mediodía
     según azimut, lux,  temperatura exterior fresca (< 22°C) y EMS en modo Auto.\nCierra
     al finalizar la ventana solar.\" \nAZIMUT:-Superar por arriba casa Ruben (en verano
