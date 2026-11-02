@@ -3372,6 +3372,12 @@
     minutes: /5
     id: seguimiento
     trigger: time_pattern
+    enabled: false
+  - trigger: template
+    value_template: "  - alias: Seguimiento cada 5 min sólo mientras carga\n    trigger:
+      template\n    value_template: >-\n      {{ (is_state('switch.ioniq_ev_charging',
+      'on')\n          or states('sensor.m_ext_coche_coche_consumo') | float(0) >
+      1000)\n         and now().minute % 5 == 0 }}\n    id: seguimiento"
   - alias: Inicio de Home Assistant
     event: start
     trigger: homeassistant
