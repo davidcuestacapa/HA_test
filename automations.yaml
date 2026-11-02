@@ -3337,14 +3337,16 @@
     - unavailable
     - unknown
     trigger: state
-  - alias: Carga real empieza (potencia > 500 W durante 1 min)
-    entity_id: sensor.m_ext_coche_coche_consumo
-    above: 500
+  - alias: Carga real empieza (potencia > 1000 W durante 1 min)
+    entity_id:
+    - sensor.m_ext_coche_coche_consumo
+    above: 1000
     for: 00:01:00
     trigger: numeric_state
-  - alias: Carga real termina (potencia < 500 W durante 1 min)
-    entity_id: sensor.m_ext_coche_coche_consumo
-    below: 500
+  - alias: Carga real termina (potencia < 1000 W durante 1 min)
+    entity_id:
+    - sensor.m_ext_coche_coche_consumo
+    below: 1000
     for: 00:01:00
     trigger: numeric_state
   - alias: Llega a casa (10 min) – para aviso sin enchufar
@@ -3369,7 +3371,7 @@
     condition: template
     value_template: "{{ trigger.id != 'seguimiento'\n   or now().minute % 15 == 0\n
       \  or is_state('switch.ioniq_ev_charging', 'on')\n   or states('sensor.m_ext_coche_coche_consumo')
-      | float(0) > 500 }}"
+      | float(0) > 1000 }}"
   actions:
   - alias: Configuración
     variables:
