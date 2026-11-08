@@ -4012,3 +4012,35 @@
       alias: 'EV: notificar inicio de carga'
   mode: restart
   max_exceeded: silent
+- id: '1794159009121'
+  alias: Llegada a casa - Puerta y luz
+  description: ''
+  triggers: []
+  conditions:
+  - condition: state
+    entity_id: device_tracker.poco_david_wifi
+    state:
+    - home
+  actions:
+  - action: switch.turn_on
+    target:
+      entity_id: switch.puerta_garaje
+    data: {}
+  - delay:
+      milliseconds: 500
+  - action: switch.turn_off
+    target:
+      entity_id: switch.puerta_garaje
+    data: {}
+  - if:
+    - condition: sun
+      after: sunset
+      after_offset: -00:30:00
+      before: sunrise
+      before_offset: 00:30:00
+    then:
+    - action: light.turn_on
+      target:
+        entity_id: light.luces_exteriores
+      data: {}
+  mode: single
