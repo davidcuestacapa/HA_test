@@ -4015,20 +4015,20 @@
 - id: '1794159009121'
   alias: Llegada a casa - Puerta y luz
   description: ''
-  triggers: []
-  conditions:
-  - condition: state
-    entity_id: device_tracker.poco_david_wifi
-    state:
+  triggers:
+  - trigger: state
+    entity_id:
+    - person.cerceda
+    to:
     - home
+  - trigger: state
+    entity_id:
+    - device_tracker.tlf_david
+    to:
+    - home
+  conditions: []
   actions:
   - action: switch.turn_on
-    target:
-      entity_id: switch.puerta_garaje
-    data: {}
-  - delay:
-      milliseconds: 500
-  - action: switch.turn_off
     target:
       entity_id: switch.puerta_garaje
     data: {}
