@@ -4028,25 +4028,10 @@
     - home
   conditions: []
   actions:
-  - action: switch.turn_on
-    target:
-      entity_id: switch.puerta_garaje
-    data: {}
-  - if:
-    - condition: sun
-      after: sunset
-      after_offset: -00:30:00
-      before: sunrise
-      before_offset: 00:30:00
-    then:
-    - action: light.turn_on
-      target:
-        entity_id: light.luces_exteriores
-      data: {}
-  - action: notify.mobile_app_david
+  - action: notify.mobile_app_david_x
     data:
-      title: Llegada a casa
       message: ¿Quieres abrir la puerta?
+      title: Llegada a casa
       data:
         actions:
         - action: ABRIR_PUERTA
