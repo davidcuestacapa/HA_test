@@ -2093,6 +2093,7 @@
     entity_id: 146dc6e36f22d9df6654d93229204711
     domain: binary_sensor
     trigger: device
+    enabled: false
   - entity_id:
     - binary_sensor.presencia_despacho_presence
     to:
@@ -2100,6 +2101,12 @@
     for:
       minutes: 1
     trigger: state
+  - trigger: occupancy.detected
+    target:
+      entity_id: binary_sensor.presencia_despacho_presence
+    options:
+      behavior: each
+      for: 00:00:00
   conditions:
   - condition: state
     state:
