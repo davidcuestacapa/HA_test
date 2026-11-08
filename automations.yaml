@@ -4103,6 +4103,7 @@
         data:
           color_temp_kelvin: 2000
           brightness_pct: 60
+      alias: '# ENCENDER POR PRESENCIA'
     - conditions:
       - condition: trigger
         id: ausencia
@@ -4113,6 +4114,7 @@
       - action: light.turn_off
         target:
           entity_id: light.lamparitas_despacho
+      alias: '# APAGAR POR AUSENCIA'
   mode: restart
 - id: '1794171205484'
   alias: Lamparita Despacho 2/2 - Modo manual 2 horas
@@ -4127,8 +4129,8 @@
     value_template: '{{ trigger.to_state.context.parent_id is none }}
 
       '
-    note: "  # No activar si la lámpara se ha encendido\n  # como consecuencia de
-      otra automatización"
+    alias: '  # No activar si la lámpara se ha encendido como consecuencia de otra
+      automatización'
   - condition: state
     entity_id: input_boolean.despacho_dormir
     state: 'off'
