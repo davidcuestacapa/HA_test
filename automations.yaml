@@ -4013,7 +4013,7 @@
   mode: restart
   max_exceeded: silent
 - id: '1794159009121'
-  alias: Llegada a casa - Puerta y luz
+  alias: Casa - Llegada Puerta y luz
   description: ''
   triggers:
   - trigger: state
@@ -4043,4 +4043,12 @@
       target:
         entity_id: light.luces_exteriores
       data: {}
+  - action: notify.mobile_app_david
+    data:
+      title: Llegada a casa
+      message: ¿Quieres abrir la puerta?
+      data:
+        actions:
+        - action: ABRIR_PUERTA
+          title: Abrir puerta
   mode: single
