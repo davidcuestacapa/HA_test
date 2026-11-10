@@ -2455,7 +2455,7 @@
             else 'desactivado' }} el modo descanso en DESPACHO;;;;\n  Luces y persianas
             pasan a modo  {{ 'manual' if\nis_state('input_boolean.despacho_dormir',
             'on') else 'dinámico' }}."
-          zona: despacho
+          zona: surface
       - action: light.turn_on
         metadata: {}
         target:
