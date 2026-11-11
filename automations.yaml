@@ -1356,9 +1356,6 @@
         o cuarto de instalaciones que {{ trigger.to_state.attributes.friendly_name
         }} cambió a {{ trigger.to_state.state }}{{ trigger.to_state.attributes.get('unit_of_measurement',
         '') }}"
-  - action: script.encender_luces_casa_parpadeantes_alertas
-    data:
-      color_name: BLUE
   - action: script.notificar_con_mensaje_de_voz
     metadata: {}
     data:
@@ -1368,6 +1365,9 @@
         }}{{ trigger.to_state.attributes.get('unit_of_measurement', '') }} Hora: {{
         now().strftime('%H:%M') }} \U0001F50B#Bateria {{ states('sensor.inversor_battery')
         }}%"
+  - action: script.encender_luces_casa_parpadeantes_alertas
+    data:
+      color_name: BLUE
   mode: single
 - id: '1761159097386'
   alias: Test notificionones con acciones
