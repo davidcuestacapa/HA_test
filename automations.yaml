@@ -1340,21 +1340,22 @@
   conditions: []
   actions:
   - data:
-      title: "\U0001F6A8 Alerta de \U0001F4A6 sensor de agua"
-      message: 'Detectado en zona de fregadero, lavadora o cuartebde instalaciones
+      title: "\U0001F6A8 Alerta de \U0001F4A6 Detector de agua"
+      message: 'Detectado en zona de fregadero, lavadora o cuarto de instalaciones
         que {{
 
         trigger.to_state.attributes.friendly_name }} cambió a  {{ trigger.to_state.state
-        }}'
+        }}{{ trigger.to_state.attributes.get(''unit_of_measurement'', '''') }}'
       notification_id: Fuga de agua
     action: persistent_notification.create
   - action: script.notificar_a_familia
     data:
       title: "\U0001F6A8HA-EMERGENCIA -\U0001F4A6 Alerta en sensores de agua"
       message: "\U0001F552Hora: {{ now().strftime('%H:%M') }} \U0001F50B#Bateria {{
-        states('sensor.inversor_battery') }}%\nDetectado en zona de fregadero o lavadora
-        que {{ trigger.to_state.attributes.friendly_name }} cambió a {{ trigger.to_state.state
-        }}"
+        states('sensor.inversor_battery') }}%\nDetectado en zona de fregadero, lavadora
+        o cuarto de instalaciones que {{ trigger.to_state.attributes.friendly_name
+        }} cambió a {{ trigger.to_state.state }}{{ trigger.to_state.attributes.get('unit_of_measurement',
+        '') }}"
   - action: script.encender_luces_casa_parpadeantes_alertas
     data:
       color_name: BLUE
@@ -1362,9 +1363,10 @@
     metadata: {}
     data:
       title: EMERGENCIA - Alerta en sensores de agua
-      message: "Detectado en zona de fregadero o lavadora que {{ trigger.to_state.attributes.friendly_name
-        }} cambió a {{ trigger.to_state.state }}{{ trigger.to_state.attributes.unit_of_measurement
-        }} Hora: {{ now().strftime('%H:%M') }} \U0001F50B#Bateria {{ states('sensor.inversor_battery')
+      message: "Detectado en zona de fregadero, lavadora o cuarto de instalaciones
+        que {{ trigger.to_state.attributes.friendly_name }} cambió a {{ trigger.to_state.state
+        }}{{ trigger.to_state.attributes.get('unit_of_measurement', '') }} Hora: {{
+        now().strftime('%H:%M') }} \U0001F50B#Bateria {{ states('sensor.inversor_battery')
         }}%"
   mode: single
 - id: '1761159097386'
