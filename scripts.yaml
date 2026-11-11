@@ -1,5 +1,6 @@
 notificar_a_familia:
   alias: Notificar a familia
+  description: Envía una notificación a los móviles de la familia
   fields:
     title:
       description: Título de la notificación
@@ -9,13 +10,18 @@ notificar_a_familia:
       example: Temperatura normal
   sequence:
   - action: notify.mobile_app_sm_x826b_tablet
-    data: {}
+    data:
+      title: '{{ title }}'
+      message: '{{ message }}'
   - action: notify.mobile_app_cph2783_dani
-    data: {}
+    data:
+      title: '{{ title }}'
+      message: '{{ message }}'
   - action: notify.mobile_app_david_x
-    data: {}
+    data:
+      title: '{{ title }}'
+      message: '{{ message }}'
   mode: parallel
-  description: ''
 encender_luces_casa_parpadeantes_alertas:
   alias: Alerta - Encender luz casa parpadeante y Script activar camaras Tapo
   description: ''
