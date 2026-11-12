@@ -4014,7 +4014,7 @@
   mode: restart
   max_exceeded: silent
 - id: '1794159009121'
-  alias: Casa - Llegada Puerta y luz
+  alias: Casa - Llegada Puerta Garaje y luz
   description: ''
   triggers:
   - trigger: state
