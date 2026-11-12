@@ -2963,9 +2963,9 @@
   - condition: template
     value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
       }}'
-  - data:
-      addon: 45df7312_zigbee2mqtt
-    action: hassio.addon_start
+  - action: hassio.app_start
+    data:
+      app: 45df7312_zigbee2mqtt
   mode: single
 - id: '1792670330154'
   alias: EMS Clima - Apertura de todas persianas laterales por ganancia térmica (Fachada
