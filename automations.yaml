@@ -4014,7 +4014,7 @@
   mode: restart
   max_exceeded: silent
 - id: '1794159009121'
-  alias: Casa - Llegada Puerta Garaje y luz
+  alias: Casa - Notificar llegada para preguntar abrir puerta garaje y encender luz
   description: ''
   triggers:
   - trigger: state
@@ -4039,7 +4039,7 @@
           title: Abrir puerta
   mode: single
 - id: '1794164613840'
-  alias: Casa - Abrir puerta desde notificación
+  alias: Casa - Abrir puerta garaje desde notificación
   description: ''
   triggers:
   - trigger: event
