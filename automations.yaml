@@ -2943,29 +2943,61 @@
     person_entity: person.cerceda
     person_name: '{{ states[person_entity].name }}'
 - id: '1791827584842'
-  alias: 'Sistema: Iniciar Zigbee2MQTT tras arranque o backup'
-  description: Espera 10 minutos para asegurar que los puertos USB están listos
+  alias: 'Sistema: Recuperar Zigbee2MQTT'
+  description: 'Espera 5 minutos y, si Zigbee2MQTT sigue offline, intenta arrancarlo
+    hasta 3 veces con 5 minutos entre intentos. Si no recupera, avisa a admin.
+
+    '
   triggers:
   - trigger: homeassistant
     event: start
   - trigger: state
-    entity_id:
-    - binary_sensor.zigbee2mqtt_bridge_connection_state
-    to:
-    - 'off'
+    entity_id: binary_sensor.zigbee2mqtt_bridge_connection_state
+    to: 'off'
+    for:
+      minutes: 2
   conditions: []
   actions:
   - delay:
-      hours: 0
       minutes: 5
-      seconds: 0
-      milliseconds: 0
-  - condition: template
-    value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
-      }}'
-  - action: hassio.app_start
-    data:
-      app: 45df7312_zigbee2mqtt
+  - if:
+    - condition: template
+      value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
+        }}
+
+        '
+    then:
+    - repeat:
+        count: 3
+        sequence:
+        - action: hassio.app_start
+          data:
+            app: 45df7312_zigbee2mqtt
+        - delay:
+            minutes: 5
+        - if:
+          - condition: template
+            value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') == ''online''
+              }}
+
+              '
+          then:
+          - stop: Zigbee2MQTT recuperado correctamente
+    - if:
+      - condition: template
+        value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
+          }}
+
+          '
+      then:
+      - action: notify.admin
+        data:
+          title: ⚠️ Zigbee2MQTT no disponible
+          message: 'Zigbee2MQTT no ha conseguido arrancar después de 3 intentos separados
+            por 5 minutos. Estado actual: {{ states(''sensor.zigbee2mqtt_bridge_state'')
+            }}.
+
+            '
   mode: single
 - id: '1792670330154'
   alias: EMS Clima - Apertura de todas persianas laterales por ganancia térmica (Fachada
