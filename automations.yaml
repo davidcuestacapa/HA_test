@@ -3000,8 +3000,7 @@
             conseguido arrancar después de 3 intentos separados por 5 minutos. Estado
             actual: {{ states('sensor.zigbee2mqtt_bridge_state') }}"
         action: persistent_notification.create
-      - alias: Enviar alerta de fallo de Zigbee2MQTT
-        action: script.notificar_a_administradores
+      - action: script.notificar_a_administradores
         data:
           title: HA-Sistema - ⚠️ Zigbee2MQTT no disponible
           message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. Zigbee2MQTT no ha
