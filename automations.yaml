@@ -218,11 +218,12 @@
       - condition: or
         conditions:
         - condition: template
-          value_template: "{% set ultima_limpieza = states('sensor.dreamebot_d9_max_white_cleaning_history')
-            %} {% if is_state('sensor.dreamebot_d9_max_white_cleaning_history', 'unknown')
-            or \n      is_state('sensor.dreamebot_d9_max_white_cleaning_history',
-            'unavailable') %}\n  true\n{% else %}\n  {{ (as_timestamp(now()) - as_timestamp(ultima_limpieza))
-            > (72 * 3600) }}\n{% endif %}\n"
+          value_template: "{# Obtiene fecha/hora y comprueba formato valido, de la
+            última limpieza registrada\nDevuelve TRUE por no es fecha valida o más
+            de 72 horas desde la última limpieza\n#}\n{% set ultima_limpieza = states('sensor.dreamebot_d9_max_white_cleaning_history')
+            %}\n{% set ts = as_timestamp(ultima_limpieza, none) %}\n\n{% if ts is
+            none %}\n  true\n{% else %}\n  {{ (as_timestamp(now()) - ts) > 72 * 3600
+            }}\n{% endif %}\n"
         - condition: and
           conditions:
           - condition: time
