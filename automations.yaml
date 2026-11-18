@@ -224,6 +224,8 @@
             %}\n{% set ts = as_timestamp(ultima_limpieza, none) %}\n\n{% if ts is
             none %}\n  true\n{% else %}\n  {{ (as_timestamp(now()) - ts) > 72 * 3600
             }}\n{% endif %}\n"
+          alias: Verifica si Fecha ultima limpieza valida y han pasado + 72 h sin
+            limpiar
         - condition: and
           conditions:
           - condition: time
@@ -235,10 +237,10 @@
             before: '20:00:00'
           - condition: template
             value_template: "{% set ultima_limpieza = states('sensor.dreamebot_d9_max_white_cleaning_history')
-              %} {% if is_state('sensor.dreamebot_d9_max_white_cleaning_history',
-              'unknown') or \n      is_state('sensor.dreamebot_d9_max_white_cleaning_history',
-              'unavailable') %}\n  true\n{% else %}\n  {{ (as_timestamp(now()) - as_timestamp(ultima_limpieza))
-              > (47 * 3600) }}\n{% endif %}\n"
+              %}\n{% set ts = as_timestamp(ultima_limpieza, none) %}\n\n{% if ts is
+              none %}\n  true\n{% else %}\n  {{ (as_timestamp(now()) - ts) > 47 *
+              3600 }}\n{% endif %}"
+            alias: Y si verificación + 48 horas
       sequence:
       - action: vacuum.start
         target:
