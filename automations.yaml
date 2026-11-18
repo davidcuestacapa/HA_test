@@ -230,7 +230,7 @@
             - mon
             - wed
             - fri
-            after: 08:00:00
+            after: '10:00:00'
             before: '20:00:00'
           - condition: template
             value_template: "{% set ultima_limpieza = states('sensor.dreamebot_d9_max_white_cleaning_history')
