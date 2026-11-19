@@ -5,7 +5,7 @@
   description: |-
     Protección rápida para evitar caída del inversor.
 
-    Consumo inversor > 6000 W
+    Consumo inversor > 6050 W
 
     - Si el apoyo eléctrico del ACS consumía >300W
     - Si DHW apoyo >300 W → DHW a Eco   
@@ -20,7 +20,7 @@
   trigger:
     - platform: numeric_state
       entity_id: sensor.inversor_power
-      above: 6000
+      above: 6050
 
   condition: []
 
