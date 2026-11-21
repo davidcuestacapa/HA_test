@@ -93,6 +93,10 @@ devices:
   '0xa4c1382ca3038d42':
     friendly_name: Presencia ext. este
     icon: device_icons/330e7f6eb614ed2449e37d05d346d89d.png
+    illuminance_calibration: 0
+    temperature_calibration: 0.2
+    temperature_precision: 1
+    humidity_precision: 1
   '0xa4c13826fd8fead5':
     friendly_name: Presencia baño
     temperature_precision: 1
