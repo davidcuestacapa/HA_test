@@ -2426,6 +2426,8 @@
             '
         action: script.notificar_anadir_notificacion_david
       pre_actions: []
+      starting_threshold: 10
+      starting_hysteresis: 1
 - id: '1772905830353'
   alias: Alternar Boleano Despacho dormir
   description: ''
