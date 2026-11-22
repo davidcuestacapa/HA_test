@@ -2982,69 +2982,88 @@
     person_entity: person.cerceda
     person_name: '{{ states[person_entity].name }}'
 - id: '1791827584842'
-  alias: 'Sistema: Recuperar Zigbee2MQTT'
-  description: Recuperación automática de Zigbee2MQTT con 3 intentos antes de avisar
+  alias: 'Sistema: Recuperar Zigbee2MQTT tras snapshot vm en QNAP v2'
+  description: Recuperación automática de Zigbee2MQTT. La VM de Home Assistant está
+    alojada en QNAP y durante los snapshots puede perderse temporalmente la conexión
+    con el coordinador USB Zigbee. Si Zigbee2MQTT permanece desconectado, se reinicia
+    la App para forzar la reconexión con el USB. Se realizan hasta 3 intentos antes
+    de avisar al administrador.
   triggers:
   - trigger: homeassistant
     event: start
+    id: inicio_ha
+    alias: 'INICIO HA: comprobar Zigbee2MQTT tras arrancar Home Assistant, ya que
+      la VM de QNAP puede necesitar tiempo para recuperar el coordinador USB'
   - trigger: state
     entity_id: binary_sensor.zigbee2mqtt_bridge_connection_state
     to: 'off'
     for:
       minutes: 2
+    id: zigbee_desconectado
+    alias: 'FALLO ZIGBEE: Connection state OFF durante 2 min; puede ocurrir si un
+      snapshot de QNAP desconecta temporalmente el coordinador USB de la VM'
   conditions: []
   actions:
-  - alias: Esperar 5 min para que HA, USB y servicios se estabilicen
+  - alias: 'ESTABILIZACIÓN: esperar 5 min para que HA, MQTT, Zigbee2MQTT y el USB
+      de la VM de QNAP tengan tiempo de estabilizarse o reconectarse'
     delay:
       minutes: 5
-  - alias: Continuar solo si Zigbee2MQTT sigue sin estar online
+  - alias: 'RECUPERACIÓN: actuar solo con Connection state = OFF confirmado; unknown/unavailable
+      no se consideran fallo para evitar reinicios erróneos'
     if:
-    - condition: template
-      value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
-        }}
-
-        '
+    - condition: state
+      entity_id: binary_sensor.zigbee2mqtt_bridge_connection_state
+      state: 'off'
     then:
-    - alias: Intentar arrancar Zigbee2MQTT hasta 3 veces
+    - alias: 'REINTENTOS: reiniciar Zigbee2MQTT hasta 3 veces para forzar que vuelva
+        a abrir el coordinador USB tras una posible desconexión del snapshot QNAP'
       repeat:
         count: 3
         sequence:
-        - alias: Arrancar Zigbee2MQTT
-          action: hassio.app_start
+        - alias: 'REINICIAR Z2M: reiniciar la App para forzar una nueva conexión con
+            el coordinador USB Zigbee de la VM'
+          action: hassio.app_restart
           data:
             app: 45df7312_zigbee2mqtt
-        - alias: Esperar 5 min para comprobar si Zigbee2MQTT recupera
+        - alias: 'ESPERA RECUPERACIÓN: dar 5 min para que Zigbee2MQTT arranque, abra
+            el USB, inicialice la red Zigbee y actualice Connection state'
           delay:
             minutes: 5
-        - alias: Finalizar si Zigbee2MQTT ya está online
+        - alias: 'COMPROBAR RECUPERACIÓN: finalizar los reintentos en cuanto Connection
+            state vuelva a ON'
           if:
-          - condition: template
-            value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') == ''online''
-              }}
-
-              '
+          - condition: state
+            entity_id: binary_sensor.zigbee2mqtt_bridge_connection_state
+            state: 'on'
           then:
-          - stop: Zigbee2MQTT recuperado correctamente
-    - alias: Avisar al administrador si falla después de 3 intentos
+          - stop: 'Zigbee2MQTT recuperado: Connection state vuelve a ON'
+    - alias: 'FALLO FINAL: avisar solo si después de los 3 reinicios Zigbee2MQTT continúa
+        explícitamente en OFF'
       if:
-      - condition: template
-        value_template: '{{ states(''sensor.zigbee2mqtt_bridge_state'') != ''online''
-          }}
-
-          '
+      - condition: state
+        entity_id: binary_sensor.zigbee2mqtt_bridge_connection_state
+        state: 'off'
       then:
-      - data:
-          title: HA-Sistema - ⚠️ Zigbee2MQTT no disponible
-          message: "\U0001F552Hora: {{ now().strftime('%H:%M') }} Zigbee2MQTT no ha
-            conseguido arrancar después de 3 intentos separados por 5 minutos. Estado
-            actual: {{ states('sensor.zigbee2mqtt_bridge_state') }}"
+      - alias: 'AVISO HA: posible fallo persistente de Zigbee2MQTT o acceso al coordinador
+          USB de la VM después del snapshot de QNAP'
         action: persistent_notification.create
-      - action: script.notificar_a_administradores
         data:
           title: HA-Sistema - ⚠️ Zigbee2MQTT no disponible
-          message: "\U0001F552{{ now().strftime('%H:%M:%S') }}. Zigbee2MQTT no ha
-            conseguido arrancar después de 3 intentos separados por 5 minutos. Estado
-            actual: {{ states('sensor.zigbee2mqtt_bridge_state') }}\n"
+          message: "\U0001F552 Hora: {{ now().strftime('%H:%M') }}\nZigbee2MQTT continúa
+            desconectado después de 3 intentos de recuperación separados por 5 minutos.\nPosible
+            problema de reconexión del coordinador USB de la VM después de un snapshot
+            de QNAP.\nConnection state actual: {{ states('binary_sensor.zigbee2mqtt_bridge_connection_state')
+            }}"
+      - alias: 'AVISO ADMINISTRADORES: informar de posible fallo de Zigbee2MQTT o
+          del coordinador USB conectado a la VM de QNAP'
+        action: script.notificar_a_administradores
+        data:
+          title: HA-Sistema - ⚠️ Zigbee2MQTT no disponible
+          message: "\U0001F552 {{ now().strftime('%H:%M:%S') }}. Zigbee2MQTT continúa
+            desconectado después de 3 intentos de recuperación.\nPosible fallo de
+            reconexión del coordinador USB de la VM tras un snapshot de QNAP.\nConnection
+            state: {{ states('binary_sensor.zigbee2mqtt_bridge_connection_state')
+            }}"
   mode: single
 - id: '1792670330154'
   alias: EMS Clima - Apertura de todas persianas laterales por ganancia térmica (Fachada
