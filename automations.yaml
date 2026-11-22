@@ -2407,10 +2407,11 @@
         metadata: {}
         data:
           title: ⚠️ Aviso de finalización de lavadora
-          mensaje: 'Lavadora ha terminado a las {{ now().strftime(''%H:%M'') }}. No
+          message: 'Lavadora ha terminado a las {{ now().strftime(''%H:%M'') }}. No
             olvides sacar y tender la ropa
 
             '
+          notification_id: ID_Lavadora
       - action: script.notificar_a_administradores
         metadata: {}
         data: {}
