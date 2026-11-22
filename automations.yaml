@@ -2406,7 +2406,11 @@
       - action: persistent_notification.create
         metadata: {}
         data:
-          title: ⚠️ Aviso de  finalización de lavadora
+          title: ⚠️ Aviso de finalización de lavadora
+          mensaje: 'Lavadora ha terminado a las {{ now().strftime(''%H:%M'') }}. No
+            olvides sacar y tender la ropa
+
+            '
       - action: script.notificar_a_administradores
         metadata: {}
         data: {}
