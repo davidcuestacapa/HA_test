@@ -1425,8 +1425,8 @@
       color_name: GREEN
   mode: single
 - id: '1761470349141'
-  alias: Alerta y Gestión - Temperatura y Humo en Cuarto de Instalaciones V3
-  description: 'Controla alertas por humo y temperatura elevada en el cuarto de instalaciones.
+  alias: Supervisión - Temperatura y Humo en Cuarto de Instalaciones V3
+  description: 'Controla alertas por HUMO y TEMPERATURA ELEVADA en el cuarto de instalaciones.
     Temperatura alta: >35 °C durante 5 segundos. Normalización: <34 °C durante 2 minutos.
     La diferencia 35/34 °C crea histéresis y evita avisos repetitivos por pequeñas
     oscilaciones. Los mensajes distinguen entre humo y temperatura.'
