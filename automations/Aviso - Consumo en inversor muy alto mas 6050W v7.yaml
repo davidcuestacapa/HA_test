@@ -1,0 +1,374 @@
+alias: "Aviso - Consumo en inversor muy alto (>6050W) v7"
+
+description: |-
+  Protección escalonada de baja latencia para evitar la caída del inversor.
+
+  Disparo: potencia del inversor > 6050 W, y re-disparo si sigue
+  por encima de 6050 W durante 20 s.
+
+  Modo escalonado (6050–7000 W): corta cargas por prioridad y, tras
+  cada corte, espera como máximo 2 s a que el inversor refleje la
+  bajada. Se detiene en cuanto la potencia baja de 5700 W.
+
+  Modo emergencia (>7000 W): corta seguidas todas las cargas
+  elegibles, sin esperas intermedias.
+
+  Orden:
+  1. Apoyo eléctrico ACS → OFF
+  2. Lavadora → OFF
+  3. DHW → Eco
+  4. Lavavajillas → OFF
+  5. Carga del vehículo → STOP
+
+  Cada paso genera su propia notificación persistente.
+  Requiere Home Assistant 2025.4 o posterior.
+
+mode: single
+max_exceeded: silent
+
+triggers:
+  - trigger: numeric_state
+    entity_id: sensor.inversor_power
+    above: 6050
+    id: cruce
+
+  - trigger: numeric_state
+    entity_id: sensor.inversor_power
+    above: 6050
+    for:
+      seconds: 20
+    id: persistente
+
+conditions: []
+
+actions:
+  # ============================================================
+  # VARIABLES GENERALES
+  # ============================================================
+  - variables:
+      umbral_disparo_w: 6050
+      umbral_seguro_w: 5700
+      umbral_emergencia_w: 7000
+
+      potencia_inicial: >-
+        {{ trigger.to_state.state | float(0) }}
+
+      emergencia: >-
+        {{ potencia_inicial > umbral_emergencia_w }}
+
+      evento: >-
+        {{ now().strftime('%Y%m%d_%H%M%S') }}
+
+      nombre_sensor: >-
+        {{
+          state_attr('sensor.inversor_power', 'friendly_name')
+          | default('Potencia inversor', true)
+        }}
+
+      unidad_sensor: >-
+        {{
+          state_attr('sensor.inversor_power', 'unit_of_measurement')
+          | default('W', true)
+        }}
+
+      coche_charge_api_inicial: >-
+        {{
+          iif(
+            is_state('binary_sensor.ioniq_ev_battery_charge', 'on'),
+            'Cargando',
+            'No cargando'
+          )
+        }}
+
+      acciones: []
+
+  # ============================================================
+  # DESLASTRE POR PRIORIDADES
+  # ============================================================
+  - repeat:
+      for_each:
+        - tipo: switch
+          nombre: "🔥 Apoyo eléctrico ACS → OFF"
+          sensor: sensor.m_aerotermia_apoyo_electrico_potencia
+          entidad: switch.m_aerotermia_apoyo_electrico
+          umbral: 300
+          espera: 2
+          flag_ems: true
+
+        - tipo: switch
+          nombre: "👕 Lavadora → OFF"
+          sensor: sensor.lavadora_consumo_actual
+          entidad: switch.lavadora
+          umbral: 400
+          espera: 2
+
+        - tipo: dhw
+          nombre: "♨️ DHW → Eco"
+          sensor: sensor.m_aerotermia_c_apoyo_electrico_potencia
+          entidad: water_heater.instalaciones_dhw
+          umbral: 300
+          espera: 2
+          flag_ems: true
+
+        - tipo: switch
+          nombre: "🍽️ Lavavajillas → OFF"
+          sensor: sensor.lavavajillas_consumo_actual
+          entidad: switch.lavavajillas
+          umbral: 700
+          espera: 2
+
+        - tipo: coche
+          nombre: "🚗 Carga del vehículo → STOP"
+          sensor: sensor.m_ext_coche_coche_consumo
+          umbral: 2000
+          espera: 15
+
+      sequence:
+        - variables:
+            potencia_antes: >-
+              {{ states('sensor.inversor_power') | float(0) }}
+
+            consumo_antes: >-
+              {{ states(repeat.item.sensor) | float(0) }}
+
+            carga_activa: >-
+              {{
+                is_state(repeat.item.entidad, 'on')
+                if repeat.item.tipo == 'switch'
+                else (
+                  state_attr(repeat.item.entidad, 'operation_mode') != 'Eco'
+                  if repeat.item.tipo == 'dhw'
+                  else true
+                )
+              }}
+
+        - if:
+            - condition: template
+              value_template: >-
+                {{
+                  potencia_antes > umbral_seguro_w
+                  and consumo_antes > repeat.item.umbral
+                  and carga_activa
+                }}
+
+          then:
+            # ---------- 1. Cortar la carga ----------
+            - choose:
+                - conditions: "{{ repeat.item.tipo == 'switch' }}"
+                  sequence:
+                    - action: switch.turn_off
+                      target:
+                        entity_id: "{{ repeat.item.entidad }}"
+                      continue_on_error: true
+
+                - conditions: "{{ repeat.item.tipo == 'dhw' }}"
+                  sequence:
+                    - action: water_heater.set_operation_mode
+                      target:
+                        entity_id: "{{ repeat.item.entidad }}"
+                      data:
+                        operation_mode: Eco
+                      continue_on_error: true
+
+                - conditions: "{{ repeat.item.tipo == 'coche' }}"
+                  sequence:
+                    - action: kia_uvo.stop_charge
+                      continue_on_error: true
+
+            - if: "{{ repeat.item.flag_ems | default(false) }}"
+              then:
+                - action: input_boolean.turn_on
+                  target:
+                    entity_id: input_boolean.ems_acs_forzado_off_y_o_eco_emergencia
+                  continue_on_error: true
+
+            # ---------- 2. Sirena tras el primer corte ----------
+            - if: "{{ acciones | count == 0 }}"
+              then:
+                - action: siren.turn_on
+                  target:
+                    entity_id: siren.yelmo
+                  data:
+                    volume_level: 0.25
+                    duration: 7
+                    tone: "Alarm 5"
+                  continue_on_error: true
+
+            # ---------- 3. Esperar a que el inversor refleje el corte ----------
+            # Termina en cuanto la potencia baja del margen seguro
+            # o cae al menos la mitad del consumo cortado.
+            # En emergencia no se espera (salvo con el coche, que es el
+            # último paso y solo afecta al informe).
+            - if: "{{ not emergencia or repeat.item.tipo == 'coche' }}"
+              then:
+                - wait_template: >-
+                    {% set p = states('sensor.inversor_power') | float(0) %}
+                    {{
+                      p <= umbral_seguro_w
+                      or p < potencia_antes - consumo_antes * 0.5
+                    }}
+                  timeout: "{{ repeat.item.espera }}"
+                  continue_on_timeout: true
+
+            - if: "{{ repeat.item.tipo == 'coche' }}"
+              then:
+                - action: button.press
+                  target:
+                    entity_id: button.ioniq_force_refresh
+                  continue_on_error: true
+
+            # ---------- 4. Registrar la acción ----------
+            - variables:
+                acciones: >-
+                  {{
+                    acciones
+                    + [repeat.item.nombre ~ ' (' ~ (consumo_antes | round(0) | int) ~ ' W)']
+                  }}
+
+            # ---------- 5. Notificación del paso (id único) ----------
+            - action: persistent_notification.create
+              data:
+                notification_id: "consumo_alto_{{ evento }}_paso_{{ repeat.index }}"
+                title: "⚠️ Protección V7 · Paso {{ acciones | count }}"
+                message: |-
+                  🕒 {{ now().strftime('%H:%M:%S') }} · Modo {{ 'EMERGENCIA' if emergencia else 'escalonado' }}
+
+                  ⚡ Potencia inicial: {{ potencia_inicial | round(0) | int }} W
+                  ⚡ Antes de actuar: {{ potencia_antes | round(0) | int }} W
+                  ⚡ Después: {{ states('sensor.inversor_power') | float(0) | round(0) | int }} W
+
+                  🛡️ Acción ejecutada:
+                  {{ repeat.item.nombre }}
+
+                  📉 Consumo de la carga: {{ consumo_antes | round(0) | int }} W
+
+  # ============================================================
+  # SIRENA SI NO HABÍA NADA QUE CORTAR
+  # ============================================================
+  - if: "{{ acciones | count == 0 }}"
+    then:
+      - action: siren.turn_on
+        target:
+          entity_id: siren.yelmo
+        data:
+          volume_level: 0.25
+          duration: 7
+          tone: "Alarm 5"
+        continue_on_error: true
+
+  # ============================================================
+  # VARIABLES FINALES
+  # ============================================================
+  - variables:
+      potencia_final: >-
+        {{ states('sensor.inversor_power') | float(0) }}
+
+      reduccion_observada: >-
+        {{ [potencia_inicial - potencia_final, 0] | max }}
+
+      nivel_final: >-
+        {% if potencia_final <= umbral_seguro_w %}seguro
+        {%- elif potencia_final <= umbral_disparo_w %}cerca
+        {%- else %}alto{% endif %}
+
+      estado_final: >-
+        {{
+          {
+            'seguro': '✅ Potencia situada en margen seguro.',
+            'cerca': '🟡 Potencia reducida, pero todavía próxima al límite.',
+            'alto': '🔴 El consumo continúa por encima del umbral de emergencia.'
+          }[nivel_final]
+        }}
+
+      estado_final_voz: >-
+        {{
+          {
+            'seguro': 'Potencia situada en margen seguro.',
+            'cerca': 'Potencia reducida, pero todavía próxima al límite.',
+            'alto': 'El consumo continúa por encima del umbral de emergencia.'
+          }[nivel_final]
+        }}
+
+      acciones_texto: >-
+        {{
+          acciones | join('\n')
+          if acciones | count > 0
+          else 'Sin cargas controlables disponibles.'
+        }}
+
+      coche_charge_api_final: >-
+        {{
+          iif(
+            is_state('binary_sensor.ioniq_ev_battery_charge', 'on'),
+            'Cargando',
+            'No cargando'
+          )
+        }}
+
+  # ============================================================
+  # NOTIFICACIÓN FINAL
+  # ============================================================
+  - action: persistent_notification.create
+    data:
+      notification_id: "consumo_alto_{{ evento }}_resumen"
+      title: "⚠️ Consumo muy alto detectado V7 · Resumen"
+      message: |-
+        🕒 {{ now().strftime('%H:%M:%S') }} · Modo {{ 'EMERGENCIA' if emergencia else 'escalonado' }}{{ ' · re-disparo' if trigger.id == 'persistente' else '' }}
+
+        ⚡ {{ nombre_sensor }}
+        Inicial: {{ potencia_inicial | round(0) | int }} {{ unidad_sensor }}
+        Final: {{ potencia_final | round(0) | int }} {{ unidad_sensor }}
+        📉 Reducción observada: {{ reduccion_observada | round(0) | int }} W
+
+        {{ estado_final }}
+
+        ------------------------------------------------
+        🛡️ Acciones ejecutadas:
+        {{ acciones_texto }}
+        ------------------------------------------------
+
+        🚗 Coche: {{ states('sensor.m_ext_coche_coche_consumo') | float(0) | round(0) | int }} W
+        API inicial: {{ coche_charge_api_inicial }} · API final: {{ coche_charge_api_final }}
+        🔥 Apoyo eléctrico ACS: {{ states('sensor.m_aerotermia_apoyo_electrico_potencia') | float(0) | round(0) | int }} W
+        ♨️ DHW: {{ states('sensor.m_aerotermia_c_apoyo_electrico_potencia') | float(0) | round(0) | int }} W
+        👕 Lavadora: {{ states('sensor.lavadora_consumo_actual') | float(0) | round(0) | int }} W
+        🍽️ Lavavajillas: {{ states('sensor.lavavajillas_consumo_actual') | float(0) | round(0) | int }} W
+
+        ------------------------------------------------
+
+        🍳 Vitro: {{ states('sensor.m_var_em2_power') | float(0) | round(0) | int }} W
+        🍕 Horno: {{ states('sensor.m_var_em0_power') | float(0) | round(0) | int }} W
+        ♨️❄️ Aerotermia: {{ states('sensor.baxi_total_potencia') | float(0) | round(0) | int }} W
+        🍴 Auxiliar cocina: {{ states('sensor.m_aux_phase_a_active_power') | float(0) | round(0) | int }} W
+        🛋️ Auxiliar habitaciones: {{ states('sensor.m_aux_phase_b_active_power') | float(0) | round(0) | int }} W
+        💻 Auxiliar IT: {{ states('sensor.m_aux_phase_c_active_power') | float(0) | round(0) | int }} W
+        💡 Luces: {{ states('sensor.m_var_em1_power') | float(0) | round(0) | int }} W
+
+  # ============================================================
+  # AVISOS DE VOZ Y LUCES (sin bloquear la automatización)
+  # ============================================================
+  - action: script.turn_on
+    target:
+      entity_id: script.notificar_con_mensaje_de_voz
+    data:
+      variables:
+        zona: "surface cocina"
+        title: >-
+          Advertencia. Consumo muy alto detectado.
+          La potencia inicial era de {{ potencia_inicial | round(0) | int }} vatios.
+          La potencia actual es de {{ potencia_final | round(0) | int }} vatios.
+          {% if acciones | count > 0 %}
+          Se han aplicado {{ acciones | count }} medidas de protección.
+          {% else %}
+          No había cargas controlables que desconectar.
+          {% endif %}
+          {{ estado_final_voz }}
+    continue_on_error: true
+
+  - action: script.turn_on
+    target:
+      entity_id: script.encender_luces_casa_parpadeantes_alertas
+    data:
+      variables:
+        color_name: YELLOW
+    continue_on_error: true
