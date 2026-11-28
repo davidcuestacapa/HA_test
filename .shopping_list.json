@@ -27,7 +27,7 @@
   {
     "name": "Palitos y pan pita",
     "id": "b07a58015ad2444b86dc0a47ccab3e8e",
-    "complete": true
+    "complete": false
   },
   {
     "name": "Cerveza",
@@ -42,10 +42,10 @@
   {
     "name": "Pañales 3 a 0,17 - 50 unid a 8,25",
     "id": "b675c0100a0b434cb50f08d6410c8080",
-    "complete": false
+    "complete": true
   },
   {
-    "name": "Llave de tubo 10 y11 para carraca mediana",
+    "name": "Yogures",
     "id": "b6354529c5e14094a287790aa7d97d26",
     "complete": false
   },
@@ -62,6 +62,16 @@
   {
     "name": "Harina",
     "id": "2129d7aaa5724ba3ba722258f429cfa5",
+    "complete": true
+  },
+  {
+    "name": "Queso azul",
+    "id": "a7cb5a8258034a4892290a7419dd8f85",
+    "complete": false
+  },
+  {
+    "name": "Carne Nico",
+    "id": "482a68ea28824aed90935712d2c2b7df",
     "complete": false
   }
 ]
