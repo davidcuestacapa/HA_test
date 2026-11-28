@@ -27,7 +27,7 @@
   {
     "name": "Palitos y pan pita",
     "id": "b07a58015ad2444b86dc0a47ccab3e8e",
-    "complete": false
+    "complete": true
   },
   {
     "name": "Cerveza",
@@ -47,7 +47,7 @@
   {
     "name": "Yogures",
     "id": "b6354529c5e14094a287790aa7d97d26",
-    "complete": false
+    "complete": true
   },
   {
     "name": "Cebolla",
@@ -72,6 +72,6 @@
   {
     "name": "Carne Nico",
     "id": "482a68ea28824aed90935712d2c2b7df",
-    "complete": false
+    "complete": true
   }
 ]
